@@ -8,5 +8,5 @@ Android App for Flit
 - Append, Edit, Delete functions
 - Export Knowledge Graph
 
-# Future Functions
+## Future Functions
 - Sync to Flit - Core
