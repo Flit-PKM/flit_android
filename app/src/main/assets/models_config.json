@@ -1,0 +1,36 @@
+{
+  "version": "2026-01-14 07:42",
+  "light": {
+    "asr": {
+      "type": "huggingface",
+      "repoId": "csukuangfj/sherpa-onnx-whisper-base",
+      "revision": "main"
+    },
+    "denoiser": {
+      "type": "directUrl",
+      "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/speech-enhancement-models/gtcrn_simple.onnx"
+    }
+  },
+  "medium": {
+    "asr": {
+      "type": "huggingface",
+      "repoId": "csukuangfj/sherpa-onnx-whisper-small",
+      "revision": "main"
+    },
+    "denoiser": {
+      "type": "directUrl",
+      "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/speech-enhancement-models/gtcrn_simple.onnx"
+    }
+  },
+  "heavy": {
+    "asr": {
+      "type": "huggingface",
+      "repoId": "csukuangfj/sherpa-onnx-whisper-medium",
+      "revision": "main"
+    },
+    "denoiser": {
+      "type": "directUrl",
+      "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/speech-enhancement-models/gtcrn_simple.onnx"
+    }
+  }
+}

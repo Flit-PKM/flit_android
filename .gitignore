@@ -1,34 +1,77 @@
+# Built application files
+*.apk
+*.ap_
+*.aab
+*.aar
+
+# Generated files
+.dex
+*.class
+bin/
+gen/
+out/
+
 # Gradle files
 .gradle/
-build/
+**/build/
+!**/src/**/build/  # Allow build dirs in source if needed (rare)
 
-# Local configuration file (sdk path, etc)
+# Gradle wrapper (commit these!)
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+
+# Local configuration file (SDK path, etc.)
 local.properties
 
-# Log/OS Files
-*.log
+# Android Studio / IntelliJ generated
+*.iml
+*.iws
+*.ipr
+.idea/
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/gradle.xml
+.idea/**/libraries
+.idea/**/dataSources/
+.idea/**/dataSources.ids
+.idea/**/dataSources.local.xml
+.idea/**/sqlDataSources.xml
+.idea/**/dynamic.xml
+.idea/**/uiDesigner.xml
+.idea/**/dbnavigator.xml
+.idea/**/misc.xml
+.idea/**/deploymentTargetDropDown.xml
+.idea/**/render.experimental.xml
+.idea/**/modules.xml
+.idea/**/caches
+.idea/**/navEditor.xml
+.idea/**/assetWizardSettings.xml
+.idea/**/shelf
+.idea/**/aws.xml
+.idea/**/contentModel.xml
+.idea/**/httpRequests
+.idea/caches/build_file_checksums.ser
 
-# Android Studio generated files and folders
+# Android Studio captures
 captures/
+
+# External native build (NDK/CMake)
 .externalNativeBuild/
 .cxx/
-*.aab
-*.apk
-output-metadata.json
 
-# IntelliJ
-*.iml
-.idea/
-misc.xml
-deploymentTargetDropDown.xml
-render.experimental.xml
+# OS-specific
+.DS_Store
+*.log
 
-# Keystore files
+# Keystores (never commit!)
 *.jks
 *.keystore
 
-# Google Services (e.g. APIs or Firebase)
-google-services.json
+# Google/Firebase services (add to git only if shared intentionally)
+# google-services.json
 
-# Android Profiling
+# Profiling
 *.hprof
+
+# Other common
+output-metadata.json
