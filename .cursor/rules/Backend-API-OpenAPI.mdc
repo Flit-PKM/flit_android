@@ -1,0 +1,9 @@
+---
+alwaysApply: true
+---
+
+When working with backend API calls (implementing, debugging, or adding endpoints),
+use the OpenAPI spec as the source of truth: curl -s http://localhost:8000/openapi.json.
+Refer to it for paths, methods, request/response schemas, and types.
+When you need the spec, fetch it via the shell (e.g. curl -s http://localhost:8000/openapi.json);
+the web fetch tool cannot reach localhost.

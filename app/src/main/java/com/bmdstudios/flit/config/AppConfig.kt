@@ -1,6 +1,7 @@
 package com.bmdstudios.flit.config
 
 import android.content.Context
+import com.bmdstudios.flit.BuildConfig
 import java.io.File
 
 /**
@@ -10,7 +11,8 @@ import java.io.File
 data class AppConfig(
     val audioConfig: AudioConfig = AudioConfig.default(),
     val modelConfig: ModelConfig,
-    val networkConfig: NetworkConfig = NetworkConfig.default()
+    val networkConfig: NetworkConfig = NetworkConfig.default(),
+    val backendBaseUrl: String = "http://localhost:8000"
 ) {
     companion object {
         /**
@@ -19,7 +21,10 @@ data class AppConfig(
         @JvmStatic
         fun createDefault(context: Context): AppConfig {
             val modelConfig = ModelConfig.createDefault(context)
-            return AppConfig(modelConfig = modelConfig)
+            return AppConfig(
+                modelConfig = modelConfig,
+                backendBaseUrl = BuildConfig.BACKEND_BASE_URL
+            )
         }
     }
 }

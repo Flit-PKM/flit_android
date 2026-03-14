@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bmdstudios.flit.data.database.dao.CategoryDao
 import com.bmdstudios.flit.data.database.entity.CategoryEntity
+import com.bmdstudios.flit.data.sync.SyncScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,7 +20,8 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class CategoriesViewModel @Inject constructor(
-    val categoryDao: CategoryDao
+    val categoryDao: CategoryDao,
+    private val syncScheduler: SyncScheduler
 ) : ViewModel() {
 
     /**
@@ -55,12 +57,15 @@ class CategoriesViewModel @Inject constructor(
                     throw IllegalArgumentException("A category with this name already exists")
                 }
 
+                val now = System.currentTimeMillis()
                 val category = CategoryEntity(
                     name = trimmedName,
-                    created_at = System.currentTimeMillis()
+                    created_at = now,
+                    updated_at = now
                 )
                 val categoryId = categoryDao.insertCategory(category)
                 Timber.i("Category created successfully: $categoryId - $trimmedName")
+                syncScheduler.scheduleSyncAfterMutation()
             } catch (e: Exception) {
                 Timber.e(e, "Error creating category: $name")
                 throw e
@@ -87,9 +92,14 @@ class CategoriesViewModel @Inject constructor(
                     throw IllegalArgumentException("A category with this name already exists")
                 }
 
-                val updatedCategory = category.copy(name = trimmedName)
+                val updatedCategory = category.copy(
+                    name = trimmedName,
+                    updated_at = System.currentTimeMillis(),
+                    ver = category.ver + 1
+                )
                 categoryDao.updateCategory(updatedCategory)
                 Timber.i("Category updated successfully: ${category.id} - $trimmedName")
+                syncScheduler.scheduleSyncAfterMutation()
             } catch (e: Exception) {
                 Timber.e(e, "Error updating category: ${category.id}")
                 throw e
@@ -98,13 +108,14 @@ class CategoriesViewModel @Inject constructor(
     }
 
     /**
-     * Deletes a category from the database.
+     * Soft-deletes a category (sets is_deleted = true).
      */
     suspend fun deleteCategory(category: CategoryEntity) {
         withContext(Dispatchers.IO) {
             try {
-                categoryDao.deleteCategory(category)
+                categoryDao.softDeleteCategoryById(category.id, System.currentTimeMillis())
                 Timber.i("Category deleted successfully: ${category.id} - ${category.name}")
+                syncScheduler.scheduleSyncAfterMutation()
             } catch (e: Exception) {
                 Timber.e(e, "Error deleting category: ${category.id}")
                 throw e

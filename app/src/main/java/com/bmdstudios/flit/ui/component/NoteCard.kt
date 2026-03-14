@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -31,12 +32,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.bmdstudios.flit.data.database.entity.NoteEntity
 import com.bmdstudios.flit.ui.dialog.DeleteNoteDialog
 import com.bmdstudios.flit.ui.navigation.Screen
 import com.bmdstudios.flit.ui.viewmodel.NotesViewModel
+import com.halilibo.richtext.commonmark.Markdown
+import com.halilibo.richtext.ui.material3.RichText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -47,7 +51,8 @@ import kotlinx.coroutines.launch
 fun NoteCard(
     note: NoteEntity,
     navController: NavHostController,
-    notesViewModel: NotesViewModel
+    notesViewModel: NotesViewModel,
+    showDetails: Boolean = false
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
@@ -80,8 +85,23 @@ fun NoteCard(
                     text = note.title,
                     modifier = Modifier.fillMaxWidth(),
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
                 )
+
+                if (showDetails && note.text.isNotBlank()) {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 6.dp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                        thickness = 1.dp
+                    )
+                    val previewText = note.text.lines().take(3).joinToString("\n").trim()
+                    if (previewText.isNotBlank()) {
+                        RichText(modifier = Modifier.fillMaxWidth()) {
+                            Markdown(content = previewText)
+                        }
+                    }
+                }
             }
         }
         

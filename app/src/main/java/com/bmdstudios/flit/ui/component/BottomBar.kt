@@ -109,11 +109,11 @@ fun BottomBar(
         modifier = Modifier
             .fillMaxWidth()
             .windowInsetsPadding(WindowInsets.ime)
-            .windowInsetsPadding(WindowInsets.navigationBars)
             .background(
                 color = backgroundColor,
                 shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
             )
+            .windowInsetsPadding(WindowInsets.navigationBars)
     ) {
         Column(
             modifier = Modifier

@@ -20,7 +20,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.bmdstudios.flit.ui.dialog.ModelSelectionDialog
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -30,6 +32,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.bmdstudios.flit.data.database.NotesearchRebuilder
+import com.bmdstudios.flit.data.database.PurgeDeletedRunner
 import com.bmdstudios.flit.data.repository.SettingsRepository
 import com.bmdstudios.flit.ui.component.BottomBar
 import com.bmdstudios.flit.ui.component.navigation.HomeButton
@@ -68,10 +72,21 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var settingsRepository: SettingsRepository
 
+    @Inject
+    lateinit var purgeDeletedRunner: PurgeDeletedRunner
+
+    @Inject
+    lateinit var notesearchRebuilder: NotesearchRebuilder
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Timber.tag(TAG).d("onCreate called")
         enableEdgeToEdge()
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            purgeDeletedRunner.purge()
+            notesearchRebuilder.rebuildIfNeeded()
+        }
 
         setContent {
             val themeMode by settingsRepository.themeModeFlow.collectAsStateWithLifecycle(
@@ -141,6 +156,7 @@ fun MainContent(
     val settingsViewModel: SettingsViewModel = viewModel()
     
     val modelSize by settingsViewModel.modelSize.collectAsStateWithLifecycle(initialValue = ModelSize.NONE)
+    val noteDetails by settingsViewModel.noteDetails.collectAsStateWithLifecycle(initialValue = false)
 
     var showSearchDialog by remember { mutableStateOf(false) }
 
@@ -197,7 +213,8 @@ fun MainContent(
                 HomeScreen(
                     modelDownloadState = uiState,
                     notesViewModel = notesViewModel,
-                    navController = navController
+                    navController = navController,
+                    noteDetailsEnabled = noteDetails
                 )
             }
             composable(Screen.Settings.route) {

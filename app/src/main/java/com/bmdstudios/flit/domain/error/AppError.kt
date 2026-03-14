@@ -47,14 +47,23 @@ sealed class AppError(
 
         data class HttpError(
             val statusCode: Int,
+            val serverMessage: String? = null,
             override val cause: Throwable? = null
         ) : NetworkError(
             userMessage = when {
+                serverMessage != null -> {
+                    // For 404 errors with "Invalid connection code", provide user-friendly message
+                    if (statusCode == 404 && serverMessage.contains("Invalid connection code", ignoreCase = true)) {
+                        "Invalid connection code. Please make sure the correct code is entered."
+                    } else {
+                        serverMessage
+                    }
+                }
                 statusCode in 400..499 -> "Invalid request. Please try again."
                 statusCode in 500..599 -> "Server error. Please try again later."
                 else -> "Network error occurred. Please try again."
             },
-            technicalMessage = "HTTP error: $statusCode",
+            technicalMessage = "HTTP error: $statusCode${serverMessage?.let { " - $it" } ?: ""}",
             cause = cause
         )
 

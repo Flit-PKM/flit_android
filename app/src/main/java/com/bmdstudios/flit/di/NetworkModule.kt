@@ -1,6 +1,7 @@
 package com.bmdstudios.flit.di
 
 import com.bmdstudios.flit.config.AppConfig
+import com.bmdstudios.flit.data.api.FlitApiService
 import com.bmdstudios.flit.utils.HuggingFaceModelDownloader
 import dagger.Module
 import dagger.Provides
@@ -42,5 +43,17 @@ object NetworkModule {
         appConfig: AppConfig
     ): HuggingFaceModelDownloader {
         return HuggingFaceModelDownloader(okHttpClient, appConfig.networkConfig)
+    }
+
+    /**
+     * Provides FlitApiService instance for backend API communication.
+     */
+    @Provides
+    @Singleton
+    fun provideFlitApiService(
+        okHttpClient: OkHttpClient,
+        appConfig: AppConfig
+    ): FlitApiService {
+        return FlitApiService(okHttpClient, "${appConfig.backendBaseUrl.trimEnd('/')}/api")
     }
 }

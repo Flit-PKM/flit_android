@@ -83,15 +83,15 @@ fun AddRelationshipDialog(
             relatedNoteId == note.id && relationship.type == selectedType
         })
     }
+    val availableNoteIds = remember(availableNotes) { availableNotes.map { it.id }.toSet() }
 
-    // Filter notes by search query
+    // Ranked search when query is non-blank; otherwise show all available notes
+    val searchResults by notesViewModel.searchNotesWithCategoryFlow(searchQuery, categoryId = null)
+        .collectAsStateWithLifecycle(initialValue = emptyList())
     val filteredNotes = if (searchQuery.isBlank()) {
         availableNotes
     } else {
-        availableNotes.filter { note ->
-            note.title.contains(searchQuery, ignoreCase = true) ||
-            note.text.contains(searchQuery, ignoreCase = true)
-        }
+        searchResults.filter { it.id in availableNoteIds }
     }
 
     Timber.tag(TAG).d("Available notes: ${availableNotes.size}, filtered: ${filteredNotes.size}")

@@ -1,0 +1,482 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>ComplexCondition:MainActivity.kt$(currentRoute?.startsWith("note/") == true &amp;&amp; currentRoute?.endsWith("/edit") != true) || currentRoute?.startsWith("notes/category/") == true || currentRoute?.startsWith("search/") == true</ID>
+    <ID>ComplexCondition:ModelDownloadViewModel.kt$ModelDownloadViewModel$(progressPercentFloat != lastLoggedProgress[0] &amp;&amp; progressPercent % Constants.PROGRESS_UPDATE_PERCENT_INTERVAL == 0) || (downloaded == total &amp;&amp; total &gt; 0)</ID>
+    <ID>ConstructorParameterNaming:CategoryEntity.kt$CategoryEntity$val core_id: Long? = null</ID>
+    <ID>ConstructorParameterNaming:CategoryEntity.kt$CategoryEntity$val created_at: Long</ID>
+    <ID>ConstructorParameterNaming:CategoryEntity.kt$CategoryEntity$val is_deleted: Boolean = false</ID>
+    <ID>ConstructorParameterNaming:CategoryEntity.kt$CategoryEntity$val updated_at: Long</ID>
+    <ID>ConstructorParameterNaming:ChunkEntity.kt$ChunkEntity$val core_id: Long? = null</ID>
+    <ID>ConstructorParameterNaming:ChunkEntity.kt$ChunkEntity$val embedding_vector: ByteArray</ID>
+    <ID>ConstructorParameterNaming:ChunkEntity.kt$ChunkEntity$val is_deleted: Boolean = false</ID>
+    <ID>ConstructorParameterNaming:ChunkEntity.kt$ChunkEntity$val note_id: Long</ID>
+    <ID>ConstructorParameterNaming:ChunkEntity.kt$ChunkEntity$val position_end: Int</ID>
+    <ID>ConstructorParameterNaming:ChunkEntity.kt$ChunkEntity$val position_start: Int</ID>
+    <ID>ConstructorParameterNaming:ChunkEntity.kt$ChunkEntity$val updated_at: Long</ID>
+    <ID>ConstructorParameterNaming:ExportData.kt$ExportCategory$val created_at: Long</ID>
+    <ID>ConstructorParameterNaming:ExportData.kt$ExportData$val export_metadata: ExportMetadata</ID>
+    <ID>ConstructorParameterNaming:ExportData.kt$ExportData$val note_categories: List&lt;ExportNoteCategory&gt;</ID>
+    <ID>ConstructorParameterNaming:ExportData.kt$ExportMetadata$val app_version: String</ID>
+    <ID>ConstructorParameterNaming:ExportData.kt$ExportMetadata$val database_version: Int</ID>
+    <ID>ConstructorParameterNaming:ExportData.kt$ExportNote$val created_at: Long</ID>
+    <ID>ConstructorParameterNaming:ExportData.kt$ExportNote$val updated_at: Long</ID>
+    <ID>ConstructorParameterNaming:ExportData.kt$ExportNoteCategory$val category_id: Long</ID>
+    <ID>ConstructorParameterNaming:ExportData.kt$ExportNoteCategory$val note_id: Long</ID>
+    <ID>ConstructorParameterNaming:ExportData.kt$ExportRelationship$val created_at: Long</ID>
+    <ID>ConstructorParameterNaming:ExportData.kt$ExportRelationship$val note_a_id: Long</ID>
+    <ID>ConstructorParameterNaming:ExportData.kt$ExportRelationship$val note_b_id: Long</ID>
+    <ID>ConstructorParameterNaming:NoteCategoryCrossRef.kt$NoteCategoryCrossRef$val category_core_id: Long? = null</ID>
+    <ID>ConstructorParameterNaming:NoteCategoryCrossRef.kt$NoteCategoryCrossRef$val category_id: Long</ID>
+    <ID>ConstructorParameterNaming:NoteCategoryCrossRef.kt$NoteCategoryCrossRef$val is_deleted: Boolean = false</ID>
+    <ID>ConstructorParameterNaming:NoteCategoryCrossRef.kt$NoteCategoryCrossRef$val note_core_id: Long? = null</ID>
+    <ID>ConstructorParameterNaming:NoteCategoryCrossRef.kt$NoteCategoryCrossRef$val note_id: Long</ID>
+    <ID>ConstructorParameterNaming:NoteCategoryCrossRef.kt$NoteCategoryCrossRef$val updated_at: Long</ID>
+    <ID>ConstructorParameterNaming:NoteEntity.kt$NoteEntity$val core_id: Long? = null</ID>
+    <ID>ConstructorParameterNaming:NoteEntity.kt$NoteEntity$val created_at: Long</ID>
+    <ID>ConstructorParameterNaming:NoteEntity.kt$NoteEntity$val embedding_vector: ByteArray? = null</ID>
+    <ID>ConstructorParameterNaming:NoteEntity.kt$NoteEntity$val is_deleted: Boolean = false</ID>
+    <ID>ConstructorParameterNaming:NoteEntity.kt$NoteEntity$val updated_at: Long</ID>
+    <ID>ConstructorParameterNaming:NoteEntity.kt$NoteEntity$val workflow_status: NoteStatus</ID>
+    <ID>ConstructorParameterNaming:RelationshipEntity.kt$RelationshipEntity$val created_at: Long</ID>
+    <ID>ConstructorParameterNaming:RelationshipEntity.kt$RelationshipEntity$val is_deleted: Boolean = false</ID>
+    <ID>ConstructorParameterNaming:RelationshipEntity.kt$RelationshipEntity$val note_a_core_id: Long? = null</ID>
+    <ID>ConstructorParameterNaming:RelationshipEntity.kt$RelationshipEntity$val note_a_id: Long</ID>
+    <ID>ConstructorParameterNaming:RelationshipEntity.kt$RelationshipEntity$val note_b_core_id: Long? = null</ID>
+    <ID>ConstructorParameterNaming:RelationshipEntity.kt$RelationshipEntity$val note_b_id: Long</ID>
+    <ID>ConstructorParameterNaming:RelationshipEntity.kt$RelationshipEntity$val updated_at: Long</ID>
+    <ID>CyclomaticComplexMethod:AddRelationshipDialog.kt$@Composable fun AddRelationshipDialog( noteId: Long, notesViewModel: NotesViewModel, onDismiss: () -&gt; Unit, onRelationshipAdded: () -&gt; Unit )</ID>
+    <ID>CyclomaticComplexMethod:BottomBar.kt$@Composable private fun RecordButton( modelDownloadState: DownloadUiState, modelSize: ModelSize, voiceRecorderViewModel: VoiceRecorderViewModel, transcriptionViewModel: TranscriptionViewModel, notesViewModel: NotesViewModel )</ID>
+    <ID>CyclomaticComplexMethod:CategoriesScreen.kt$@Composable fun CategoriesScreen()</ID>
+    <ID>CyclomaticComplexMethod:ErrorHandler.kt$ErrorHandler$fun transform(throwable: Throwable, context: String? = null): AppError</ID>
+    <ID>CyclomaticComplexMethod:MainActivity.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MainContent( activity: ComponentActivity, modelDownloadViewModel: ModelDownloadViewModel )</ID>
+    <ID>CyclomaticComplexMethod:ModelConfigLoader.kt$ModelConfigLoader$private fun parseJson(jsonString: String): Map&lt;ModelSize, LoadedModelSources&gt;?</ID>
+    <ID>CyclomaticComplexMethod:NoteEditScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun NoteEditScreen( noteId: Long, notesViewModel: NotesViewModel, navController: NavHostController )</ID>
+    <ID>CyclomaticComplexMethod:NoteEntity.kt$NoteEntity$override fun equals(other: Any?): Boolean</ID>
+    <ID>CyclomaticComplexMethod:OfflineRecognizer.kt$fun getOfflineModelConfig(type: Int): OfflineModelConfig?</ID>
+    <ID>CyclomaticComplexMethod:OnlineRecognizer.kt$fun getModelConfig(type: Int): OnlineModelConfig?</ID>
+    <ID>CyclomaticComplexMethod:PunctuationModelFactory.kt$PunctuationModelFactory$suspend fun createPunctuation( punctuationModelDir: File, appConfig: AppConfig ): Result&lt;OfflinePunctuation?&gt;</ID>
+    <ID>CyclomaticComplexMethod:SettingsScreen.kt$@Composable fun SettingsScreen( viewModel: SettingsViewModel = hiltViewModel(), modelDownloadViewModel: ModelDownloadViewModel? = null )</ID>
+    <ID>CyclomaticComplexMethod:SyncRepository.kt$SyncRepository$private suspend fun syncChunksTable(token: String, result: com.bmdstudios.flit.data.api.model.ChunksCompareResult)</ID>
+    <ID>CyclomaticComplexMethod:Tts.kt$fun getOfflineTtsConfig( modelDir: String, modelName: String, // for VITS acousticModelName: String, // for Matcha vocoder: String, // for Matcha voices: String, // for Kokoro or kitten lexicon: String, dataDir: String, dictDir: String, // unused ruleFsts: String, ruleFars: String, numThreads: Int? = null, isKitten: Boolean = false ): OfflineTtsConfig</ID>
+    <ID>FunctionNaming:AddRelationshipDialog.kt$@Composable fun AddRelationshipDialog( noteId: Long, notesViewModel: NotesViewModel, onDismiss: () -&gt; Unit, onRelationshipAdded: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:BackButton.kt$@Composable fun BackButton(navController: NavHostController)</ID>
+    <ID>FunctionNaming:BottomBar.kt$@Composable fun BottomBar( modelDownloadState: DownloadUiState, modelSize: ModelSize, voiceRecorderViewModel: VoiceRecorderViewModel, transcriptionViewModel: TranscriptionViewModel, notesViewModel: NotesViewModel )</ID>
+    <ID>FunctionNaming:BottomBar.kt$@Composable private fun RecordButton( modelDownloadState: DownloadUiState, modelSize: ModelSize, voiceRecorderViewModel: VoiceRecorderViewModel, transcriptionViewModel: TranscriptionViewModel, notesViewModel: NotesViewModel )</ID>
+    <ID>FunctionNaming:BottomBar.kt$@Composable private fun SubmitButton( text: String, onNoteCreated: () -&gt; Unit, notesViewModel: NotesViewModel, coroutineScope: CoroutineScope )</ID>
+    <ID>FunctionNaming:CategoriesScreen.kt$@Composable fun CategoriesScreen()</ID>
+    <ID>FunctionNaming:CategoriesScreen.kt$@Composable fun CategoryCard( category: CategoryEntity, onEditClick: () -&gt; Unit, onDeleteClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:ConnectDialog.kt$@Composable fun ConnectDialog( onDismiss: () -&gt; Unit, onConnect: (connectionCode: String) -&gt; Unit, isLoading: Boolean = false, errorMessage: String? = null )</ID>
+    <ID>FunctionNaming:DeleteNoteDialog.kt$@Composable fun DeleteNoteDialog( note: NoteEntity, onDismiss: () -&gt; Unit, onConfirm: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:HomeButton.kt$@Composable fun HomeButton(navController: NavHostController)</ID>
+    <ID>FunctionNaming:HomeScreen.kt$@Composable fun HomeScreen( modelDownloadState: DownloadUiState, notesViewModel: NotesViewModel, navController: NavHostController, noteDetailsEnabled: Boolean = false )</ID>
+    <ID>FunctionNaming:HomeScreen.kt$@Composable private fun NotesList( notesViewModel: NotesViewModel, navController: NavHostController, noteDetailsEnabled: Boolean = false, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:MainActivity.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MainContent( activity: ComponentActivity, modelDownloadViewModel: ModelDownloadViewModel )</ID>
+    <ID>FunctionNaming:MenuButton.kt$@Composable fun MenuButton(navController: NavHostController)</ID>
+    <ID>FunctionNaming:ModelDownloadProgress.kt$@Composable fun ModelDownloadProgress( uiState: DownloadUiState, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:ModelSelectionDialog.kt$@Composable fun ModelSelectionDialog( onConfirm: (ModelSize) -&gt; Unit )</ID>
+    <ID>FunctionNaming:NavigationIcon.kt$@Composable fun NavigationIcon( navController: NavHostController, currentRoute: String? )</ID>
+    <ID>FunctionNaming:NoteCard.kt$@Composable fun NoteCard( note: NoteEntity, navController: NavHostController, notesViewModel: NotesViewModel, showDetails: Boolean = false )</ID>
+    <ID>FunctionNaming:NoteDetailScreen.kt$@Composable fun NoteDetailScreen( noteId: Long, notesViewModel: NotesViewModel, navController: NavHostController )</ID>
+    <ID>FunctionNaming:NoteEditScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun NoteEditScreen( noteId: Long, notesViewModel: NotesViewModel, navController: NavHostController )</ID>
+    <ID>FunctionNaming:NotesByCategoryScreen.kt$@Composable fun NotesByCategoryScreen( categoryId: Long, notesViewModel: NotesViewModel, navController: NavHostController )</ID>
+    <ID>FunctionNaming:SearchButton.kt$@Composable fun SearchButton(onClick: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:SearchDialog.kt$@Composable fun SearchDialog( onDismiss: () -&gt; Unit, notesViewModel: NotesViewModel, navController: NavHostController )</ID>
+    <ID>FunctionNaming:SearchResultsScreen.kt$@Composable fun SearchResultsScreen( query: String, categoryId: Long, notesViewModel: NotesViewModel, navController: NavHostController )</ID>
+    <ID>FunctionNaming:SettingsScreen.kt$@Composable fun SettingsScreen( viewModel: SettingsViewModel = hiltViewModel(), modelDownloadViewModel: ModelDownloadViewModel? = null )</ID>
+    <ID>FunctionNaming:Theme.kt$@Composable fun FlitTheme( themeMode: ThemeMode = ThemeMode.SYSTEM, // Dynamic color is available on Android 12+ dynamicColor: Boolean = true, content: @Composable () -&gt; Unit )</ID>
+    <ID>FunctionNaming:TopBar.kt$@Composable fun TopBarTitle( navBackStackEntry: NavBackStackEntry?, notesViewModel: NotesViewModel ): String</ID>
+    <ID>LongMethod:AddRelationshipDialog.kt$@Composable fun AddRelationshipDialog( noteId: Long, notesViewModel: NotesViewModel, onDismiss: () -&gt; Unit, onRelationshipAdded: () -&gt; Unit )</ID>
+    <ID>LongMethod:AudioTagging.kt$fun getAudioTaggingConfig(type: Int, numThreads: Int = 1): AudioTaggingConfig?</ID>
+    <ID>LongMethod:AudioTranscriber.kt$AudioTranscriber$suspend fun transcribe(wavFile: File): Result&lt;String&gt;</ID>
+    <ID>LongMethod:BottomBar.kt$@Composable fun BottomBar( modelDownloadState: DownloadUiState, modelSize: ModelSize, voiceRecorderViewModel: VoiceRecorderViewModel, transcriptionViewModel: TranscriptionViewModel, notesViewModel: NotesViewModel )</ID>
+    <ID>LongMethod:BottomBar.kt$@Composable private fun RecordButton( modelDownloadState: DownloadUiState, modelSize: ModelSize, voiceRecorderViewModel: VoiceRecorderViewModel, transcriptionViewModel: TranscriptionViewModel, notesViewModel: NotesViewModel )</ID>
+    <ID>LongMethod:CategoriesScreen.kt$@Composable fun CategoriesScreen()</ID>
+    <ID>LongMethod:Color.kt$fun darkColorSchemeFromSeed(seedColor: Color): ColorScheme</ID>
+    <ID>LongMethod:Color.kt$fun lightColorSchemeFromSeed(seedColor: Color): ColorScheme</ID>
+    <ID>LongMethod:ConnectDialog.kt$@Composable fun ConnectDialog( onDismiss: () -&gt; Unit, onConnect: (connectionCode: String) -&gt; Unit, isLoading: Boolean = false, errorMessage: String? = null )</ID>
+    <ID>LongMethod:MainActivity.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MainContent( activity: ComponentActivity, modelDownloadViewModel: ModelDownloadViewModel )</ID>
+    <ID>LongMethod:ModelDownloadProgress.kt$@Composable fun ModelDownloadProgress( uiState: DownloadUiState, modifier: Modifier = Modifier )</ID>
+    <ID>LongMethod:ModelSelectionDialog.kt$@Composable fun ModelSelectionDialog( onConfirm: (ModelSize) -&gt; Unit )</ID>
+    <ID>LongMethod:NoteCard.kt$@Composable fun NoteCard( note: NoteEntity, navController: NavHostController, notesViewModel: NotesViewModel, showDetails: Boolean = false )</ID>
+    <ID>LongMethod:NoteDetailScreen.kt$@Composable fun NoteDetailScreen( noteId: Long, notesViewModel: NotesViewModel, navController: NavHostController )</ID>
+    <ID>LongMethod:NoteEditScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun NoteEditScreen( noteId: Long, notesViewModel: NotesViewModel, navController: NavHostController )</ID>
+    <ID>LongMethod:OfflineRecognizer.kt$fun getOfflineModelConfig(type: Int): OfflineModelConfig?</ID>
+    <ID>LongMethod:OnlineRecognizer.kt$fun getModelConfig(type: Int): OnlineModelConfig?</ID>
+    <ID>LongMethod:PunctuationModelFactory.kt$PunctuationModelFactory$suspend fun createPunctuation( punctuationModelDir: File, appConfig: AppConfig ): Result&lt;OfflinePunctuation?&gt;</ID>
+    <ID>LongMethod:SearchDialog.kt$@Composable fun SearchDialog( onDismiss: () -&gt; Unit, notesViewModel: NotesViewModel, navController: NavHostController )</ID>
+    <ID>LongMethod:SettingsScreen.kt$@Composable fun SettingsScreen( viewModel: SettingsViewModel = hiltViewModel(), modelDownloadViewModel: ModelDownloadViewModel? = null )</ID>
+    <ID>LongMethod:TransducerModelConfigBuilder.kt$TransducerModelConfigBuilder$suspend fun createTransducerModelConfig( modelDir: File, files: List&lt;String&gt;, appConfig: AppConfig ): Result&lt;OfflineModelConfig&gt;</ID>
+    <ID>LongMethod:Tts.kt$fun getOfflineTtsConfig( modelDir: String, modelName: String, // for VITS acousticModelName: String, // for Matcha vocoder: String, // for Matcha voices: String, // for Kokoro or kitten lexicon: String, dataDir: String, dictDir: String, // unused ruleFsts: String, ruleFars: String, numThreads: Int? = null, isKitten: Boolean = false ): OfflineTtsConfig</ID>
+    <ID>LongMethod:WhisperModelConfigBuilder.kt$WhisperModelConfigBuilder$suspend fun createWhisperModelConfig( modelDir: File, files: List&lt;String&gt;, appConfig: AppConfig ): Result&lt;OfflineModelConfig&gt;</ID>
+    <ID>LongParameterList:AudioTranscriber.kt$AudioTranscriber$( private val context: Context, private val appConfig: AppConfig, private val settingsRepository: SettingsRepository, private val modelTypeDetector: ModelTypeDetector, private val whisperModelConfigBuilder: WhisperModelConfigBuilder, private val transducerModelConfigBuilder: TransducerModelConfigBuilder, private val senseVoiceModelConfigBuilder: SenseVoiceModelConfigBuilder, private val denoiserModelFactory: DenoiserModelFactory, private val punctuationModelFactory: PunctuationModelFactory, private val textPostProcessor: TextPostProcessor )</ID>
+    <ID>LongParameterList:HuggingFaceModelDownloader.kt$HuggingFaceModelDownloader$( body: okhttp3.ResponseBody, request: DownloadRequest, offset: Long, isPartial: Boolean, totalSize: Long, lastProgressUpdate: Long )</ID>
+    <ID>LongParameterList:ModelDownloadViewModel.kt$ModelDownloadViewModel$( modelName: String, filename: String, downloaded: Long, total: Long, progress: Float, lastLoggedProgress: MutableList&lt;Float&gt;, updateState: (Float) -&gt; Unit )</ID>
+    <ID>LongParameterList:RepositoryModule.kt$RepositoryModule$( noteDao: NoteDao, categoryDao: CategoryDao, relationshipDao: RelationshipDao, noteCategoryDao: NoteCategoryDao, database: FlitDatabase, @ApplicationContext context: Context )</ID>
+    <ID>LongParameterList:SyncRepository.kt$SyncRepository$( private val api: FlitApiService, private val settings: SettingsRepository, private val noteDao: NoteDao, private val chunkDao: ChunkDao, private val categoryDao: CategoryDao, private val relationshipDao: RelationshipDao, private val noteCategoryDao: NoteCategoryDao )</ID>
+    <ID>LongParameterList:Tts.kt$( modelDir: String, modelName: String, // for VITS acousticModelName: String, // for Matcha vocoder: String, // for Matcha voices: String, // for Kokoro or kitten lexicon: String, dataDir: String, dictDir: String, // unused ruleFsts: String, ruleFars: String, numThreads: Int? = null, isKitten: Boolean = false )</ID>
+    <ID>LongParameterList:UtilityModule.kt$UtilityModule$( @ApplicationContext context: Context, appConfig: AppConfig, settingsRepository: SettingsRepository, modelTypeDetector: ModelTypeDetector, whisperModelConfigBuilder: com.bmdstudios.flit.utils.model.WhisperModelConfigBuilder, transducerModelConfigBuilder: com.bmdstudios.flit.utils.model.TransducerModelConfigBuilder, senseVoiceModelConfigBuilder: com.bmdstudios.flit.utils.model.SenseVoiceModelConfigBuilder, denoiserModelFactory: com.bmdstudios.flit.utils.model.DenoiserModelFactory, punctuationModelFactory: com.bmdstudios.flit.utils.model.PunctuationModelFactory, textPostProcessor: com.bmdstudios.flit.utils.text.TextPostProcessor )</ID>
+    <ID>LoopWithTooManyJumpStatements:SyncRepository.kt$SyncRepository$for</ID>
+    <ID>LoopWithTooManyJumpStatements:VoiceRecorder.kt$VoiceRecorder$while</ID>
+    <ID>MagicNumber:AddRelationshipDialog.kt$100</ID>
+    <ID>MagicNumber:AudioConfig.kt$AudioConfig$8</ID>
+    <ID>MagicNumber:AudioRepositoryImpl.kt$AudioRepositoryImpl$4</ID>
+    <ID>MagicNumber:AudioTagging.kt$3</ID>
+    <ID>MagicNumber:AudioTagging.kt$4</ID>
+    <ID>MagicNumber:AudioTagging.kt$5</ID>
+    <ID>MagicNumber:BottomBar.kt$3000</ID>
+    <ID>MagicNumber:BottomBar.kt$500</ID>
+    <ID>MagicNumber:CategoriesViewModel.kt$CategoriesViewModel$5000</ID>
+    <ID>MagicNumber:Color.kt$0.02f</ID>
+    <ID>MagicNumber:Color.kt$0.03928f</ID>
+    <ID>MagicNumber:Color.kt$0.04f</ID>
+    <ID>MagicNumber:Color.kt$0.055f</ID>
+    <ID>MagicNumber:Color.kt$0.05f</ID>
+    <ID>MagicNumber:Color.kt$0.06f</ID>
+    <ID>MagicNumber:Color.kt$0.0722f</ID>
+    <ID>MagicNumber:Color.kt$0.08f</ID>
+    <ID>MagicNumber:Color.kt$0.10f</ID>
+    <ID>MagicNumber:Color.kt$0.12f</ID>
+    <ID>MagicNumber:Color.kt$0.15f</ID>
+    <ID>MagicNumber:Color.kt$0.18f</ID>
+    <ID>MagicNumber:Color.kt$0.20f</ID>
+    <ID>MagicNumber:Color.kt$0.2126f</ID>
+    <ID>MagicNumber:Color.kt$0.22f</ID>
+    <ID>MagicNumber:Color.kt$0.25f</ID>
+    <ID>MagicNumber:Color.kt$0.27f</ID>
+    <ID>MagicNumber:Color.kt$0.30f</ID>
+    <ID>MagicNumber:Color.kt$0.35f</ID>
+    <ID>MagicNumber:Color.kt$0.3f</ID>
+    <ID>MagicNumber:Color.kt$0.40f</ID>
+    <ID>MagicNumber:Color.kt$0.45f</ID>
+    <ID>MagicNumber:Color.kt$0.4f</ID>
+    <ID>MagicNumber:Color.kt$0.55f</ID>
+    <ID>MagicNumber:Color.kt$0.5f</ID>
+    <ID>MagicNumber:Color.kt$0.6f</ID>
+    <ID>MagicNumber:Color.kt$0.7152f</ID>
+    <ID>MagicNumber:Color.kt$0.75f</ID>
+    <ID>MagicNumber:Color.kt$0.77f</ID>
+    <ID>MagicNumber:Color.kt$0.7f</ID>
+    <ID>MagicNumber:Color.kt$0.80f</ID>
+    <ID>MagicNumber:Color.kt$0.85f</ID>
+    <ID>MagicNumber:Color.kt$0.88f</ID>
+    <ID>MagicNumber:Color.kt$0.89f</ID>
+    <ID>MagicNumber:Color.kt$0.90f</ID>
+    <ID>MagicNumber:Color.kt$0.92f</ID>
+    <ID>MagicNumber:Color.kt$0.94f</ID>
+    <ID>MagicNumber:Color.kt$0.99f</ID>
+    <ID>MagicNumber:Color.kt$0xFF0074B7</ID>
+    <ID>MagicNumber:Color.kt$0xFF410002</ID>
+    <ID>MagicNumber:Color.kt$0xFF690005</ID>
+    <ID>MagicNumber:Color.kt$0xFF93000A</ID>
+    <ID>MagicNumber:Color.kt$0xFFBA1A1A</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFB4AB</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFDAD6</ID>
+    <ID>MagicNumber:Color.kt$1.055f</ID>
+    <ID>MagicNumber:Color.kt$12.92f</ID>
+    <ID>MagicNumber:Color.kt$135f</ID>
+    <ID>MagicNumber:Color.kt$2.4f</ID>
+    <ID>MagicNumber:Color.kt$360f</ID>
+    <ID>MagicNumber:Color.kt$3f</ID>
+    <ID>MagicNumber:Color.kt$4f</ID>
+    <ID>MagicNumber:Color.kt$60f</ID>
+    <ID>MagicNumber:Color.kt$6f</ID>
+    <ID>MagicNumber:FlitApiService.kt$FlitApiService$100</ID>
+    <ID>MagicNumber:FlitApiService.kt$FlitApiService$200</ID>
+    <ID>MagicNumber:HuggingFaceModelDownloader.kt$HuggingFaceModelDownloader$200</ID>
+    <ID>MagicNumber:HuggingFaceModelDownloader.kt$HuggingFaceModelDownloader$206</ID>
+    <ID>MagicNumber:ModelDownloadViewModel.kt$ModelDownloadViewModel$100</ID>
+    <ID>MagicNumber:NoteCard.kt$3</ID>
+    <ID>MagicNumber:NoteTitleExtractor.kt$NoteTitleExtractor$5</ID>
+    <ID>MagicNumber:NotesViewModel.kt$NotesViewModel$5000</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$10</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$11</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$12</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$13</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$14</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$15</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$16</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$17</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$18</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$19</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$20</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$21</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$22</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$23</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$24</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$25</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$26</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$27</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$28</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$29</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$3</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$30</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$31</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$32</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$33</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$34</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$35</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$36</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$37</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$38</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$39</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$4</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$40</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$41</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$42</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$43</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$44</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$45</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$5</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$6</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$7</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$8</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$9</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$9000</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$9001</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$9002</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$9003</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$9004</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$9005</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$9006</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$9007</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$9008</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$9009</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$9010</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$9011</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$9012</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$9013</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$9014</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$9015</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$9016</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$9017</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$9018</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$9019</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$9020</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$9021</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$9022</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$9023</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$9024</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$9025</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$OfflineRecognizer$3</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$OfflineRecognizer$4</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$OfflineRecognizer$5</ID>
+    <ID>MagicNumber:OfflineRecognizer.kt$OfflineRecognizer$6</ID>
+    <ID>MagicNumber:OfflineStream.kt$OfflineStream$16</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$1.4f</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$10</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$1000</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$1001</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$11</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$12</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$13</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$14</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$15</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$16</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$17</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$18</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$19</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$2.4f</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$20</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$20.0f</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$21</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$22</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$23</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$24</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$25</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$26</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$27</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$3</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$4</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$5</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$6</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$7</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$8</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$9</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$EndpointConfig$1.4f</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$EndpointConfig$2.4f</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$EndpointConfig$20.0f</ID>
+    <ID>MagicNumber:OnlineRecognizer.kt$OnlineRecognizer$3</ID>
+    <ID>MagicNumber:OnlineStream.kt$OnlineStream$16</ID>
+    <ID>MagicNumber:SecurityUtils.kt$SecurityUtils$10</ID>
+    <ID>MagicNumber:SecurityUtils.kt$SecurityUtils$1024</ID>
+    <ID>MagicNumber:SettingsRepository.kt$SettingsRepository$1000L</ID>
+    <ID>MagicNumber:SettingsViewModel.kt$SettingsViewModel$0.1f</ID>
+    <ID>MagicNumber:SettingsViewModel.kt$SettingsViewModel$5000</ID>
+    <ID>MagicNumber:SyncRepository.kt$SyncRepository$401</ID>
+    <ID>MagicNumber:Tts.kt$4</ID>
+    <ID>MagicNumber:VoiceRecorder.kt$VoiceRecorder$8</ID>
+    <ID>MatchingDeclarationName:ModelDownloadUiState.kt$DownloadUiState</ID>
+    <ID>MaxLineLength:AddRelationshipDialog.kt$Timber.tag(TAG).d("Adding relationship: noteId=$noteId, relatedNoteId=${note.id}, type=$type")</ID>
+    <ID>MaxLineLength:AddRelationshipDialog.kt$val error = ErrorHandler.handleThrowable(e, "addRelationship", TAG)</ID>
+    <ID>MaxLineLength:AudioTranscriber.kt$AudioTranscriber$private suspend</ID>
+    <ID>MaxLineLength:BottomBar.kt$recorderState is com.bmdstudios.flit.ui.viewmodel.VoiceRecorderUiState.Recording -&gt; MaterialTheme.colorScheme.error</ID>
+    <ID>MaxLineLength:ChunkDao.kt$ChunkDao$@Query("SELECT * FROM chunks WHERE note_id = :noteId AND is_deleted = 0 AND position_start &gt;= :start AND position_end &lt;= :end ORDER BY position_start ASC")</ID>
+    <ID>MaxLineLength:DenoiserModelFactory.kt$DenoiserModelFactory$Timber.d("Denoiser model directory does not exist: ${denoiserModelDir.absolutePath}, skipping denoising")</ID>
+    <ID>MaxLineLength:DenoiserModelFactory.kt$DenoiserModelFactory$Timber.d("No denoiser model file found in ${denoiserModelDir.absolutePath}. Available files: ${fileNames.joinToString()}")</ID>
+    <ID>MaxLineLength:FlitApiService.kt$FlitApiService$return executeSync(token, req) { json.decodeFromString&lt;com.bmdstudios.flit.data.api.model.SyncCategoryPushResult&gt;(it) }</ID>
+    <ID>MaxLineLength:FlitApiService.kt$FlitApiService$return executeSync(token, req) { json.decodeFromString&lt;com.bmdstudios.flit.data.api.model.SyncChunkPushResult&gt;(it) }</ID>
+    <ID>MaxLineLength:FlitApiService.kt$FlitApiService$return executeSync(token, req) { json.decodeFromString&lt;com.bmdstudios.flit.data.api.model.SyncNoteCategoryPushResult&gt;(it) }</ID>
+    <ID>MaxLineLength:FlitApiService.kt$FlitApiService$return executeSync(token, req) { json.decodeFromString&lt;com.bmdstudios.flit.data.api.model.SyncRelationshipPushResult&gt;(it) }</ID>
+    <ID>MaxLineLength:FlitApiService.kt$FlitApiService$suspend</ID>
+    <ID>MaxLineLength:FlitApiService.kt$FlitApiService$val req = Request.Builder().url("$baseUrl/sync/categories").post(body).addHeader("Content-Type", "application/json").build()</ID>
+    <ID>MaxLineLength:FlitApiService.kt$FlitApiService$val req = Request.Builder().url("$baseUrl/sync/chunks").post(body).addHeader("Content-Type", "application/json").build()</ID>
+    <ID>MaxLineLength:FlitApiService.kt$FlitApiService$val req = Request.Builder().url("$baseUrl/sync/note-categories").post(body).addHeader("Content-Type", "application/json").build()</ID>
+    <ID>MaxLineLength:FlitApiService.kt$FlitApiService$val req = Request.Builder().url("$baseUrl/sync/notes").post(body).addHeader("Content-Type", "application/json").build()</ID>
+    <ID>MaxLineLength:FlitApiService.kt$FlitApiService$val req = Request.Builder().url("$baseUrl/sync/relationships").post(body).addHeader("Content-Type", "application/json").build()</ID>
+    <ID>MaxLineLength:HuggingFaceModelDownloader.kt$HuggingFaceModelDownloader$Timber.d("Response details for ${request.targetFile.name}: isPartial=$isPartial, contentLength=$contentLength, offset=$offset")</ID>
+    <ID>MaxLineLength:ModelConfigLoader.kt$ModelConfigLoader$Timber.i("Note: If these values don't match your local models_config.json, you may need to clean rebuild and reinstall the app (assets are bundled at build time)")</ID>
+    <ID>MaxLineLength:ModelDownloadViewModel.kt$ModelDownloadViewModel$Timber.d("$modelName download progress: ${progressPercent}% | File: $filename | Downloaded: $downloaded/$total bytes")</ID>
+    <ID>MaxLineLength:ModelDownloadViewModel.kt$ModelDownloadViewModel$Timber.i("Optional model ${model.directoryName} downloaded successfully to ${modelDir.absolutePath}")</ID>
+    <ID>MaxLineLength:ModelDownloadViewModel.kt$ModelDownloadViewModel$Timber.w("Optional model $modelName download reported success but model not found at ${modelDir.absolutePath}")</ID>
+    <ID>MaxLineLength:ModelDownloadViewModel.kt$ModelDownloadViewModel$Timber.w(error, "Failed to download optional model ${model.directoryName} to ${modelDir.absolutePath}, continuing without it. Error: ${error.message}")</ID>
+    <ID>MaxLineLength:ModelDownloadViewModel.kt$ModelDownloadViewModel$handleProgressUpdate</ID>
+    <ID>MaxLineLength:ModelDownloadViewModel.kt$ModelDownloadViewModel$if</ID>
+    <ID>MaxLineLength:ModelRepositoryImpl.kt$ModelRepositoryImpl$listOf(ModelConstants.ENCODER_PATTERN, ModelConstants.DECODER_PATTERN, ModelConstants.JOINER_PATTERN, ModelConstants.TOKENS_PATTERN)</ID>
+    <ID>MaxLineLength:ModelRepositoryImpl.kt$ModelRepositoryImpl$listOf(ModelConstants.ENCODER_PATTERN, ModelConstants.DECODER_PATTERN, ModelConstants.TOKENS_PATTERN)</ID>
+    <ID>MaxLineLength:ModelRepositoryImpl.kt$ModelRepositoryImpl$val</ID>
+    <ID>MaxLineLength:NavigationIcon.kt$*</ID>
+    <ID>MaxLineLength:NoteCategoryDao.kt$NoteCategoryDao$@Query("SELECT * FROM category INNER JOIN note_categories ON category.id = note_categories.category_id WHERE note_categories.note_id = :noteId AND note_categories.is_deleted = 0 AND category.is_deleted = 0")</ID>
+    <ID>MaxLineLength:NoteCategoryDao.kt$NoteCategoryDao$@Query("SELECT * FROM notes INNER JOIN note_categories ON notes.id = note_categories.note_id WHERE note_categories.category_id = :categoryId AND note_categories.is_deleted = 0 AND notes.is_deleted = 0")</ID>
+    <ID>MaxLineLength:NoteCategoryDao.kt$NoteCategoryDao$@Query("UPDATE note_categories SET is_deleted = 1, updated_at = :updatedAt, ver = ver + 1 WHERE note_id = :noteId AND category_id = :categoryId")</ID>
+    <ID>MaxLineLength:NoteDao.kt$NoteDao$@Query("SELECT * FROM notes WHERE is_deleted = 0 AND (title LIKE '%' || :query || '%' OR text LIKE '%' || :query || '%') ORDER BY created_at DESC")</ID>
+    <ID>MaxLineLength:NoteDao.kt$NoteDao$@Query("SELECT * FROM notes WHERE is_deleted = 0 AND created_at &gt;= :startDate AND created_at &lt;= :endDate ORDER BY created_at DESC")</ID>
+    <ID>MaxLineLength:NoteDetailScreen.kt$navController.navigate(Screen.NoteDetail.createRoute(relationshipDisplay.relatedNote.id))</ID>
+    <ID>MaxLineLength:NoteDetailScreen.kt$text = "${relationshipDisplay.relationship.type.displayName()}: ${relationshipDisplay.relatedNote.title}"</ID>
+    <ID>MaxLineLength:NoteEditScreen.kt$Timber.tag(TAG).d("Removed relationship ${relationshipDisplay.relationship.id}")</ID>
+    <ID>MaxLineLength:NoteEditScreen.kt$notesViewModel.removeRelationship(relationshipDisplay.relationship.id)</ID>
+    <ID>MaxLineLength:NoteEditScreen.kt$text = "${relationshipDisplay.relationship.type.displayName()}: ${relationshipDisplay.relatedNote.title}"</ID>
+    <ID>MaxLineLength:NoteEditScreen.kt$val error = ErrorHandler.handleThrowable(e, "removeCategoryFromNote", TAG)</ID>
+    <ID>MaxLineLength:NoteEditScreen.kt$val error = ErrorHandler.handleThrowable(e, "removeRelationship", TAG)</ID>
+    <ID>MaxLineLength:NotesViewModel.kt$NotesViewModel$*</ID>
+    <ID>MaxLineLength:PunctuationModelFactory.kt$PunctuationModelFactory$"Please use a proper CT transformer punctuation model (e.g., sherpa-onnx-punct-ct-transformer-zh-en-vocab272727-2024-04-12). "</ID>
+    <ID>MaxLineLength:PunctuationModelFactory.kt$PunctuationModelFactory$Timber.d("No punctuation model file found in ${punctuationModelDir.absolutePath}. Available files: ${fileNames.joinToString()}")</ID>
+    <ID>MaxLineLength:PunctuationModelFactory.kt$PunctuationModelFactory$Timber.d("Punctuation model directory does not exist: ${punctuationModelDir.absolutePath}, skipping punctuation")</ID>
+    <ID>MaxLineLength:PunctuationModelFactory.kt$PunctuationModelFactory$val hasDecoder = allFiles.any { it.isFile &amp;&amp; it.name.contains(ModelConstants.DECODER_PATTERN, ignoreCase = true) &amp;&amp; it.extension.equals(ModelConstants.ONNX_EXTENSION, ignoreCase = true) }</ID>
+    <ID>MaxLineLength:PunctuationModelFactory.kt$PunctuationModelFactory$val hasEncoder = allFiles.any { it.isFile &amp;&amp; it.name.contains(ModelConstants.ENCODER_PATTERN, ignoreCase = true) &amp;&amp; it.extension.equals(ModelConstants.ONNX_EXTENSION, ignoreCase = true) }</ID>
+    <ID>MaxLineLength:PunctuationModelFactory.kt$PunctuationModelFactory$val hasJoiner = allFiles.any { it.isFile &amp;&amp; it.name.contains(ModelConstants.JOINER_PATTERN, ignoreCase = true) &amp;&amp; it.extension.equals(ModelConstants.ONNX_EXTENSION, ignoreCase = true) }</ID>
+    <ID>MaxLineLength:RelationshipDao.kt$RelationshipDao$@Query("SELECT * FROM relationships WHERE (note_a_id = :noteId OR note_b_id = :noteId) AND is_deleted = 0 ORDER BY created_at DESC")</ID>
+    <ID>MaxLineLength:RelationshipDao.kt$RelationshipDao$@Query("SELECT * FROM relationships WHERE (note_a_id = :noteId OR note_b_id = :noteId) AND type = :type AND is_deleted = 0 ORDER BY created_at DESC")</ID>
+    <ID>MaxLineLength:RelationshipDao.kt$RelationshipDao$@Query("SELECT * FROM relationships WHERE note_a_id = :noteAId AND note_b_id = :noteBId AND type = :type AND is_deleted = 0")</ID>
+    <ID>MaxLineLength:RelationshipDao.kt$RelationshipDao$@Query("UPDATE relationships SET is_deleted = 1, updated_at = :updatedAt, ver = ver + 1 WHERE note_a_id = :noteId OR note_b_id = :noteId")</ID>
+    <ID>MaxLineLength:RelationshipDao.kt$RelationshipDao$suspend</ID>
+    <ID>MaxLineLength:SearchResultsScreen.kt$Timber.tag(TAG).d("Displaying search results: query='$decodedQuery', categoryId=$categoryIdOrNull, count=${notes.size}")</ID>
+    <ID>MaxLineLength:SyncRepository.kt$SyncRepository$Timber.tag(SYNC_TAG).d("Categories compare: toPull=${categoriesCompare.toPull.size}, toPush=${categoriesCompare.toPush.size}")</ID>
+    <ID>MaxLineLength:SyncRepository.kt$SyncRepository$Timber.tag(SYNC_TAG).d("Chunks compare: toPull=${chunksCompare.toPull.size}, toPush=${chunksCompare.toPush.size}")</ID>
+    <ID>MaxLineLength:SyncRepository.kt$SyncRepository$Timber.tag(SYNC_TAG).d("Note-categories compare: toPull=${noteCategoriesCompare.toPull.size}, toPush=${noteCategoriesCompare.toPush.size}")</ID>
+    <ID>MaxLineLength:SyncRepository.kt$SyncRepository$Timber.tag(SYNC_TAG).d("Relationships compare: toPull=${relationshipsCompare.toPull.size}, toPush=${relationshipsCompare.toPush.size}")</ID>
+    <ID>MaxLineLength:SyncRepository.kt$SyncRepository$Timber.tag(SYNC_TAG).w("Note-categories: push rejected for note=${v.noteId}, category=${v.categoryId}")</ID>
+    <ID>MaxLineLength:SyncRepository.kt$SyncRepository$categoryDao.updateCategory(local.copy(core_id = pushResult.coreId, ver = pushResult.serverVersion))</ID>
+    <ID>MaxLineLength:SyncRepository.kt$SyncRepository$local.copy(note_a_core_id = pushResult.noteACoreId, note_b_core_id = pushResult.noteBCoreId, ver = pushResult.serverVersion)</ID>
+    <ID>MaxLineLength:SyncRepository.kt$SyncRepository$onFailure = { e -&gt; Timber.tag(SYNC_TAG).w(e, "GET /sync/note-categories ${p.noteId},${p.categoryId} failed, skipping") }</ID>
+    <ID>MaxLineLength:SyncRepository.kt$SyncRepository$onFailure = { e -&gt; Timber.tag(SYNC_TAG).w(e, "GET /sync/relationships ${p.noteAId},${p.noteBId} failed, skipping") }</ID>
+    <ID>MaxLineLength:SyncRepository.kt$SyncRepository$onFailure = { e -&gt; Timber.tag(SYNC_TAG).w(e, "Note-categories: push failed for note=${v.noteId}, category=${v.categoryId}") }</ID>
+    <ID>MaxLineLength:SyncRepository.kt$SyncRepository$private suspend</ID>
+    <ID>MaxLineLength:SyncRepository.kt$SyncRepository$val</ID>
+    <ID>MaxLineLength:SyncRepository.kt$SyncRepository$val categoryCoreById = categoryDao.getAllCategoriesForSync().filter { it.core_id != null }.associate { it.id to it.core_id!! }</ID>
+    <ID>MaxLineLength:SyncRepository.kt$SyncRepository$val categoryCoreToLocal = categoryDao.getAllCategoriesForSync().filter { it.core_id != null }.associate { it.core_id!! to it.id }</ID>
+    <ID>MaxLineLength:SyncRepository.kt$SyncRepository$val link = noteCategoryDao.getAllNoteCategoriesForSync().find { it.note_id == note.id &amp;&amp; it.category_id == category.id } ?: return emptyList()</ID>
+    <ID>MaxLineLength:SyncRepository.kt$SyncRepository$val noteCoreById = noteDao.getAllNotesForSync().filter { it.core_id != null }.associate { it.id to it.core_id!! }</ID>
+    <ID>MaxLineLength:SyncRepository.kt$SyncRepository$val noteCoreToLocal = noteDao.getAllNotesForSync().filter { it.core_id != null }.associate { it.core_id!! to it.id }</ID>
+    <ID>MaxLineLength:SyncRepository.kt$SyncRepository$val noteCoreToLocal = noteDao.getNotesByCoreIds(chunks.map { it.noteId }.distinct()).associate { it.core_id!! to it.id }</ID>
+    <ID>MaxLineLength:TranscriptionViewModel.kt$TranscriptionViewModel$*</ID>
+    <ID>MaxLineLength:TransducerModelConfigBuilder.kt$TransducerModelConfigBuilder$Timber.d("Found transducer model files - encoder: $encoderFile, decoder: $decoderFile, joiner: $joinerFile, tokens: $tokensFile")</ID>
+    <ID>MayBeConst:Speaker.kt$// Please download the model file from // https://github.com/k2-fsa/sherpa-onnx/releases/tag/speaker-recongition-models // and put it inside the assets directory. // // Please don't put it in a subdirectory of assets private val modelName = "3dspeaker_speech_eres2net_base_sv_zh-cn_3dspeaker_16k.onnx"</ID>
+    <ID>NestedBlockDepth:HuggingFaceModelDownloader.kt$HuggingFaceModelDownloader$private suspend fun writeFileData( body: okhttp3.ResponseBody, request: DownloadRequest, offset: Long, isPartial: Boolean, totalSize: Long, lastProgressUpdate: Long )</ID>
+    <ID>NestedBlockDepth:ModelConfigLoader.kt$ModelConfigLoader$private fun parseJson(jsonString: String): Map&lt;ModelSize, LoadedModelSources&gt;?</ID>
+    <ID>NestedBlockDepth:TranscriptionViewModel.kt$TranscriptionViewModel$private suspend fun createNoteFromTranscription(text: String, audioFile: File, parentNoteId: Long?)</ID>
+    <ID>NestedBlockDepth:VoiceRecorder.kt$VoiceRecorder$private fun convertPcmToWav(pcmFile: File, wavFile: File): Result&lt;Unit&gt;</ID>
+    <ID>NewLineAtEndOfFile:ExampleUnitTest.kt$com.bmdstudios.flit.ExampleUnitTest.kt</ID>
+    <ID>NewLineAtEndOfFile:Theme.kt$com.bmdstudios.flit.ui.theme.Theme.kt</ID>
+    <ID>NewLineAtEndOfFile:Type.kt$com.bmdstudios.flit.ui.theme.Type.kt</ID>
+    <ID>ObjectPropertyNaming:Speaker.kt$SpeakerRecognition$var _extractor: SpeakerEmbeddingExtractor? = null</ID>
+    <ID>ObjectPropertyNaming:Speaker.kt$SpeakerRecognition$var _manager: SpeakerEmbeddingManager? = null</ID>
+    <ID>ReturnCount:AudioTagging.kt$fun getAudioTaggingConfig(type: Int, numThreads: Int = 1): AudioTaggingConfig?</ID>
+    <ID>ReturnCount:FileMatcher.kt$FileMatcher$private fun parseModelFile(filename: String, mustContain: String, extension: String): ModelFileInfo?</ID>
+    <ID>ReturnCount:KeywordSpotter.kt$fun getKeywordsFile(type: Int): String</ID>
+    <ID>ReturnCount:KeywordSpotter.kt$fun getKwsModelConfig(type: Int): OnlineModelConfig?</ID>
+    <ID>ReturnCount:ModelFileFinder.kt$ModelFileFinder$fun findModelFileInDirectory( directory: File, patterns: List&lt;String&gt;, extension: String = ModelConstants.ONNX_EXTENSION, mustContain: String? = null ): File?</ID>
+    <ID>ReturnCount:ModelRepositoryImpl.kt$ModelRepositoryImpl$private fun isOnnxFileMissing( files: List&lt;File&gt;, subDirs: List&lt;File&gt;, isOptionalModel: Boolean ): Boolean</ID>
+    <ID>ReturnCount:OfflineRecognizer.kt$fun getOfflineModelConfig(type: Int): OfflineModelConfig?</ID>
+    <ID>ReturnCount:OnlineRecognizer.kt$fun getModelConfig(type: Int): OnlineModelConfig?</ID>
+    <ID>ReturnCount:SpokenLanguageIdentification.kt$fun getSpokenLanguageIdentificationConfig( type: Int, numThreads: Int = 1 ): SpokenLanguageIdentificationConfig?</ID>
+    <ID>ReturnCount:SyncRepository.kt$SyncRepository$private suspend fun buildNoteCategorySyncItems(noteCoreId: Long, categoryCoreId: Long): List&lt;NoteCategorySync&gt;</ID>
+    <ID>ReturnCount:Vad.kt$fun getVadModelConfig(type: Int): VadModelConfig?</ID>
+    <ID>SwallowedException:ExportRepository.kt$ExportRepository$e: Exception</ID>
+    <ID>SwallowedException:FlitApplication.kt$FlitApplication$e: Exception</ID>
+    <ID>ThrowsCount:SecurityUtils.kt$SecurityUtils$fun validateAndSanitizePath(path: String, baseDirectory: File): kotlin.Result&lt;File&gt;</ID>
+    <ID>ThrowsCount:SecurityUtils.kt$SecurityUtils$fun validateFileName(fileName: String): kotlin.Result&lt;Unit&gt;</ID>
+    <ID>ThrowsCount:Tts.kt$fun getOfflineTtsConfig( modelDir: String, modelName: String, // for VITS acousticModelName: String, // for Matcha vocoder: String, // for Matcha voices: String, // for Kokoro or kitten lexicon: String, dataDir: String, dictDir: String, // unused ruleFsts: String, ruleFars: String, numThreads: Int? = null, isKitten: Boolean = false ): OfflineTtsConfig</ID>
+    <ID>TooGenericExceptionCaught:AddRelationshipDialog.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:AudioRepositoryImpl.kt$AudioRepositoryImpl$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:AudioTranscriber.kt$AudioTranscriber$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:CategoriesScreen.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:CategoriesViewModel.kt$CategoriesViewModel$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:DenoiserModelFactory.kt$DenoiserModelFactory$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ExportRepository.kt$ExportRepository$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:FlitApiService.kt$FlitApiService$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:FlitApplication.kt$FlitApplication$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:HuggingFaceModelDownloader.kt$HuggingFaceModelDownloader$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ModelConfigLoader.kt$ModelConfigLoader$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ModelDownloadViewModel.kt$ModelDownloadViewModel$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ModelRepositoryImpl.kt$ModelRepositoryImpl$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:NoteEditScreen.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:NotesViewModel.kt$NotesViewModel$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:OfflineStream.kt$OfflineStream$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:OnlineStream.kt$OnlineStream$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:PunctuationModelFactory.kt$PunctuationModelFactory$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:PurgeDeletedRunner.kt$PurgeDeletedRunner$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ResourceManager.kt$ResourceManager$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:SenseVoiceModelConfigBuilder.kt$SenseVoiceModelConfigBuilder$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:SettingsRepository.kt$SettingsRepository$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:SettingsViewModel.kt$SettingsViewModel$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:TranscriptionViewModel.kt$TranscriptionViewModel$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:TransducerModelConfigBuilder.kt$TransducerModelConfigBuilder$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:VoiceRecorder.kt$VoiceRecorder$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:VoiceRecorderViewModel.kt$VoiceRecorderViewModel$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:WhisperModelConfigBuilder.kt$WhisperModelConfigBuilder$e: Exception</ID>
+    <ID>TooGenericExceptionThrown:ExportRepository.kt$ExportRepository$throw Exception("Failed to create file in Downloads folder")</ID>
+    <ID>TooGenericExceptionThrown:ExportRepository.kt$ExportRepository$throw Exception("Failed to open output stream for file")</ID>
+    <ID>TooManyFunctions:CategoryDao.kt$CategoryDao</ID>
+    <ID>TooManyFunctions:ChunkDao.kt$ChunkDao</ID>
+    <ID>TooManyFunctions:Color.kt$com.bmdstudios.flit.ui.theme.Color.kt</ID>
+    <ID>TooManyFunctions:FlitApiService.kt$FlitApiService</ID>
+    <ID>TooManyFunctions:HuggingFaceModelDownloader.kt$HuggingFaceModelDownloader</ID>
+    <ID>TooManyFunctions:KeywordSpotter.kt$KeywordSpotter</ID>
+    <ID>TooManyFunctions:ModelDownloadViewModel.kt$ModelDownloadViewModel : ViewModel</ID>
+    <ID>TooManyFunctions:NoteCategoryDao.kt$NoteCategoryDao</ID>
+    <ID>TooManyFunctions:NoteDao.kt$NoteDao</ID>
+    <ID>TooManyFunctions:NotesViewModel.kt$NotesViewModel : ViewModel</ID>
+    <ID>TooManyFunctions:OfflineRecognizer.kt$OfflineRecognizer</ID>
+    <ID>TooManyFunctions:OfflineSpeakerDiarization.kt$OfflineSpeakerDiarization</ID>
+    <ID>TooManyFunctions:OnlineRecognizer.kt$OnlineRecognizer</ID>
+    <ID>TooManyFunctions:RelationshipDao.kt$RelationshipDao</ID>
+    <ID>TooManyFunctions:RepositoryModule.kt$RepositoryModule</ID>
+    <ID>TooManyFunctions:SettingsRepository.kt$SettingsRepository</ID>
+    <ID>TooManyFunctions:SettingsViewModel.kt$SettingsViewModel : ViewModel</ID>
+    <ID>TooManyFunctions:Speaker.kt$SpeakerEmbeddingExtractor</ID>
+    <ID>TooManyFunctions:Speaker.kt$SpeakerEmbeddingManager</ID>
+    <ID>TooManyFunctions:SyncRepository.kt$SyncRepository</ID>
+    <ID>TooManyFunctions:Tts.kt$OfflineTts</ID>
+    <ID>TooManyFunctions:Vad.kt$Vad</ID>
+    <ID>UnusedParameter:ConnectDialog.kt$errorMessage: String? = null</ID>
+    <ID>UnusedParameter:ModelDownloadViewModel.kt$ModelDownloadViewModel$context: Context</ID>
+    <ID>UnusedParameter:Tts.kt$dictDir: String</ID>
+    <ID>UnusedPrivateMember:Color.kt$private fun Color.adjustLightness(factor: Float): Color</ID>
+    <ID>UnusedPrivateMember:Color.kt$private fun Color.adjustSaturation(factor: Float): Color</ID>
+    <ID>UnusedPrivateProperty:AudioTranscriber.kt$AudioTranscriber$private val context: Context</ID>
+    <ID>UnusedPrivateProperty:HomeScreen.kt$private const val TAG = "HomeScreen"</ID>
+    <ID>UnusedPrivateProperty:PunctuationModelFactory.kt$PunctuationModelFactory$private val modelFileFinder: ModelFileFinder</ID>
+    <ID>UnusedPrivateProperty:SettingsRepository.kt$SettingsRepository.Companion$private const val TAG = "SettingsRepository"</ID>
+    <ID>UnusedPrivateProperty:SettingsScreen.kt$val coroutineScope = rememberCoroutineScope()</ID>
+    <ID>UnusedPrivateProperty:SyncScheduler.kt$SyncScheduler$private val context: Context</ID>
+    <ID>UnusedPrivateProperty:VoiceRecorder.kt$VoiceRecorder$private val context: Context</ID>
+    <ID>UseRequire:Tts.kt$throw IllegalArgumentException("Please provide vocoder for Matcha TTS")</ID>
+    <ID>UseRequire:Tts.kt$throw IllegalArgumentException("Please specify a TTS model")</ID>
+    <ID>UseRequire:Tts.kt$throw IllegalArgumentException("Please specify either a VITS or a Matcha model, but not both")</ID>
+    <ID>UtilityClassWithPublicConstructor:VersionInfo.kt$VersionInfo</ID>
+    <ID>UtilityClassWithPublicConstructor:WaveReader.kt$WaveReader</ID>
+    <ID>WildcardImport:ExampleUnitTest.kt$import org.junit.Assert.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

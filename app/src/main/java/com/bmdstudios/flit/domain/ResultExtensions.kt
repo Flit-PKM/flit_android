@@ -8,6 +8,8 @@ import com.bmdstudios.flit.domain.error.AppErrorException
 
 /**
  * Folds the result into a single value.
+ * Parameter order is (onFailure, onSuccess), i.e. error-first—opposite to Kotlin stdlib
+ * [Result.fold], which uses (onSuccess, onFailure). Use named parameters at call sites to avoid confusion.
  */
 inline fun <T, R> Result<T>.fold(
     onFailure: (Throwable) -> R,

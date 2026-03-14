@@ -10,12 +10,18 @@ import androidx.room.PrimaryKey
 @Entity(
     tableName = "category",
     indices = [
-        Index(value = ["name"], unique = true)
+        Index(value = ["core_id"], unique = true),
+        Index(value = ["name"], unique = true),
+        Index(value = ["is_deleted"])
     ]
 )
 data class CategoryEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
+    val core_id: Long? = null,
+    val ver: Int = 1,
+    val is_deleted: Boolean = false,
     val name: String,
-    val created_at: Long
+    val created_at: Long,
+    val updated_at: Long
 )

@@ -2,6 +2,7 @@ package com.bmdstudios.flit.domain.error
 
 import timber.log.Timber
 import java.io.IOException
+import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
@@ -16,14 +17,16 @@ object ErrorHandler {
      */
     fun transform(throwable: Throwable, context: String? = null): AppError {
         return when (throwable) {
-            is AppError -> throwable
+            is AppErrorException -> throwable.appError
+            is ConnectException -> AppError.NetworkError.ConnectionError(throwable)
             is SocketTimeoutException -> AppError.NetworkError.TimeoutError(throwable)
             is UnknownHostException -> AppError.NetworkError.ConnectionError(throwable)
             is IOException -> {
                 when {
                     throwable.message?.contains("timeout", ignoreCase = true) == true ->
                         AppError.NetworkError.TimeoutError(throwable)
-                    throwable.message?.contains("connection", ignoreCase = true) == true ->
+                    throwable.message?.contains("connection", ignoreCase = true) == true ||
+                    throwable.message?.contains("connect", ignoreCase = true) == true ->
                         AppError.NetworkError.ConnectionError(throwable)
                     throwable.message?.contains("not found", ignoreCase = true) == true ->
                         AppError.FileError.NotFoundError(cause = throwable)

@@ -2,6 +2,7 @@ package com.bmdstudios.flit.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bmdstudios.flit.data.database.NoteWriter
 import com.bmdstudios.flit.data.database.dao.NoteDao
 import com.bmdstudios.flit.data.database.dao.RelationshipDao
 import com.bmdstudios.flit.data.database.entity.NoteEntity
@@ -12,6 +13,7 @@ import com.bmdstudios.flit.domain.error.AppError
 import com.bmdstudios.flit.domain.error.ErrorHandler
 import com.bmdstudios.flit.domain.repository.AudioRepository
 import com.bmdstudios.flit.domain.toAppError
+import com.bmdstudios.flit.data.sync.SyncScheduler
 import com.bmdstudios.flit.ui.util.NoteTitleExtractor
 import com.bmdstudios.flit.utils.AudioTranscriber
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -44,7 +46,9 @@ class TranscriptionViewModel @Inject constructor(
     private val audioTranscriber: AudioTranscriber,
     private val audioRepository: AudioRepository,
     private val noteDao: NoteDao,
-    private val relationshipDao: RelationshipDao
+    private val noteWriter: NoteWriter,
+    private val relationshipDao: RelationshipDao,
+    private val syncScheduler: SyncScheduler
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<TranscriptionUiState>(TranscriptionUiState.Idle)
@@ -135,10 +139,10 @@ class TranscriptionViewModel @Inject constructor(
                 embedding_vector = null,
                 created_at = currentTime,
                 updated_at = currentTime,
-                status = NoteStatus.DRAFT
+                workflow_status = NoteStatus.DRAFT
             )
             
-            val noteId = noteDao.insertNote(note)
+            val noteId = noteWriter.insertNote(note)
             Timber.i("Note created successfully with id: $noteId, title: $title")
 
             // Create relationship if parent note ID is provided
@@ -151,11 +155,17 @@ class TranscriptionViewModel @Inject constructor(
                         RelationshipType.FOLLOWS_ON
                     )
                     if (existing == null) {
+                        val noteA = noteDao.getNoteById(noteId)
+                        val noteB = noteDao.getNoteById(parentNoteId)
+                        val relNow = System.currentTimeMillis()
                         val relationship = RelationshipEntity(
                             note_a_id = noteId,
                             note_b_id = parentNoteId,
+                            note_a_core_id = noteA?.core_id,
+                            note_b_core_id = noteB?.core_id,
                             type = RelationshipType.FOLLOWS_ON,
-                            created_at = System.currentTimeMillis()
+                            created_at = relNow,
+                            updated_at = relNow
                         )
                         relationshipDao.insertRelationship(relationship)
                         Timber.i("Created FOLLOWS_ON relationship: note $noteId -> note $parentNoteId")
@@ -167,6 +177,7 @@ class TranscriptionViewModel @Inject constructor(
                     // Don't fail note creation if relationship creation fails
                 }
             }
+            syncScheduler.scheduleSyncAfterMutation()
         } catch (e: Exception) {
             Timber.e(e, "Failed to create note from transcription")
             // Don't update UI state - transcription was successful, note creation failure is logged

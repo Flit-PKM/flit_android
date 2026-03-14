@@ -10,6 +10,7 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -18,9 +19,11 @@ import javax.inject.Inject
 /**
  * Integration tests for model download flow.
  * Tests the complete model download process from start to finish.
+ * Skipped until real test fixtures and assertions are implemented.
  */
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
+@Ignore("Placeholder structure only; implement with test fixtures and assertions")
 class ModelDownloadIntegrationTest {
 
     @get:Rule

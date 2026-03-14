@@ -1,0 +1,24 @@
+package com.bmdstudios.flit.data.database
+
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
+
+private const val VERSION_3 = 3
+private const val VERSION_4 = 4
+
+/**
+ * Migration from database version 3 to 4: add notesearch table.
+ * Content is populated by app code (one-time rebuild) after migration.
+ */
+val MIGRATION_3_4 = object : Migration(VERSION_3, VERSION_4) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS notesearch (
+                note_id INTEGER PRIMARY KEY NOT NULL,
+                content TEXT NOT NULL
+            )
+            """.trimIndent()
+        )
+    }
+}

@@ -26,17 +26,24 @@ import com.bmdstudios.flit.data.database.model.RelationshipType
         )
     ],
     indices = [
+        Index(value = ["note_a_core_id", "note_b_core_id"], unique = true),
         Index(value = ["note_a_id"]),
         Index(value = ["note_b_id"]),
         Index(value = ["type"]),
-        Index(value = ["note_a_id", "note_b_id", "type"], unique = true)
+        Index(value = ["note_a_id", "note_b_id", "type"], unique = true),
+        Index(value = ["is_deleted"])
     ]
 )
 data class RelationshipEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
+    val note_a_core_id: Long? = null,
+    val note_b_core_id: Long? = null,
+    val ver: Int = 1,
+    val is_deleted: Boolean = false,
     val note_a_id: Long,
     val note_b_id: Long,
     val type: RelationshipType,
-    val created_at: Long
+    val created_at: Long,
+    val updated_at: Long
 )

@@ -25,11 +25,18 @@ import androidx.room.Index
         )
     ],
     indices = [
+        Index(value = ["note_core_id", "category_core_id"], unique = true),
         Index(value = ["note_id"]),
-        Index(value = ["category_id"])
+        Index(value = ["category_id"]),
+        Index(value = ["is_deleted"])
     ]
 )
 data class NoteCategoryCrossRef(
     val note_id: Long,
-    val category_id: Long
+    val category_id: Long,
+    val note_core_id: Long? = null,
+    val category_core_id: Long? = null,
+    val ver: Int = 1,
+    val is_deleted: Boolean = false,
+    val updated_at: Long
 )

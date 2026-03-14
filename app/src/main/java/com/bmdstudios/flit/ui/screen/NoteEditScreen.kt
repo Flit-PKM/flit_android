@@ -48,6 +48,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.bmdstudios.flit.domain.error.ErrorHandler
+import com.bmdstudios.flit.ui.component.PrimaryActionButton
+import com.bmdstudios.flit.ui.component.PrimaryActionButtonRow
 import com.bmdstudios.flit.ui.dialog.AddRelationshipDialog
 import com.bmdstudios.flit.ui.util.displayName
 import com.bmdstudios.flit.ui.viewmodel.NotesViewModel
@@ -220,9 +222,8 @@ fun NoteEditScreen(
                     }
 
                     // Add Category button
-                    Button(
+                    PrimaryActionButton(
                         onClick = { dropdownExpanded = !dropdownExpanded },
-                        modifier = Modifier.fillMaxWidth(),
                         enabled = availableCategories.isNotEmpty() || allCategories.isEmpty()
                     ) {
                         Icon(
@@ -345,9 +346,8 @@ fun NoteEditScreen(
                     }
 
                     // Add Relationship button
-                    Button(
-                        onClick = { showAddRelationshipDialog = true },
-                        modifier = Modifier.fillMaxWidth()
+                    PrimaryActionButton(
+                        onClick = { showAddRelationshipDialog = true }
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Add,
@@ -370,10 +370,7 @@ fun NoteEditScreen(
                 )
             }
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+            PrimaryActionButtonRow {
                 Button(
                     onClick = {
                         coroutineScope.launch(Dispatchers.IO) {
@@ -381,10 +378,12 @@ fun NoteEditScreen(
                                 val updatedNote = currentNote.copy(
                                     title = titleText.trim(),
                                     text = bodyText.trim(),
-                                    updated_at = System.currentTimeMillis()
+                                    updated_at = System.currentTimeMillis(),
+                                    ver = currentNote.ver + 1
                                 )
-                                notesViewModel.noteDao.updateNote(updatedNote)
+                                notesViewModel.updateNote(updatedNote)
                                 Timber.tag(TAG).d("Note updated successfully: ${updatedNote.id}")
+                                notesViewModel.scheduleSyncAfterMutation()
                                 withContext(Dispatchers.Main) {
                                     navController.popBackStack()
                                 }

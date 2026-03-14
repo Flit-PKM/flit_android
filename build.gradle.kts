@@ -5,4 +5,16 @@ plugins {
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.hilt.android) apply false
     alias(libs.plugins.kotlin.kapt) apply false
+    alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.detekt) apply true
+}
+
+subprojects {
+    apply(plugin = "io.gitlab.arturbosch.detekt")
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+    config.setFrom(files("${rootProject.projectDir}/detekt.yml"))
 }

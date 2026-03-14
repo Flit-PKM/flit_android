@@ -1,0 +1,13 @@
+# Detekt config; buildUponDefaultConfig = true in build.gradle.kts
+# so this file only overrides defaults. See https://detekt.dev/docs/introduction/configurations
+# Baseline: run ./gradlew detektBaseline to update when accepting current findings.
+
+build:
+  maxIssues: 0
+  excludeCorrectable: false
+  baseline = "detekt-baseline.xml"
+
+style:
+  MaxLineLength:
+    active: true
+    maxLineLength: 120

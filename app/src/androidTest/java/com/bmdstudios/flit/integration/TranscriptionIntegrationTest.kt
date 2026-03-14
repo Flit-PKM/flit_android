@@ -9,6 +9,7 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -18,9 +19,11 @@ import javax.inject.Inject
 /**
  * Integration tests for recording → transcription flow.
  * Tests the complete flow from audio recording to text transcription.
+ * Skipped until real test assets and assertions are implemented.
  */
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
+@Ignore("Placeholder structure only; implement with test audio and assertions")
 class TranscriptionIntegrationTest {
 
     @get:Rule

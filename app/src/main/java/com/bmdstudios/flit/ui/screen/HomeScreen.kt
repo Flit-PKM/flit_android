@@ -35,7 +35,8 @@ private const val TAG = "HomeScreen"
 fun HomeScreen(
     modelDownloadState: DownloadUiState,
     notesViewModel: NotesViewModel,
-    navController: NavHostController
+    navController: NavHostController,
+    noteDetailsEnabled: Boolean = false
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -57,6 +58,7 @@ fun HomeScreen(
         NotesList(
             notesViewModel = notesViewModel,
             navController = navController,
+            noteDetailsEnabled = noteDetailsEnabled,
             modifier = Modifier
                 .fillMaxSize()
                 .weight(1f)
@@ -71,6 +73,7 @@ fun HomeScreen(
 private fun NotesList(
     notesViewModel: NotesViewModel,
     navController: NavHostController,
+    noteDetailsEnabled: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val notes by notesViewModel.notes.collectAsStateWithLifecycle()
@@ -105,7 +108,8 @@ private fun NotesList(
                 NoteCard(
                     note = note,
                     navController = navController,
-                    notesViewModel = notesViewModel
+                    notesViewModel = notesViewModel,
+                    showDetails = noteDetailsEnabled
                 )
             }
         }

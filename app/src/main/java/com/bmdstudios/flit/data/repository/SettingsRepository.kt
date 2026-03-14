@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.bmdstudios.flit.ui.settings.ModelSize
@@ -31,6 +32,10 @@ class SettingsRepository @Inject constructor(
     companion object {
         private val THEME_MODE_KEY = stringPreferencesKey("theme_mode")
         private val MODEL_SIZE_KEY = stringPreferencesKey("model_size")
+        private val NOTE_DETAILS_KEY = booleanPreferencesKey("note_details")
+        private val ACCESS_TOKEN_KEY = stringPreferencesKey("access_token")
+        private val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
+        private val TOKEN_EXPIRES_AT_KEY = stringPreferencesKey("token_expires_at")
         private const val TAG = "SettingsRepository"
     }
 
@@ -131,6 +136,138 @@ class SettingsRepository @Inject constructor(
         } catch (e: Exception) {
             Timber.e(e, "Error checking model size preference")
             false
+        }
+    }
+
+    /**
+     * Flow of note details preference.
+     * Defaults to false (show only title) if no preference is set.
+     */
+    val noteDetailsFlow: Flow<Boolean> = dataStore.data.map { preferences ->
+        preferences[NOTE_DETAILS_KEY] ?: false
+    }
+
+    /**
+     * Gets the current note details preference synchronously.
+     * Note: This is a suspend function and should be called from a coroutine.
+     */
+    suspend fun getNoteDetails(): Boolean {
+        return try {
+            val preferences = dataStore.data.first()
+            preferences[NOTE_DETAILS_KEY] ?: false
+        } catch (e: Exception) {
+            Timber.e(e, "Error reading note details preference, defaulting to false")
+            false
+        }
+    }
+
+    /**
+     * Sets the note details preference.
+     */
+    suspend fun setNoteDetails(enabled: Boolean) {
+        try {
+            dataStore.edit { preferences ->
+                preferences[NOTE_DETAILS_KEY] = enabled
+            }
+            Timber.d("Note details set to: $enabled")
+        } catch (e: Exception) {
+            Timber.e(e, "Error setting note details preference")
+        }
+    }
+
+    /**
+     * Saves access and refresh tokens along with expiration time.
+     */
+    suspend fun saveTokens(accessToken: String, refreshToken: String, expiresIn: Int) {
+        try {
+            val expiresAt = System.currentTimeMillis() + (expiresIn * 1000L)
+            dataStore.edit { preferences ->
+                preferences[ACCESS_TOKEN_KEY] = accessToken
+                preferences[REFRESH_TOKEN_KEY] = refreshToken
+                preferences[TOKEN_EXPIRES_AT_KEY] = expiresAt.toString()
+            }
+            Timber.d("Tokens saved successfully")
+        } catch (e: Exception) {
+            Timber.e(e, "Error saving tokens")
+        }
+    }
+
+    /**
+     * Flow of access token.
+     * Returns null if no token is stored.
+     */
+    val accessTokenFlow: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[ACCESS_TOKEN_KEY]
+    }
+
+    /**
+     * Gets the current access token synchronously.
+     */
+    suspend fun getAccessToken(): String? {
+        return try {
+            val preferences = dataStore.data.first()
+            preferences[ACCESS_TOKEN_KEY]
+        } catch (e: Exception) {
+            Timber.e(e, "Error reading access token")
+            null
+        }
+    }
+
+    /**
+     * Flow of refresh token.
+     * Returns null if no token is stored.
+     */
+    val refreshTokenFlow: Flow<String?> = dataStore.data.map { preferences ->
+        preferences[REFRESH_TOKEN_KEY]
+    }
+
+    /**
+     * Gets the current refresh token synchronously.
+     */
+    suspend fun getRefreshToken(): String? {
+        return try {
+            val preferences = dataStore.data.first()
+            preferences[REFRESH_TOKEN_KEY]
+        } catch (e: Exception) {
+            Timber.e(e, "Error reading refresh token")
+            null
+        }
+    }
+
+    /**
+     * Checks if a valid access token exists (not expired).
+     */
+    suspend fun hasValidToken(): Boolean {
+        return try {
+            val preferences = dataStore.data.first()
+            val accessToken = preferences[ACCESS_TOKEN_KEY]
+            val expiresAtString = preferences[TOKEN_EXPIRES_AT_KEY]
+            
+            if (accessToken == null || expiresAtString == null) {
+                false
+            } else {
+                val expiresAt = expiresAtString.toLongOrNull() ?: return false
+                System.currentTimeMillis() < expiresAt
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Error checking token validity")
+            false
+        }
+    }
+
+    /**
+     * Clears all stored tokens.
+     */
+    suspend fun clearTokens() {
+        try {
+            dataStore.edit { preferences ->
+                preferences.remove(ACCESS_TOKEN_KEY)
+                preferences.remove(REFRESH_TOKEN_KEY)
+                preferences.remove(TOKEN_EXPIRES_AT_KEY)
+            }
+            Timber.d("Tokens cleared")
+        } catch (e: Exception) {
+            Timber.e(e, "Error clearing tokens")
         }
     }
 }
