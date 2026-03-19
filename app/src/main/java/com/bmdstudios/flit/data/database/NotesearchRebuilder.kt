@@ -34,7 +34,7 @@ class NotesearchRebuilder @Inject constructor(
         val notes = noteDao.getAllNotes()
         for (note in notes) {
             val content = SearchNormalizer.normalize("${note.title} ${note.text}")
-            notesearchDao.upsert(NoteSearchEntity(note_id = note.id, content = content))
+            notesearchDao.upsert(NoteSearchEntity(noteId = note.id, content = content))
         }
         prefs.edit().putBoolean(KEY_REBUILT_V4, true).apply()
     }

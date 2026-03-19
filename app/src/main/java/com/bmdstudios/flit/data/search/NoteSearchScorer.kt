@@ -26,18 +26,18 @@ object NoteSearchScorer {
         candidates: List<NoteSearchRow>
     ): List<Long> {
         if (queryWords.isEmpty()) {
-            return candidates.sortedByDescending { it.updated_at }.map { it.note_id }
+            return candidates.sortedByDescending { it.updatedAt }.map { it.noteId }
         }
 
         val scored = candidates.map { row ->
-            row.note_id to scoreRow(queryWords, row)
+            row.noteId to scoreRow(queryWords, row)
         }
         return scored
             .filter { it.second > 0f }
             .sortedWith(
                 compareByDescending<Pair<Long, Float>> { it.second }
                     .thenByDescending { (noteId, _) ->
-                        candidates.find { it.note_id == noteId }!!.updated_at
+                        candidates.find { it.noteId == noteId }!!.updatedAt
                     }
             )
             .map { it.first }
@@ -48,53 +48,57 @@ object NoteSearchScorer {
         if (content.isBlank()) return 0f
 
         val contentWords = WORD_REGEX.findAll(content).map { it.value }.toList()
-        var score = 0f
-
-        // Exact whole phrase in content → highest boost
-        val fullQuery = queryWords.joinToString(" ")
-        if (fullQuery.length >= 2 && content.contains(fullQuery)) {
-            score += BOOST_EXACT_PHRASE
-        }
-
-        // Per-word: prefix of any content word or substring in content
-        var matchedWords = 0
-        for (q in queryWords) {
-            if (q.length < 2) continue
-            val prefixMatch = contentWords.any { w -> w.startsWith(q) || q.startsWith(w) }
-            val substringMatch = content.contains(q)
-            if (prefixMatch || substringMatch) {
-                score += BOOST_PER_WORD
-                matchedWords++
-            }
-        }
-
-        // All query words present → high boost
+        var score = scoreExactPhrase(content, queryWords)
+        val matchedWords = countMatchedWords(content, contentWords, queryWords)
+        score += BOOST_PER_WORD * matchedWords
         if (matchedWords == queryWords.size && queryWords.isNotEmpty()) {
             score += BOOST_ALL_WORDS
         }
+        score += scoreFuzzyBonus(contentWords, queryWords)
+        return score
+    }
 
-        // Fuzzy: small bonus for words that are similar but not exact
+    private fun scoreExactPhrase(content: String, queryWords: List<String>): Float {
+        val fullQuery = queryWords.joinToString(" ")
+        return if (fullQuery.length >= 2 && content.contains(fullQuery)) BOOST_EXACT_PHRASE else 0f
+    }
+
+    private fun countMatchedWords(
+        content: String,
+        contentWords: List<String>,
+        queryWords: List<String>
+    ): Int =
+        queryWords.count { q ->
+            q.length >= 2 && (
+                contentWords.any { w -> w.startsWith(q) || q.startsWith(w) } ||
+                    content.contains(q)
+            )
+        }
+
+    private fun scoreFuzzyBonus(contentWords: List<String>, queryWords: List<String>): Float {
+        var bonus = 0f
         for (q in queryWords) {
             if (q.length < 2) continue
             val best = contentWords.maxOfOrNull { w -> similarityRatio(q, w) } ?: 0f
             if (best >= FUZZY_RATIO_THRESHOLD && best < 1f) {
-                score += BONUS_FUZZY
+                bonus += BONUS_FUZZY
             }
         }
-
-        return score
+        return bonus
     }
 
     /**
      * Similarity ratio in [0, 1] (1 = identical). Based on Levenshtein distance.
      */
-    private fun similarityRatio(a: String, b: String): Float {
-        if (a == b) return 1f
-        if (a.isEmpty() || b.isEmpty()) return 0f
-        val maxLen = maxOf(a.length, b.length)
-        val distance = levenshtein(a, b)
-        return 1f - (distance.toFloat() / maxLen)
-    }
+    private fun similarityRatio(a: String, b: String): Float =
+        when {
+            a == b -> 1f
+            a.isEmpty() || b.isEmpty() -> 0f
+            else -> {
+                val maxLen = maxOf(a.length, b.length)
+                1f - (levenshtein(a, b).toFloat() / maxLen)
+            }
+        }
 
     private fun levenshtein(a: String, b: String): Int {
         val m = a.length

@@ -119,6 +119,7 @@ object RepositoryModule {
     /**
      * Provides PurgeDeletedRunner for purging soft-deleted rows older than 6 weeks.
      */
+    @Suppress("LongParameterList")
     @Provides
     @Singleton
     fun providePurgeDeletedRunner(

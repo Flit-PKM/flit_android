@@ -26,7 +26,7 @@ class NoteWriter @Inject constructor(
         val noteId = noteDao.insertNote(note)
         notesearchDao.upsert(
             NoteSearchEntity(
-                note_id = noteId,
+                noteId = noteId,
                 content = SearchNormalizer.normalize("${note.title} ${note.text}")
             )
         )
@@ -40,7 +40,7 @@ class NoteWriter @Inject constructor(
         noteDao.updateNote(note)
         notesearchDao.upsert(
             NoteSearchEntity(
-                note_id = note.id,
+                noteId = note.id,
                 content = SearchNormalizer.normalize("${note.title} ${note.text}")
             )
         )

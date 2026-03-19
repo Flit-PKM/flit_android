@@ -1,5 +1,6 @@
 package com.bmdstudios.flit.data.database.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -11,6 +12,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "notesearch")
 data class NoteSearchEntity(
     @PrimaryKey
-    val note_id: Long,
+    @ColumnInfo(name = "note_id")
+    val noteId: Long,
     val content: String
 )
