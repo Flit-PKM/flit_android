@@ -1,378 +1,221 @@
+@file:Suppress("MagicNumber")
 package com.bmdstudios.flit.ui.theme
 
-import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.pow
-import kotlin.math.roundToInt
 
-// Single seed color - Material 3 will generate the entire palette from this
-val SeedColor = Color(0xFF0074B7)
+val primaryLight = Color(0xFF1F6586)
+val onPrimaryLight = Color(0xFFFFFFFF)
+val primaryContainerLight = Color(0xFFC5E7FF)
+val onPrimaryContainerLight = Color(0xFF004C6A)
+val secondaryLight = Color(0xFF4E616D)
+val onSecondaryLight = Color(0xFFFFFFFF)
+val secondaryContainerLight = Color(0xFFD2E5F4)
+val onSecondaryContainerLight = Color(0xFF374955)
+val tertiaryLight = Color(0xFF61597C)
+val onTertiaryLight = Color(0xFFFFFFFF)
+val tertiaryContainerLight = Color(0xFFE7DEFF)
+val onTertiaryContainerLight = Color(0xFF494263)
+val errorLight = Color(0xFFBA1A1A)
+val onErrorLight = Color(0xFFFFFFFF)
+val errorContainerLight = Color(0xFFFFDAD6)
+val onErrorContainerLight = Color(0xFF93000A)
+val backgroundLight = Color(0xFFF6FAFE)
+val onBackgroundLight = Color(0xFF181C1F)
+val surfaceLight = Color(0xFFF6FAFE)
+val onSurfaceLight = Color(0xFF181C1F)
+val surfaceVariantLight = Color(0xFFDDE3EA)
+val onSurfaceVariantLight = Color(0xFF41484D)
+val outlineLight = Color(0xFF71787E)
+val outlineVariantLight = Color(0xFFC1C7CE)
+val scrimLight = Color(0xFF000000)
+val inverseSurfaceLight = Color(0xFF2C3134)
+val inverseOnSurfaceLight = Color(0xFFEDF1F5)
+val inversePrimaryLight = Color(0xFF91CEF4)
+val surfaceDimLight = Color(0xFFD7DADF)
+val surfaceBrightLight = Color(0xFFF6FAFE)
+val surfaceContainerLowestLight = Color(0xFFFFFFFF)
+val surfaceContainerLowLight = Color(0xFFF0F4F8)
+val surfaceContainerLight = Color(0xFFEBEEF3)
+val surfaceContainerHighLight = Color(0xFFE5E8ED)
+val surfaceContainerHighestLight = Color(0xFFDFE3E7)
 
-/**
- * HSL color representation for easier color manipulation.
- */
-private data class HSL(
-    val h: Float, // Hue: 0-360
-    val s: Float, // Saturation: 0-1
-    val l: Float  // Lightness: 0-1
-)
+val primaryLightMediumContrast = Color(0xFF003B53)
+val onPrimaryLightMediumContrast = Color(0xFFFFFFFF)
+val primaryContainerLightMediumContrast = Color(0xFF327496)
+val onPrimaryContainerLightMediumContrast = Color(0xFFFFFFFF)
+val secondaryLightMediumContrast = Color(0xFF263844)
+val onSecondaryLightMediumContrast = Color(0xFFFFFFFF)
+val secondaryContainerLightMediumContrast = Color(0xFF5D6F7C)
+val onSecondaryContainerLightMediumContrast = Color(0xFFFFFFFF)
+val tertiaryLightMediumContrast = Color(0xFF383152)
+val onTertiaryLightMediumContrast = Color(0xFFFFFFFF)
+val tertiaryContainerLightMediumContrast = Color(0xFF70688C)
+val onTertiaryContainerLightMediumContrast = Color(0xFFFFFFFF)
+val errorLightMediumContrast = Color(0xFF740006)
+val onErrorLightMediumContrast = Color(0xFFFFFFFF)
+val errorContainerLightMediumContrast = Color(0xFFCF2C27)
+val onErrorContainerLightMediumContrast = Color(0xFFFFFFFF)
+val backgroundLightMediumContrast = Color(0xFFF6FAFE)
+val onBackgroundLightMediumContrast = Color(0xFF181C1F)
+val surfaceLightMediumContrast = Color(0xFFF6FAFE)
+val onSurfaceLightMediumContrast = Color(0xFF0D1215)
+val surfaceVariantLightMediumContrast = Color(0xFFDDE3EA)
+val onSurfaceVariantLightMediumContrast = Color(0xFF30373C)
+val outlineLightMediumContrast = Color(0xFF4C5359)
+val outlineVariantLightMediumContrast = Color(0xFF676E74)
+val scrimLightMediumContrast = Color(0xFF000000)
+val inverseSurfaceLightMediumContrast = Color(0xFF2C3134)
+val inverseOnSurfaceLightMediumContrast = Color(0xFFEDF1F5)
+val inversePrimaryLightMediumContrast = Color(0xFF91CEF4)
+val surfaceDimLightMediumContrast = Color(0xFFC3C7CB)
+val surfaceBrightLightMediumContrast = Color(0xFFF6FAFE)
+val surfaceContainerLowestLightMediumContrast = Color(0xFFFFFFFF)
+val surfaceContainerLowLightMediumContrast = Color(0xFFF0F4F8)
+val surfaceContainerLightMediumContrast = Color(0xFFE5E8ED)
+val surfaceContainerHighLightMediumContrast = Color(0xFFD9DDE2)
+val surfaceContainerHighestLightMediumContrast = Color(0xFFCED2D6)
 
-/**
- * Converts RGB Color to HSL color space.
- */
-private fun Color.toHSL(): HSL {
-    val r = red
-    val g = green
-    val b = blue
-    
-    val max = maxOf(r, g, b)
-    val min = minOf(r, g, b)
-    val delta = max - min
-    
-    val l = (max + min) / 2f
-    
-    val s = when {
-        delta == 0f -> 0f
-        l > 0.5f -> delta / (2f - max - min)
-        else -> delta / (max + min)
-    }
-    
-    val h = when {
-        delta == 0f -> 0f
-        max == r -> {
-            val rawH = ((g - b) / delta) % 6f
-            (rawH * 60f).let { if (it < 0) it + 360f else it }
-        }
-        max == g -> ((b - r) / delta + 2f) * 60f
-        else -> ((r - g) / delta + 4f) * 60f
-    }
-    
-    return HSL(h, s.coerceIn(0f, 1f), l.coerceIn(0f, 1f))
-}
+val primaryLightHighContrast = Color(0xFF003044)
+val onPrimaryLightHighContrast = Color(0xFFFFFFFF)
+val primaryContainerLightHighContrast = Color(0xFF004F6E)
+val onPrimaryContainerLightHighContrast = Color(0xFFFFFFFF)
+val secondaryLightHighContrast = Color(0xFF1C2E39)
+val onSecondaryLightHighContrast = Color(0xFFFFFFFF)
+val secondaryContainerLightHighContrast = Color(0xFF394B57)
+val onSecondaryContainerLightHighContrast = Color(0xFFFFFFFF)
+val tertiaryLightHighContrast = Color(0xFF2E2747)
+val onTertiaryLightHighContrast = Color(0xFFFFFFFF)
+val tertiaryContainerLightHighContrast = Color(0xFF4C4466)
+val onTertiaryContainerLightHighContrast = Color(0xFFFFFFFF)
+val errorLightHighContrast = Color(0xFF600004)
+val onErrorLightHighContrast = Color(0xFFFFFFFF)
+val errorContainerLightHighContrast = Color(0xFF98000A)
+val onErrorContainerLightHighContrast = Color(0xFFFFFFFF)
+val backgroundLightHighContrast = Color(0xFFF6FAFE)
+val onBackgroundLightHighContrast = Color(0xFF181C1F)
+val surfaceLightHighContrast = Color(0xFFF6FAFE)
+val onSurfaceLightHighContrast = Color(0xFF000000)
+val surfaceVariantLightHighContrast = Color(0xFFDDE3EA)
+val onSurfaceVariantLightHighContrast = Color(0xFF000000)
+val outlineLightHighContrast = Color(0xFF262D32)
+val outlineVariantLightHighContrast = Color(0xFF434A4F)
+val scrimLightHighContrast = Color(0xFF000000)
+val inverseSurfaceLightHighContrast = Color(0xFF2C3134)
+val inverseOnSurfaceLightHighContrast = Color(0xFFFFFFFF)
+val inversePrimaryLightHighContrast = Color(0xFF91CEF4)
+val surfaceDimLightHighContrast = Color(0xFFB5B9BD)
+val surfaceBrightLightHighContrast = Color(0xFFF6FAFE)
+val surfaceContainerLowestLightHighContrast = Color(0xFFFFFFFF)
+val surfaceContainerLowLightHighContrast = Color(0xFFEDF1F5)
+val surfaceContainerLightHighContrast = Color(0xFFDFE3E7)
+val surfaceContainerHighLightHighContrast = Color(0xFFD1D5D9)
+val surfaceContainerHighestLightHighContrast = Color(0xFFC3C7CB)
 
-/**
- * Converts HSL color space to RGB Color.
- */
-private fun HSL.toColor(): Color {
-    val h = this.h / 360f
-    val s = this.s.coerceIn(0f, 1f)
-    val l = this.l.coerceIn(0f, 1f)
-    
-    val q = when {
-        l < 0.5f -> l * (1f + s)
-        else -> l + s - l * s
-    }
-    val p = 2f * l - q
-    
-    fun hueToRgb(t: Float): Float {
-        val t2 = when {
-            t < 0f -> t + 1f
-            t > 1f -> t - 1f
-            else -> t
-        }
-        return when {
-            t2 < 1f / 6f -> p + (q - p) * 6f * t2
-            t2 < 1f / 2f -> q
-            t2 < 2f / 3f -> p + (q - p) * (2f / 3f - t2) * 6f
-            else -> p
-        }
-    }
-    
-    val r = hueToRgb(h + 1f / 3f).coerceIn(0f, 1f)
-    val g = hueToRgb(h).coerceIn(0f, 1f)
-    val b = hueToRgb(h - 1f / 3f).coerceIn(0f, 1f)
-    
-    return Color(r, g, b)
-}
+val primaryDark = Color(0xFF91CEF4)
+val onPrimaryDark = Color(0xFF00344A)
+val primaryContainerDark = Color(0xFF004C6A)
+val onPrimaryContainerDark = Color(0xFFC5E7FF)
+val secondaryDark = Color(0xFFB6C9D8)
+val onSecondaryDark = Color(0xFF20333E)
+val secondaryContainerDark = Color(0xFF374955)
+val onSecondaryContainerDark = Color(0xFFD2E5F4)
+val tertiaryDark = Color(0xFFCBC1E9)
+val onTertiaryDark = Color(0xFF332C4C)
+val tertiaryContainerDark = Color(0xFF494263)
+val onTertiaryContainerDark = Color(0xFFE7DEFF)
+val errorDark = Color(0xFFFFB4AB)
+val onErrorDark = Color(0xFF690005)
+val errorContainerDark = Color(0xFF93000A)
+val onErrorContainerDark = Color(0xFFFFDAD6)
+val backgroundDark = Color(0xFF0F1417)
+val onBackgroundDark = Color(0xFFDFE3E7)
+val surfaceDark = Color(0xFF0F1417)
+val onSurfaceDark = Color(0xFFDFE3E7)
+val surfaceVariantDark = Color(0xFF41484D)
+val onSurfaceVariantDark = Color(0xFFC1C7CE)
+val outlineDark = Color(0xFF8B9297)
+val outlineVariantDark = Color(0xFF41484D)
+val scrimDark = Color(0xFF000000)
+val inverseSurfaceDark = Color(0xFFDFE3E7)
+val inverseOnSurfaceDark = Color(0xFF2C3134)
+val inversePrimaryDark = Color(0xFF1F6586)
+val surfaceDimDark = Color(0xFF0F1417)
+val surfaceBrightDark = Color(0xFF353A3D)
+val surfaceContainerLowestDark = Color(0xFF0A0F12)
+val surfaceContainerLowDark = Color(0xFF181C1F)
+val surfaceContainerDark = Color(0xFF1C2023)
+val surfaceContainerHighDark = Color(0xFF262B2E)
+val surfaceContainerHighestDark = Color(0xFF313539)
 
-/**
- * Adjusts the lightness of a color.
- */
-private fun Color.adjustLightness(factor: Float): Color {
-    val hsl = this.toHSL()
-    return HSL(hsl.h, hsl.s, (hsl.l * factor).coerceIn(0f, 1f)).toColor()
-}
+val primaryDarkMediumContrast = Color(0xFFB7E2FF)
+val onPrimaryDarkMediumContrast = Color(0xFF00293B)
+val primaryContainerDarkMediumContrast = Color(0xFF5A98BC)
+val onPrimaryContainerDarkMediumContrast = Color(0xFF000000)
+val secondaryDarkMediumContrast = Color(0xFFCBDFEE)
+val onSecondaryDarkMediumContrast = Color(0xFF152833)
+val secondaryContainerDarkMediumContrast = Color(0xFF8093A1)
+val onSecondaryContainerDarkMediumContrast = Color(0xFF000000)
+val tertiaryDarkMediumContrast = Color(0xFFE1D7FF)
+val onTertiaryDarkMediumContrast = Color(0xFF282140)
+val tertiaryContainerDarkMediumContrast = Color(0xFF948BB1)
+val onTertiaryContainerDarkMediumContrast = Color(0xFF000000)
+val errorDarkMediumContrast = Color(0xFFFFD2CC)
+val onErrorDarkMediumContrast = Color(0xFF540003)
+val errorContainerDarkMediumContrast = Color(0xFFFF5449)
+val onErrorContainerDarkMediumContrast = Color(0xFF000000)
+val backgroundDarkMediumContrast = Color(0xFF0F1417)
+val onBackgroundDarkMediumContrast = Color(0xFFDFE3E7)
+val surfaceDarkMediumContrast = Color(0xFF0F1417)
+val onSurfaceDarkMediumContrast = Color(0xFFFFFFFF)
+val surfaceVariantDarkMediumContrast = Color(0xFF41484D)
+val onSurfaceVariantDarkMediumContrast = Color(0xFFD6DDE3)
+val outlineDarkMediumContrast = Color(0xFFACB3B9)
+val outlineVariantDarkMediumContrast = Color(0xFF8A9197)
+val scrimDarkMediumContrast = Color(0xFF000000)
+val inverseSurfaceDarkMediumContrast = Color(0xFFDFE3E7)
+val inverseOnSurfaceDarkMediumContrast = Color(0xFF262B2E)
+val inversePrimaryDarkMediumContrast = Color(0xFF004D6C)
+val surfaceDimDarkMediumContrast = Color(0xFF0F1417)
+val surfaceBrightDarkMediumContrast = Color(0xFF404549)
+val surfaceContainerLowestDarkMediumContrast = Color(0xFF04080B)
+val surfaceContainerLowDarkMediumContrast = Color(0xFF1A1E21)
+val surfaceContainerDarkMediumContrast = Color(0xFF24282C)
+val surfaceContainerHighDarkMediumContrast = Color(0xFF2F3337)
+val surfaceContainerHighestDarkMediumContrast = Color(0xFF3A3E42)
 
-/**
- * Adjusts the saturation (chroma) of a color.
- */
-private fun Color.adjustSaturation(factor: Float): Color {
-    val hsl = this.toHSL()
-    return HSL(hsl.h, (hsl.s * factor).coerceIn(0f, 1f), hsl.l).toColor()
-}
+val primaryDarkHighContrast = Color(0xFFE2F2FF)
+val onPrimaryDarkHighContrast = Color(0xFF000000)
+val primaryContainerDarkHighContrast = Color(0xFF8DCAF0)
+val onPrimaryContainerDarkHighContrast = Color(0xFF000D16)
+val secondaryDarkHighContrast = Color(0xFFE2F2FF)
+val onSecondaryDarkHighContrast = Color(0xFF000000)
+val secondaryContainerDarkHighContrast = Color(0xFFB2C5D4)
+val onSecondaryContainerDarkHighContrast = Color(0xFF000D16)
+val tertiaryDarkHighContrast = Color(0xFFF4EDFF)
+val onTertiaryDarkHighContrast = Color(0xFF000000)
+val tertiaryContainerDarkHighContrast = Color(0xFFC7BDE5)
+val onTertiaryContainerDarkHighContrast = Color(0xFF0D0624)
+val errorDarkHighContrast = Color(0xFFFFECE9)
+val onErrorDarkHighContrast = Color(0xFF000000)
+val errorContainerDarkHighContrast = Color(0xFFFFAEA4)
+val onErrorContainerDarkHighContrast = Color(0xFF220001)
+val backgroundDarkHighContrast = Color(0xFF0F1417)
+val onBackgroundDarkHighContrast = Color(0xFFDFE3E7)
+val surfaceDarkHighContrast = Color(0xFF0F1417)
+val onSurfaceDarkHighContrast = Color(0xFFFFFFFF)
+val surfaceVariantDarkHighContrast = Color(0xFF41484D)
+val onSurfaceVariantDarkHighContrast = Color(0xFFFFFFFF)
+val outlineDarkHighContrast = Color(0xFFEAF1F7)
+val outlineVariantDarkHighContrast = Color(0xFFBDC3CA)
+val scrimDarkHighContrast = Color(0xFF000000)
+val inverseSurfaceDarkHighContrast = Color(0xFFDFE3E7)
+val inverseOnSurfaceDarkHighContrast = Color(0xFF000000)
+val inversePrimaryDarkHighContrast = Color(0xFF004D6C)
+val surfaceDimDarkHighContrast = Color(0xFF0F1417)
+val surfaceBrightDarkHighContrast = Color(0xFF4C5154)
+val surfaceContainerLowestDarkHighContrast = Color(0xFF000000)
+val surfaceContainerLowDarkHighContrast = Color(0xFF1C2023)
+val surfaceContainerDarkHighContrast = Color(0xFF2C3134)
+val surfaceContainerHighDarkHighContrast = Color(0xFF373C40)
+val surfaceContainerHighestDarkHighContrast = Color(0xFF43474B)
 
-/**
- * Shifts the hue of a color by the specified degrees.
- */
-private fun Color.shiftHue(degrees: Float): Color {
-    val hsl = this.toHSL()
-    val newH = (hsl.h + degrees) % 360f
-    return HSL(if (newH < 0) newH + 360f else newH, hsl.s, hsl.l).toColor()
-}
-
-/**
- * Sets the lightness of a color to a specific value.
- */
-private fun Color.setLightness(targetLightness: Float): Color {
-    val hsl = this.toHSL()
-    return HSL(hsl.h, hsl.s, targetLightness.coerceIn(0f, 1f)).toColor()
-}
-
-/**
- * Sets the saturation of a color to a specific value.
- */
-private fun Color.setSaturation(targetSaturation: Float): Color {
-    val hsl = this.toHSL()
-    return HSL(hsl.h, targetSaturation.coerceIn(0f, 1f), hsl.l).toColor()
-}
-
-/**
- * Calculates the relative luminance of a color (for contrast calculation).
- */
-private fun Color.luminance(): Float {
-    fun toLinear(c: Float): Float {
-        return if (c <= 0.03928f) {
-            c / 12.92f
-        } else {
-            ((c + 0.055f) / 1.055f).pow(2.4f)
-        }
-    }
-    
-    val r = toLinear(red)
-    val g = toLinear(green)
-    val b = toLinear(blue)
-    
-    return 0.2126f * r + 0.7152f * g + 0.0722f * b
-}
-
-private fun Color.blend(color2: Color, ratio: Float): Color {
-    return Color(
-        red * ratio + color2.red * (1 - ratio),
-        green * ratio + color2.green * (1 - ratio),
-        blue * ratio + color2.blue * (1 - ratio)
-    )
-}
-
-/**
- * Calculates contrast ratio between two colors.
- */
-private fun contrastRatio(color1: Color, color2: Color): Float {
-    val l1 = color1.luminance() + 0.05f
-    val l2 = color2.luminance() + 0.05f
-    return if (l1 > l2) l1 / l2 else l2 / l1
-}
-
-/**
- * Determines the best on-color (white or black) for a given background color.
- */
-private fun getOnColor(backgroundColor: Color): Color {
-    val whiteContrast = contrastRatio(backgroundColor, Color.White)
-    val blackContrast = contrastRatio(backgroundColor, Color.Black)
-    return if (whiteContrast > blackContrast) Color.White else Color.Black
-}
-
-/**
- * Generates a light ColorScheme from a seed color using Material3 principles.
- * All colors are programmatically generated from the seed color.
- */
-fun lightColorSchemeFromSeed(seedColor: Color): ColorScheme {
-    val seedHSL = seedColor.toHSL()
-    
-    // Primary colors - use seed with appropriate lightness for light theme
-    val primary = seedColor.setLightness(0.45f) // Darker for light theme
-    val onPrimary = getOnColor(primary)
-    
-    // Primary container - lighter, desaturated variant
-    val primaryContainer = seedColor
-        .setLightness(0.90f)
-        .setSaturation(seedHSL.s * 0.3f)
-    val onPrimaryContainer = seedColor.setLightness(0.15f)
-    
-    // Secondary color - hue shifted by ~135 degrees (complementary-analogous)
-    val secondary = seedColor
-        .shiftHue(135f)
-        .setLightness(0.35f)
-        .setSaturation(seedHSL.s * 0.6f)
-    val onSecondary = getOnColor(secondary)
-    
-    // Secondary container - lighter, desaturated variant
-    val secondaryContainer = secondary
-        .setLightness(0.88f)
-        .setSaturation(seedHSL.s * 0.25f)
-    val onSecondaryContainer = secondary.setLightness(0.12f)
-    
-    // Tertiary color - hue shifted by ~60 degrees (accent)
-    val tertiary = seedColor
-        .shiftHue(60f)
-        .setLightness(0.40f)
-        .setSaturation(seedHSL.s * 0.7f)
-    val onTertiary = getOnColor(tertiary)
-    
-    // Tertiary container - lighter, desaturated variant
-    val tertiaryContainer = tertiary
-        .setLightness(0.92f)
-        .setSaturation(seedHSL.s * 0.3f)
-    val onTertiaryContainer = tertiary.setLightness(0.18f)
-    
-    // Error colors (standard Material red - semantic, not seed-based)
-    val error = Color(0xFFBA1A1A)
-    val onError = Color.White
-    val errorContainer = Color(0xFFFFDAD6)
-    val onErrorContainer = Color(0xFF410002)
-    
-    // Neutral colors - use seed hue with very low saturation for subtle tinting
-    val neutralHue = seedHSL.h
-    val background = HSL(neutralHue, 0.02f, 0.99f).toColor()
-    val onBackground = HSL(neutralHue, 0.05f, 0.10f).toColor()
-    val surface = background.blend(seedColor, 0.5f)
-    val onSurface = onBackground
-    val surfaceVariant = HSL(neutralHue, 0.05f, 0.88f).toColor()
-    val onSurfaceVariant = HSL(neutralHue, 0.08f, 0.27f).toColor()
-    val outline = HSL(neutralHue, 0.06f, 0.45f).toColor()
-    val outlineVariant = HSL(neutralHue, 0.04f, 0.77f).toColor()
-    
-    // Inverse colors - calculated from base colors
-    val inverseSurface = HSL(neutralHue, 0.05f, 0.18f).toColor()
-    val inverseOnSurface = HSL(neutralHue, 0.02f, 0.94f).toColor()
-    val inversePrimary = primary.setLightness(0.75f)
-    
-    val scrim = Color.Black
-    val surfaceTint = primary
-    
-    return lightColorScheme(
-        primary = primary,
-        onPrimary = onPrimary,
-        primaryContainer = primaryContainer,
-        onPrimaryContainer = onPrimaryContainer,
-        secondary = secondary,
-        onSecondary = onSecondary,
-        secondaryContainer = secondaryContainer,
-        onSecondaryContainer = onSecondaryContainer,
-        tertiary = tertiary,
-        onTertiary = onTertiary,
-        tertiaryContainer = tertiaryContainer,
-        onTertiaryContainer = onTertiaryContainer,
-        error = error,
-        onError = onError,
-        errorContainer = errorContainer,
-        onErrorContainer = onErrorContainer,
-        background = background,
-        onBackground = onBackground,
-        surface = surface,
-        onSurface = onSurface,
-        surfaceVariant = surfaceVariant,
-        onSurfaceVariant = onSurfaceVariant,
-        outline = outline,
-        outlineVariant = outlineVariant,
-        inverseSurface = inverseSurface,
-        inverseOnSurface = inverseOnSurface,
-        inversePrimary = inversePrimary,
-        scrim = scrim,
-        surfaceTint = surfaceTint
-    )
-}
-
-/**
- * Generates a dark ColorScheme from a seed color using Material3 principles.
- * All colors are programmatically generated from the seed color.
- */
-fun darkColorSchemeFromSeed(seedColor: Color): ColorScheme {
-    val seedHSL = seedColor.toHSL()
-    
-    // Primary colors - lighter variant for dark theme
-    val primary = seedColor.setLightness(0.75f)
-    val onPrimary = seedColor.setLightness(0.20f)
-    
-    // Primary container - darker, desaturated variant
-    val primaryContainer = seedColor
-        .setLightness(0.25f)
-        .setSaturation(seedHSL.s * 0.4f)
-    val onPrimaryContainer = primary.setLightness(0.85f)
-    
-    // Secondary color - hue shifted, lighter for dark theme
-    val secondary = seedColor
-        .shiftHue(135f)
-        .setLightness(0.75f)
-        .setSaturation(seedHSL.s * 0.5f)
-    val onSecondary = secondary.setLightness(0.20f)
-    
-    // Secondary container - darker, desaturated variant
-    val secondaryContainer = secondary
-        .setLightness(0.22f)
-        .setSaturation(seedHSL.s * 0.3f)
-    val onSecondaryContainer = secondary.setLightness(0.85f)
-    
-    // Tertiary color - hue shifted, lighter for dark theme
-    val tertiary = seedColor
-        .shiftHue(60f)
-        .setLightness(0.80f)
-        .setSaturation(seedHSL.s * 0.6f)
-    val onTertiary = tertiary.setLightness(0.25f)
-    
-    // Tertiary container - darker, desaturated variant
-    val tertiaryContainer = tertiary
-        .setLightness(0.30f)
-        .setSaturation(seedHSL.s * 0.35f)
-    val onTertiaryContainer = tertiary.setLightness(0.90f)
-    
-    // Error colors (standard Material red - semantic, not seed-based)
-    val error = Color(0xFFFFB4AB)
-    val onError = Color(0xFF690005)
-    val errorContainer = Color(0xFF93000A)
-    val onErrorContainer = Color(0xFFFFDAD6)
-    
-    // Neutral colors - use seed hue with very low saturation for subtle tinting
-    val neutralHue = seedHSL.h
-    val background = HSL(neutralHue, 0.05f, 0.10f).toColor()
-    val onBackground = HSL(neutralHue, 0.02f, 0.89f).toColor()
-    val surface = background.blend(seedColor, 0.5f)
-    val onSurface = onBackground
-    val surfaceVariant = HSL(neutralHue, 0.08f, 0.27f).toColor()
-    val onSurfaceVariant = HSL(neutralHue, 0.04f, 0.77f).toColor()
-    val outline = HSL(neutralHue, 0.06f, 0.55f).toColor()
-    val outlineVariant = HSL(neutralHue, 0.08f, 0.27f).toColor()
-    
-    // Inverse colors - calculated from base colors
-    val inverseSurface = HSL(neutralHue, 0.02f, 0.89f).toColor()
-    val inverseOnSurface = HSL(neutralHue, 0.05f, 0.18f).toColor()
-    val inversePrimary = seedColor.setLightness(0.40f)
-    
-    val scrim = Color.Black
-    val surfaceTint = primary
-    
-    return darkColorScheme(
-        primary = primary,
-        onPrimary = onPrimary,
-        primaryContainer = primaryContainer,
-        onPrimaryContainer = onPrimaryContainer,
-        secondary = secondary,
-        onSecondary = onSecondary,
-        secondaryContainer = secondaryContainer,
-        onSecondaryContainer = onSecondaryContainer,
-        tertiary = tertiary,
-        onTertiary = onTertiary,
-        tertiaryContainer = tertiaryContainer,
-        onTertiaryContainer = onTertiaryContainer,
-        error = error,
-        onError = onError,
-        errorContainer = errorContainer,
-        onErrorContainer = onErrorContainer,
-        background = background,
-        onBackground = onBackground,
-        surface = surface,
-        onSurface = onSurface,
-        surfaceVariant = surfaceVariant,
-        onSurfaceVariant = onSurfaceVariant,
-        outline = outline,
-        outlineVariant = outlineVariant,
-        inverseSurface = inverseSurface,
-        inverseOnSurface = inverseOnSurface,
-        inversePrimary = inversePrimary,
-        scrim = scrim,
-        surfaceTint = surfaceTint
-    )
-}

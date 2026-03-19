@@ -85,6 +85,7 @@
     <ID>FunctionNaming:SearchDialog.kt$@Composable fun SearchDialog( onDismiss: () -&gt; Unit, notesViewModel: NotesViewModel, navController: NavHostController )</ID>
     <ID>FunctionNaming:SearchResultsScreen.kt$@Composable fun SearchResultsScreen( query: String, categoryId: Long, notesViewModel: NotesViewModel, navController: NavHostController )</ID>
     <ID>FunctionNaming:SettingsScreen.kt$@Composable fun SettingsScreen( viewModel: SettingsViewModel = hiltViewModel(), modelDownloadViewModel: ModelDownloadViewModel? = null )</ID>
+    <ID>FunctionNaming:Theme.kt$@Composable fun AppTheme( darkTheme: Boolean = isSystemInDarkTheme(), // Dynamic color is available on Android 12+ dynamicColor: Boolean = true, content: @Composable() () -&gt; Unit )</ID>
     <ID>FunctionNaming:Theme.kt$@Composable fun FlitTheme( themeMode: ThemeMode = ThemeMode.SYSTEM, // Dynamic color is available on Android 12+ dynamicColor: Boolean = true, content: @Composable () -&gt; Unit )</ID>
     <ID>FunctionNaming:TopBar.kt$@Composable fun TopBarTitle( navBackStackEntry: NavBackStackEntry?, notesViewModel: NotesViewModel ): String</ID>
     <ID>LongMethod:AddRelationshipDialog.kt$@Composable fun AddRelationshipDialog( noteId: Long, notesViewModel: NotesViewModel, onDismiss: () -&gt; Unit, onRelationshipAdded: () -&gt; Unit )</ID>
@@ -93,8 +94,7 @@
     <ID>LongMethod:BottomBar.kt$@Composable fun BottomBar( modelDownloadState: DownloadUiState, modelSize: ModelSize, voiceRecorderViewModel: VoiceRecorderViewModel, transcriptionViewModel: TranscriptionViewModel, notesViewModel: NotesViewModel )</ID>
     <ID>LongMethod:BottomBar.kt$@Composable private fun RecordButton( modelDownloadState: DownloadUiState, modelSize: ModelSize, voiceRecorderViewModel: VoiceRecorderViewModel, transcriptionViewModel: TranscriptionViewModel, notesViewModel: NotesViewModel )</ID>
     <ID>LongMethod:CategoriesScreen.kt$@Composable fun CategoriesScreen()</ID>
-    <ID>LongMethod:Color.kt$fun darkColorSchemeFromSeed(seedColor: Color): ColorScheme</ID>
-    <ID>LongMethod:Color.kt$fun lightColorSchemeFromSeed(seedColor: Color): ColorScheme</ID>
+    <ID>LongMethod:Color.kt$fun colorScheme(seedColor: Color, darkTheme: Boolean): ColorScheme</ID>
     <ID>LongMethod:ConnectDialog.kt$@Composable fun ConnectDialog( onDismiss: () -&gt; Unit, onConnect: (connectionCode: String) -&gt; Unit, isLoading: Boolean = false, errorMessage: String? = null )</ID>
     <ID>LongMethod:MainActivity.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MainContent( activity: ComponentActivity, modelDownloadViewModel: ModelDownloadViewModel )</ID>
     <ID>LongMethod:ModelDownloadProgress.kt$@Composable fun ModelDownloadProgress( uiState: DownloadUiState, modifier: Modifier = Modifier )</ID>
@@ -114,7 +114,9 @@
     <ID>LongParameterList:HuggingFaceModelDownloader.kt$HuggingFaceModelDownloader$( body: okhttp3.ResponseBody, request: DownloadRequest, offset: Long, isPartial: Boolean, totalSize: Long, lastProgressUpdate: Long )</ID>
     <ID>LongParameterList:ModelDownloadViewModel.kt$ModelDownloadViewModel$( modelName: String, filename: String, downloaded: Long, total: Long, progress: Float, lastLoggedProgress: MutableList&lt;Float&gt;, updateState: (Float) -&gt; Unit )</ID>
     <ID>LongParameterList:RepositoryModule.kt$RepositoryModule$( noteDao: NoteDao, categoryDao: CategoryDao, relationshipDao: RelationshipDao, noteCategoryDao: NoteCategoryDao, database: FlitDatabase, @ApplicationContext context: Context )</ID>
-    <ID>LongParameterList:SyncRepository.kt$SyncRepository$( private val api: FlitApiService, private val settings: SettingsRepository, private val noteDao: NoteDao, private val chunkDao: ChunkDao, private val categoryDao: CategoryDao, private val relationshipDao: RelationshipDao, private val noteCategoryDao: NoteCategoryDao )</ID>
+    <ID>LongParameterList:RepositoryModule.kt$fun providePurgeDeletedRunner( noteDao: NoteDao, chunkDao: ChunkDao, categoryDao: CategoryDao, relationshipDao: RelationshipDao, noteCategoryDao: NoteCategoryDao, notesearchDao: NotesearchDao )</ID>
+    <ID>LongParameterList:NotesViewModel.kt$NotesViewModel$( val noteDao: NoteDao, private val chunkDao: ChunkDao, private val noteCategoryDao: NoteCategoryDao, private val categoryDao: CategoryDao, private val relationshipDao: RelationshipDao, private val notesearchDao: NotesearchDao, private val noteWriter: NoteWriter, private val syncScheduler: SyncScheduler )</ID>
+    <ID>LongParameterList:SyncRepository.kt$SyncRepository$( private val api: FlitApiService, private val settings: SettingsRepository, private val noteDao: NoteDao, private val chunkDao: ChunkDao, private val categoryDao: CategoryDao, private val relationshipDao: RelationshipDao, private val noteCategoryDao: NoteCategoryDao, private val noteWriter: NoteWriter )</ID>
     <ID>LongParameterList:Tts.kt$( modelDir: String, modelName: String, // for VITS acousticModelName: String, // for Matcha vocoder: String, // for Matcha voices: String, // for Kokoro or kitten lexicon: String, dataDir: String, dictDir: String, // unused ruleFsts: String, ruleFars: String, numThreads: Int? = null, isKitten: Boolean = false )</ID>
     <ID>LongParameterList:UtilityModule.kt$UtilityModule$( @ApplicationContext context: Context, appConfig: AppConfig, settingsRepository: SettingsRepository, modelTypeDetector: ModelTypeDetector, whisperModelConfigBuilder: com.bmdstudios.flit.utils.model.WhisperModelConfigBuilder, transducerModelConfigBuilder: com.bmdstudios.flit.utils.model.TransducerModelConfigBuilder, senseVoiceModelConfigBuilder: com.bmdstudios.flit.utils.model.SenseVoiceModelConfigBuilder, denoiserModelFactory: com.bmdstudios.flit.utils.model.DenoiserModelFactory, punctuationModelFactory: com.bmdstudios.flit.utils.model.PunctuationModelFactory, textPostProcessor: com.bmdstudios.flit.utils.text.TextPostProcessor )</ID>
     <ID>LoopWithTooManyJumpStatements:SyncRepository.kt$SyncRepository$for</ID>
@@ -472,6 +474,10 @@
     <ID>UnusedPrivateProperty:SettingsScreen.kt$val coroutineScope = rememberCoroutineScope()</ID>
     <ID>UnusedPrivateProperty:SyncScheduler.kt$SyncScheduler$private val context: Context</ID>
     <ID>UnusedPrivateProperty:VoiceRecorder.kt$VoiceRecorder$private val context: Context</ID>
+    <ID>UnusedPrivateProperty:Theme.kt$private val mediumContrastLightColorScheme</ID>
+    <ID>UnusedPrivateProperty:Theme.kt$private val highContrastLightColorScheme</ID>
+    <ID>UnusedPrivateProperty:Theme.kt$private val mediumContrastDarkColorScheme</ID>
+    <ID>UnusedPrivateProperty:Theme.kt$private val highContrastDarkColorScheme</ID>
     <ID>UseRequire:Tts.kt$throw IllegalArgumentException("Please provide vocoder for Matcha TTS")</ID>
     <ID>UseRequire:Tts.kt$throw IllegalArgumentException("Please specify a TTS model")</ID>
     <ID>UseRequire:Tts.kt$throw IllegalArgumentException("Please specify either a VITS or a Matcha model, but not both")</ID>

@@ -198,16 +198,21 @@ class NotesViewModel @Inject constructor(
         var candidates = notesearchDao.getAllWithUpdatedAt()
         if (categoryId != null) {
             val categoryNoteIds = noteCategoryDao.getNotesForCategory(categoryId).map { it.id }.toSet()
-            candidates = candidates.filter { it.note_id in categoryNoteIds }
+            candidates = candidates.filter { it.noteId in categoryNoteIds }
         }
         val queryWords = SearchNormalizer.queryWords(query)
-        if (queryWords.isEmpty()) {
-            return candidates.sortedByDescending { it.updated_at }.mapNotNull { noteDao.getNoteById(it.note_id) }
+        return when {
+            queryWords.isEmpty() ->
+                candidates.sortedByDescending { it.updatedAt }.mapNotNull { noteDao.getNoteById(it.noteId) }
+            else -> {
+                val rankedIds = NoteSearchScorer.rank(queryWords, candidates)
+                if (rankedIds.isEmpty()) emptyList()
+                else {
+                    val notes = noteDao.getNotesByIds(rankedIds)
+                    rankedIds.mapNotNull { id -> notes.find { it.id == id } }
+                }
+            }
         }
-        val rankedIds = NoteSearchScorer.rank(queryWords, candidates)
-        if (rankedIds.isEmpty()) return emptyList()
-        val notes = noteDao.getNotesByIds(rankedIds)
-        return rankedIds.mapNotNull { id -> notes.find { it.id == id } }
     }
 
     /**
