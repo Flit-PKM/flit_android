@@ -12,9 +12,13 @@ data class AppConfig(
     val audioConfig: AudioConfig = AudioConfig.default(),
     val modelConfig: ModelConfig,
     val networkConfig: NetworkConfig = NetworkConfig.default(),
-    val backendBaseUrl: String = "http://localhost:8000"
+    val backendBaseUrl: String = "http://localhost:8000",
+    /** HTTPS URL opened in the browser for Flit Core account / connection code (not the API base). */
+    val flitCoreWebLoginUrl: String = "https://core.flit-pkm.com/?redirect=login"
 ) {
     companion object {
+        const val ONBOARDING_REVISION: Int = 1
+
         /**
          * Creates the default application configuration.
          */
@@ -23,7 +27,8 @@ data class AppConfig(
             val modelConfig = ModelConfig.createDefault(context)
             return AppConfig(
                 modelConfig = modelConfig,
-                backendBaseUrl = BuildConfig.BACKEND_BASE_URL
+                backendBaseUrl = BuildConfig.BACKEND_BASE_URL,
+                flitCoreWebLoginUrl = BuildConfig.FLIT_CORE_WEB_LOGIN_URL
             )
         }
     }

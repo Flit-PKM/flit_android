@@ -60,6 +60,7 @@ fun NoteDetailScreen(
     notesViewModel: NotesViewModel,
     navController: NavHostController
 ) {
+    val scrollState = rememberScrollState()
     val note by notesViewModel.noteDao.getNoteByIdFlow(noteId)
         .collectAsStateWithLifecycle(initialValue = null)
     val categories by notesViewModel.getCategoriesForNoteFlow(noteId)
@@ -77,7 +78,7 @@ fun NoteDetailScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {

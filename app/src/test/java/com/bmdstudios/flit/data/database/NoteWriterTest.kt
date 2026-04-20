@@ -46,7 +46,7 @@ class NoteWriterTest {
         coVerify {
             notesearchDao.upsert(
                 match {
-                    it.note_id == 42L && it.content == "hello world"
+                    it.noteId == 42L && it.content == "hello world"
                 }
             )
         }
@@ -71,7 +71,7 @@ class NoteWriterTest {
         coVerify {
             notesearchDao.upsert(
                 match {
-                    it.note_id == 10L && it.content == "title body"
+                    it.noteId == 10L && it.content == "title body"
                 }
             )
         }

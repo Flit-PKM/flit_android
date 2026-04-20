@@ -39,61 +39,10 @@ fun ModelSelectionDialog(
             Text("Select Transcription Model")
         },
         text = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 500.dp)
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = "Choose a transcription model size based on your device and needs:",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(bottom = 8.dp),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                ModelSize.values().forEach { size ->
-                    ListItem(
-                        headlineContent = {
-                            Column {
-                                Text(
-                                    text = when (size) {
-                                        ModelSize.NONE -> "None"
-                                        ModelSize.LIGHT -> "Light"
-                                        ModelSize.MEDIUM -> "Medium"
-                                        ModelSize.HEAVY -> "Heavy"
-                                    },
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                                Text(
-                                    text = when (size) {
-                                        ModelSize.NONE -> "Text only - no transcription model"
-                                        ModelSize.LIGHT -> "Fast and less accurate, better on older phones • 162 MB"
-                                        ModelSize.MEDIUM -> "Balanced speed and accuracy • 375 MB"
-                                        ModelSize.HEAVY -> "Slower and more accurate, better on newer phones • 946 MB"
-                                    },
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(top = 4.dp)
-                                )
-                            }
-                        },
-                        leadingContent = {
-                            RadioButton(
-                                selected = selectedSize == size,
-                                onClick = { selectedSize = size }
-                            )
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .selectable(
-                                selected = selectedSize == size,
-                                onClick = { selectedSize = size }
-                            )
-                    )
-                }
-            }
+            ModelSelectionContent(
+                selectedSize = selectedSize,
+                onSelectedSizeChange = { selectedSize = it }
+            )
         },
         confirmButton = {
             Button(
@@ -103,4 +52,66 @@ fun ModelSelectionDialog(
             }
         }
     )
+}
+
+@Composable
+fun ModelSelectionContent(
+    selectedSize: ModelSize,
+    onSelectedSizeChange: (ModelSize) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(max = 500.dp)
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = "Choose a transcription model size based on your device and needs:",
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(bottom = 8.dp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        ModelSize.values().forEach { size ->
+            ListItem(
+                headlineContent = {
+                    Column {
+                        Text(
+                            text = when (size) {
+                                ModelSize.NONE -> "None"
+                                ModelSize.LIGHT -> "Light"
+                                ModelSize.MEDIUM -> "Medium"
+                                ModelSize.HEAVY -> "Performance"
+                            },
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = when (size) {
+                                ModelSize.NONE -> "Text only - no transcription model"
+                                ModelSize.LIGHT -> "Fast and less accurate, better on older phones • 162 MB"
+                                ModelSize.MEDIUM -> "Balanced speed and accuracy • 375 MB"
+                                ModelSize.HEAVY -> "Slower and more accurate, better on newer phones • 946 MB"
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                },
+                leadingContent = {
+                    RadioButton(
+                        selected = selectedSize == size,
+                        onClick = { onSelectedSizeChange(size) }
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .selectable(
+                        selected = selectedSize == size,
+                        onClick = { onSelectedSizeChange(size) }
+                    )
+            )
+        }
+    }
 }

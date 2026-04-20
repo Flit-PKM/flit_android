@@ -4,6 +4,7 @@ import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -40,7 +41,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,10 +57,14 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bmdstudios.flit.R
+import com.bmdstudios.flit.ui.onboarding.onboardingPulseHighlight
 import com.bmdstudios.flit.ui.settings.ModelSize
 import com.bmdstudios.flit.ui.viewmodel.DownloadUiState
 import com.bmdstudios.flit.ui.viewmodel.NotesViewModel
+import com.bmdstudios.flit.ui.viewmodel.TranscriptionUiState
+import com.bmdstudios.flit.ui.viewmodel.VoiceRecorderUiState
 import com.bmdstudios.flit.ui.viewmodel.TranscriptionViewModel
 import com.bmdstudios.flit.ui.viewmodel.VoiceRecorderViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -78,17 +82,18 @@ fun BottomBar(
     modelSize: ModelSize,
     voiceRecorderViewModel: VoiceRecorderViewModel,
     transcriptionViewModel: TranscriptionViewModel,
-    notesViewModel: NotesViewModel
+    notesViewModel: NotesViewModel,
+    highlightInputAndAction: Boolean = false
 ) {
-    val recorderState by voiceRecorderViewModel.uiState.collectAsState()
-    val transcriptionState by transcriptionViewModel.uiState.collectAsState()
-    val appendingNoteId by notesViewModel.appendingNoteId.collectAsState()
-    val isRecording = recorderState is com.bmdstudios.flit.ui.viewmodel.VoiceRecorderUiState.Recording
+    val recorderState by voiceRecorderViewModel.uiState.collectAsStateWithLifecycle()
+    val transcriptionState by transcriptionViewModel.uiState.collectAsStateWithLifecycle()
+    val appendingNoteId by notesViewModel.appendingNoteId.collectAsStateWithLifecycle()
+    val isRecording = recorderState is VoiceRecorderUiState.Recording
     
     // Determine status text (priority: Recording > Transcribing > Appending)
     val statusText = when {
         isRecording -> "Recording"
-        transcriptionState is com.bmdstudios.flit.ui.viewmodel.TranscriptionUiState.Transcribing -> "Transcribing"
+        transcriptionState is TranscriptionUiState.Transcribing -> "Transcribing"
         appendingNoteId != null -> "Appending"
         else -> null
     }
@@ -176,6 +181,18 @@ fun BottomBar(
             modifier = Modifier
                 .weight(1f)
                 .heightIn(min = 56.dp)
+                .then(
+                    if (highlightInputAndAction) {
+                        Modifier.onboardingPulseHighlight(
+                            enabled = true,
+                            shape = RoundedCornerShape(24.dp),
+                            color = MaterialTheme.colorScheme.primary,
+                            maxScale = 1.01f
+                        )
+                    } else {
+                        Modifier
+                    }
+                )
                 .focusRequester(focusRequester)
                 .onFocusChanged { focusState ->
                     isFocused = focusState.isFocused
@@ -203,7 +220,19 @@ fun BottomBar(
                     focusManager.clearFocus()
                 },
                 notesViewModel = notesViewModel,
-                coroutineScope = coroutineScope
+                coroutineScope = coroutineScope,
+                highlightActionButton = highlightInputAndAction
+            )
+        } else if (modelSize == ModelSize.NONE) {
+            SubmitButton(
+                text = textValue,
+                onNoteCreated = {
+                    textValue = ""
+                    focusManager.clearFocus()
+                },
+                notesViewModel = notesViewModel,
+                coroutineScope = coroutineScope,
+                highlightActionButton = highlightInputAndAction
             )
         } else {
             RecordButton(
@@ -211,7 +240,11 @@ fun BottomBar(
                 modelSize = modelSize,
                 voiceRecorderViewModel = voiceRecorderViewModel,
                 transcriptionViewModel = transcriptionViewModel,
-                notesViewModel = notesViewModel
+                notesViewModel = notesViewModel,
+                recorderState = recorderState,
+                transcriptionState = transcriptionState,
+                appendingNoteId = appendingNoteId,
+                highlightActionButton = highlightInputAndAction
             )
         }
         }
@@ -227,13 +260,26 @@ private fun SubmitButton(
     text: String,
     onNoteCreated: () -> Unit,
     notesViewModel: NotesViewModel,
-    coroutineScope: CoroutineScope
+    coroutineScope: CoroutineScope,
+    highlightActionButton: Boolean
 ) {
     val isEnabled = text.isNotBlank()
 
     Card(
         modifier = Modifier
             .size(48.dp)
+            .then(
+                if (highlightActionButton) {
+                    Modifier.onboardingPulseHighlight(
+                        enabled = true,
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primary,
+                        maxScale = 1.08f
+                    )
+                } else {
+                    Modifier
+                }
+            )
             .clickable(enabled = isEnabled) {
                 if (isEnabled) {
                     Timber.tag(TAG).d("Submitting note from text")
@@ -284,12 +330,13 @@ private fun RecordButton(
     modelSize: ModelSize,
     voiceRecorderViewModel: VoiceRecorderViewModel,
     transcriptionViewModel: TranscriptionViewModel,
-    notesViewModel: NotesViewModel
+    notesViewModel: NotesViewModel,
+    recorderState: VoiceRecorderUiState,
+    transcriptionState: TranscriptionUiState,
+    appendingNoteId: Long?,
+    highlightActionButton: Boolean
 ) {
     val context = LocalContext.current
-    val recorderState by voiceRecorderViewModel.uiState.collectAsState()
-    val transcriptionState by transcriptionViewModel.uiState.collectAsState()
-    val appendingNoteId by notesViewModel.appendingNoteId.collectAsState()
 
     var hasPermission by remember {
         mutableStateOf(
@@ -328,8 +375,8 @@ private fun RecordButton(
 
     // Handle recording completion and trigger transcription
     LaunchedEffect(recorderState, modelDownloadState) {
-        if (recorderState is com.bmdstudios.flit.ui.viewmodel.VoiceRecorderUiState.Recorded) {
-            val file = (recorderState as com.bmdstudios.flit.ui.viewmodel.VoiceRecorderUiState.Recorded).file
+        if (recorderState is VoiceRecorderUiState.Recorded) {
+            val file = recorderState.file
             val filePath = file.absolutePath
             
             // Check if this file has already been processed
@@ -349,7 +396,7 @@ private fun RecordButton(
     // Also reset transcription state after completion for clean state
     LaunchedEffect(transcriptionState) {
         when (transcriptionState) {
-            is com.bmdstudios.flit.ui.viewmodel.TranscriptionUiState.Success -> {
+            is TranscriptionUiState.Success -> {
                 if (appendingNoteId != null) {
                     Timber.tag(TAG).d("Transcription succeeded, clearing appending state")
                     notesViewModel.stopAppending()
@@ -358,7 +405,7 @@ private fun RecordButton(
                 kotlinx.coroutines.delay(500)
                 transcriptionViewModel.reset()
             }
-            is com.bmdstudios.flit.ui.viewmodel.TranscriptionUiState.Error -> {
+            is TranscriptionUiState.Error -> {
                 // Reset transcription state after error to allow retry
                 // Longer delay to give user time to notice error state if needed
                 kotlinx.coroutines.delay(3000)
@@ -374,23 +421,35 @@ private fun RecordButton(
         modifier = Modifier
             .size(48.dp)
             .then(
+                if (highlightActionButton) {
+                    Modifier.onboardingPulseHighlight(
+                        enabled = true,
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primary,
+                        maxScale = 1.08f
+                    )
+                } else {
+                    Modifier
+                }
+            )
+            .then(
                 if (isEnabled) {
                     Modifier.pointerInput(Unit) {
                         detectTapGestures(
                             onPress = {
                                 Timber.tag(TAG).d("Voice recorder button pressed")
                                 when (recorderState) {
-                                    is com.bmdstudios.flit.ui.viewmodel.VoiceRecorderUiState.Idle,
-                                    is com.bmdstudios.flit.ui.viewmodel.VoiceRecorderUiState.Recorded,
-                                    is com.bmdstudios.flit.ui.viewmodel.VoiceRecorderUiState.Error -> {
+                                    is VoiceRecorderUiState.Idle,
+                                    is VoiceRecorderUiState.Recorded,
+                                    is VoiceRecorderUiState.Error -> {
                                         voiceRecorderViewModel.startRecording()
                                     }
-                                    is com.bmdstudios.flit.ui.viewmodel.VoiceRecorderUiState.Recording -> {
+                                    is VoiceRecorderUiState.Recording -> {
                                         voiceRecorderViewModel.stopRecording()
                                     }
                                 }
                                 tryAwaitRelease()
-                                if (recorderState is com.bmdstudios.flit.ui.viewmodel.VoiceRecorderUiState.Recording) {
+                                if (recorderState is VoiceRecorderUiState.Recording) {
                                     voiceRecorderViewModel.stopRecording()
                                 }
                             }
@@ -404,7 +463,7 @@ private fun RecordButton(
         colors = CardDefaults.cardColors(
             containerColor = when {
                 !isEnabled -> MaterialTheme.colorScheme.surfaceVariant
-                recorderState is com.bmdstudios.flit.ui.viewmodel.VoiceRecorderUiState.Recording -> MaterialTheme.colorScheme.error
+                recorderState is VoiceRecorderUiState.Recording -> MaterialTheme.colorScheme.error
                 else -> MaterialTheme.colorScheme.primary
             }
         )
@@ -414,7 +473,7 @@ private fun RecordButton(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            if (recorderState is com.bmdstudios.flit.ui.viewmodel.VoiceRecorderUiState.Recording) {
+            if (recorderState is VoiceRecorderUiState.Recording) {
                 Text(
                     text = "●",
                     style = MaterialTheme.typography.titleLarge,

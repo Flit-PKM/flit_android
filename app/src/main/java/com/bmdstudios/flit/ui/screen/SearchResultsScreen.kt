@@ -11,6 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -36,10 +37,14 @@ fun SearchResultsScreen(
     // Decode the query (handle placeholder for empty queries)
     val decodedQuery = Screen.SearchResults.decodeQuery(query)
     val categoryIdOrNull = if (categoryId == -1L) null else categoryId
-    val notes by notesViewModel.searchNotesWithCategoryFlow(
-        query = decodedQuery,
-        categoryId = categoryIdOrNull
-    ).collectAsStateWithLifecycle(initialValue = emptyList())
+    val appendingNoteId by notesViewModel.appendingNoteId.collectAsStateWithLifecycle()
+    val searchResultsFlow = remember(decodedQuery, categoryIdOrNull) {
+        notesViewModel.searchNotesWithCategoryFlow(
+            query = decodedQuery,
+            categoryId = categoryIdOrNull
+        )
+    }
+    val notes by searchResultsFlow.collectAsStateWithLifecycle(initialValue = emptyList())
 
     Timber.tag(TAG).d("Displaying search results: query='$decodedQuery', categoryId=$categoryIdOrNull, count=${notes.size}")
 
@@ -63,11 +68,15 @@ fun SearchResultsScreen(
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(notes) { note ->
+            items(
+                items = notes,
+                key = { it.id }
+            ) { note ->
                 NoteCard(
                     note = note,
                     navController = navController,
-                    notesViewModel = notesViewModel
+                    notesViewModel = notesViewModel,
+                    isAppending = appendingNoteId == note.id
                 )
             }
         }

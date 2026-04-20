@@ -1,7 +1,6 @@
 package com.bmdstudios.flit.ui.viewmodel
 
 import com.bmdstudios.flit.data.database.dao.CategoryDao
-import com.bmdstudios.flit.data.database.dao.ChunkDao
 import com.bmdstudios.flit.data.database.dao.NoteCategoryDao
 import com.bmdstudios.flit.data.database.NoteWriter
 import com.bmdstudios.flit.data.database.dao.NoteDao
@@ -33,7 +32,6 @@ class NotesViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
 
     private val noteDao: NoteDao = mockk(relaxed = true)
-    private val chunkDao: ChunkDao = mockk(relaxed = true)
     private val noteCategoryDao: NoteCategoryDao = mockk(relaxed = true)
     private val categoryDao: CategoryDao = mockk(relaxed = true)
     private val relationshipDao: RelationshipDao = mockk(relaxed = true)
@@ -56,7 +54,6 @@ class NotesViewModelTest {
     fun startAppending_setsAppendingNoteId() = runTest(testDispatcher) {
         val viewModel = NotesViewModel(
             noteDao = noteDao,
-            chunkDao = chunkDao,
             noteCategoryDao = noteCategoryDao,
             categoryDao = categoryDao,
             relationshipDao = relationshipDao,
@@ -75,7 +72,6 @@ class NotesViewModelTest {
     fun stopAppending_clearsAppendingNoteId() = runTest(testDispatcher) {
         val viewModel = NotesViewModel(
             noteDao = noteDao,
-            chunkDao = chunkDao,
             noteCategoryDao = noteCategoryDao,
             categoryDao = categoryDao,
             relationshipDao = relationshipDao,
@@ -95,7 +91,6 @@ class NotesViewModelTest {
     fun scheduleSyncAfterMutation_callsSyncScheduler() = runTest(testDispatcher) {
         val viewModel = NotesViewModel(
             noteDao = noteDao,
-            chunkDao = chunkDao,
             noteCategoryDao = noteCategoryDao,
             categoryDao = categoryDao,
             relationshipDao = relationshipDao,

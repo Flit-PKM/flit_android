@@ -2,7 +2,6 @@ package com.bmdstudios.flit.data.repository
 
 import com.bmdstudios.flit.data.api.FlitApiService
 import com.bmdstudios.flit.data.database.dao.CategoryDao
-import com.bmdstudios.flit.data.database.dao.ChunkDao
 import com.bmdstudios.flit.data.database.dao.NoteCategoryDao
 import com.bmdstudios.flit.data.database.NoteWriter
 import com.bmdstudios.flit.data.database.dao.NoteDao
@@ -21,7 +20,6 @@ class SyncRepositoryTest {
     private val api: FlitApiService = mockk(relaxed = true)
     private val settings: SettingsRepository = mockk(relaxed = true)
     private val noteDao: NoteDao = mockk(relaxed = true)
-    private val chunkDao: ChunkDao = mockk(relaxed = true)
     private val categoryDao: CategoryDao = mockk(relaxed = true)
     private val relationshipDao: RelationshipDao = mockk(relaxed = true)
     private val noteCategoryDao: NoteCategoryDao = mockk(relaxed = true)
@@ -31,7 +29,6 @@ class SyncRepositoryTest {
         api = api,
         settings = settings,
         noteDao = noteDao,
-        chunkDao = chunkDao,
         categoryDao = categoryDao,
         relationshipDao = relationshipDao,
         noteCategoryDao = noteCategoryDao,

@@ -11,24 +11,25 @@ import com.bmdstudios.flit.ui.navigation.Screen
 @Composable
 fun NavigationIcon(
     navController: NavHostController,
-    currentRoute: String?
+    currentRoute: String?,
+    highlightMenu: Boolean = false
 ) {
     when {
         currentRoute == Screen.Home.route -> {
-            MenuButton(navController = navController)
+            MenuButton(navController = navController, highlighted = highlightMenu)
         }
         currentRoute?.startsWith("note/") == true || currentRoute?.startsWith("notes/category/") == true -> {
             BackButton(navController = navController)
         }
         currentRoute == Screen.Settings.route -> {
-            MenuButton(navController = navController)
+            MenuButton(navController = navController, highlighted = highlightMenu)
         }
         currentRoute == Screen.Categories.route -> {
-            MenuButton(navController = navController)
+            MenuButton(navController = navController, highlighted = highlightMenu)
         }
         else -> {
             // Default to menu button
-            MenuButton(navController = navController)
+            MenuButton(navController = navController, highlighted = highlightMenu)
         }
     }
 }

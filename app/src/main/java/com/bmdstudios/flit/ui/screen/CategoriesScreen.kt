@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bmdstudios.flit.data.database.entity.CategoryEntity
+import com.bmdstudios.flit.ui.onboarding.onboardingPulseHighlight
 import com.bmdstudios.flit.ui.viewmodel.CategoriesViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -55,7 +56,9 @@ import timber.log.Timber
  * Displays a list of categories with options to create, edit, and delete them.
  */
 @Composable
-fun CategoriesScreen() {
+fun CategoriesScreen(
+    highlightCategoryActions: Boolean = false
+) {
     val viewModel: CategoriesViewModel = hiltViewModel()
     val categories by viewModel.categories.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
@@ -76,7 +79,14 @@ fun CategoriesScreen() {
                     errorMessage = null
                     showCreateDialog = true
                 },
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier
+                    .padding(16.dp)
+                    .onboardingPulseHighlight(
+                        enabled = highlightCategoryActions,
+                        shape = RoundedCornerShape(16.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        maxScale = 1.04f
+                    )
             ) {
                 Icon(
                     imageVector = Icons.Filled.Add,
@@ -119,9 +129,13 @@ fun CategoriesScreen() {
                     ),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(categories) { category ->
+                    items(
+                        items = categories,
+                        key = { it.id }
+                    ) { category ->
                         CategoryCard(
                             category = category,
+                            highlightActions = highlightCategoryActions,
                             onEditClick = {
                                 selectedCategory = category
                                 categoryName = category.name
@@ -348,6 +362,7 @@ fun CategoriesScreen() {
 @Composable
 fun CategoryCard(
     category: CategoryEntity,
+    highlightActions: Boolean = false,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
@@ -374,7 +389,14 @@ fun CategoryCard(
             // Edit button
             IconButton(
                 onClick = onEditClick,
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier
+                    .size(40.dp)
+                    .onboardingPulseHighlight(
+                        enabled = highlightActions,
+                        shape = RoundedCornerShape(20.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        maxScale = 1.1f
+                    )
             ) {
                 Icon(
                     imageVector = Icons.Filled.Edit,
@@ -387,7 +409,14 @@ fun CategoryCard(
             // Delete button
             IconButton(
                 onClick = onDeleteClick,
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier
+                    .size(40.dp)
+                    .onboardingPulseHighlight(
+                        enabled = highlightActions,
+                        shape = RoundedCornerShape(20.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        maxScale = 1.1f
+                    )
             ) {
                 Icon(
                     imageVector = Icons.Filled.Delete,

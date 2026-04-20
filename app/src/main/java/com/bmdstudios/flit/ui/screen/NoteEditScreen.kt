@@ -70,6 +70,7 @@ fun NoteEditScreen(
     notesViewModel: NotesViewModel,
     navController: NavHostController
 ) {
+    val scrollState = rememberScrollState()
     val note by notesViewModel.noteDao.getNoteByIdFlow(noteId)
         .collectAsStateWithLifecycle(initialValue = null)
 
@@ -104,7 +105,6 @@ fun NoteEditScreen(
     }
 
     note?.let { currentNote ->
-        val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
                 .fillMaxSize()

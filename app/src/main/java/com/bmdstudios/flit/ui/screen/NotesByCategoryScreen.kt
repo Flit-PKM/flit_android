@@ -31,6 +31,7 @@ fun NotesByCategoryScreen(
     notesViewModel: NotesViewModel,
     navController: NavHostController
 ) {
+    val appendingNoteId by notesViewModel.appendingNoteId.collectAsStateWithLifecycle()
     val notes by notesViewModel.getNotesForCategoryFlow(categoryId)
         .collectAsStateWithLifecycle(initialValue = emptyList())
 
@@ -56,11 +57,15 @@ fun NotesByCategoryScreen(
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(notes) { note ->
+            items(
+                items = notes,
+                key = { it.id }
+            ) { note ->
                 NoteCard(
                     note = note,
                     navController = navController,
-                    notesViewModel = notesViewModel
+                    notesViewModel = notesViewModel,
+                    isAppending = appendingNoteId == note.id
                 )
             }
         }

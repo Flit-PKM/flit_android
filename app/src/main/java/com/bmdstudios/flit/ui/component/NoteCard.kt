@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -24,7 +25,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,6 +38,7 @@ import androidx.navigation.NavHostController
 import com.bmdstudios.flit.data.database.entity.NoteEntity
 import com.bmdstudios.flit.ui.dialog.DeleteNoteDialog
 import com.bmdstudios.flit.ui.navigation.Screen
+import com.bmdstudios.flit.ui.onboarding.onboardingPulseHighlight
 import com.bmdstudios.flit.ui.viewmodel.NotesViewModel
 import com.halilibo.richtext.commonmark.Markdown
 import com.halilibo.richtext.ui.material3.RichText
@@ -52,12 +53,12 @@ fun NoteCard(
     note: NoteEntity,
     navController: NavHostController,
     notesViewModel: NotesViewModel,
-    showDetails: Boolean = false
+    isAppending: Boolean,
+    showDetails: Boolean = false,
+    highlightActions: Boolean = false
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
-    val appendingNoteId by notesViewModel.appendingNoteId.collectAsState()
-    val isAppending = appendingNoteId == note.id
 
     Box(
         modifier = Modifier
@@ -119,7 +120,17 @@ fun NoteCard(
                 tonalElevation = 2.dp,
                 modifier = Modifier
                     .size(40.dp)
-                    .border(2.dp, MaterialTheme.colorScheme.background, CircleShape)
+                    .border(
+                        if (highlightActions) 2.5.dp else 2.dp,
+                        if (highlightActions) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.background,
+                        CircleShape
+                    )
+                    .onboardingPulseHighlight(
+                        enabled = highlightActions,
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primary,
+                        maxScale = 1.08f
+                    )
             ) {
                 IconButton(
                     onClick = {
@@ -147,7 +158,17 @@ fun NoteCard(
                 tonalElevation = 2.dp,
                 modifier = Modifier
                     .size(40.dp)
-                    .border(2.dp, MaterialTheme.colorScheme.background, CircleShape)
+                    .border(
+                        if (highlightActions) 2.5.dp else 2.dp,
+                        if (highlightActions) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.background,
+                        CircleShape
+                    )
+                    .onboardingPulseHighlight(
+                        enabled = highlightActions,
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primary,
+                        maxScale = 1.08f
+                    )
             ) {
                 IconButton(
                     onClick = {
@@ -171,7 +192,17 @@ fun NoteCard(
                 tonalElevation = 2.dp,
                 modifier = Modifier
                     .size(40.dp)
-                    .border(2.dp, MaterialTheme.colorScheme.background, CircleShape)
+                    .border(
+                        if (highlightActions) 2.5.dp else 2.dp,
+                        if (highlightActions) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.background,
+                        CircleShape
+                    )
+                    .onboardingPulseHighlight(
+                        enabled = highlightActions,
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primary,
+                        maxScale = 1.08f
+                    )
             ) {
                 IconButton(
                     onClick = {

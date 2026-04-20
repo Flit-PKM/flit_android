@@ -32,10 +32,22 @@ android {
         applicationId = "com.bmdstudios.flit"
         minSdk = 31
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Browser URL for Flit Core web login (independent of BACKEND_BASE_URL; debug API may be local).
+        buildConfigField(
+            "String",
+            "FLIT_CORE_WEB_LOGIN_URL",
+            "\"https://core.flit-pkm.com/?redirect=login\""
+        )
+        buildConfigField(
+            "String",
+            "PRIVACY_POLICY_URL",
+            "\"https://core.flit-pkm.com/terms\""
+        )
 
         externalNativeBuild{
             cmake{
@@ -68,6 +80,7 @@ android {
             if (hasReleaseSigning) {
                 signingConfig = signingConfigs.getByName("release")
             }
+            // mapping.txt (Play deobfuscation) is only produced when isMinifyEnabled is true.
             // Release is currently unminified; enable isMinifyEnabled and add keep rules if desired.
             isMinifyEnabled = false
             proguardFiles(
@@ -75,6 +88,9 @@ android {
                 "proguard-rules.pro"
             )
             buildConfigField("String", "BACKEND_BASE_URL", "\"https://core.flit-pkm.com\"")
+            ndk {
+                debugSymbolLevel = "SYMBOL_TABLE"
+            }
         }
     }
     compileOptions {
@@ -90,7 +106,7 @@ android {
         compose = true
         buildConfig = true
     }
-    
+
     packaging {
         jniLibs {
             useLegacyPackaging = false

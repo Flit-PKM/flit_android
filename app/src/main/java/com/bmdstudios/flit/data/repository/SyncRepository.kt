@@ -3,8 +3,6 @@ package com.bmdstudios.flit.data.repository
 import com.bmdstudios.flit.data.api.FlitApiService
 import com.bmdstudios.flit.data.api.model.CategorySync
 import com.bmdstudios.flit.data.api.model.CategoryVersion
-import com.bmdstudios.flit.data.api.model.ChunkSync
-import com.bmdstudios.flit.data.api.model.ChunkVersion
 import com.bmdstudios.flit.data.api.model.NoteCategorySync
 import com.bmdstudios.flit.data.api.model.NoteCategoryVersion
 import com.bmdstudios.flit.data.api.model.NoteSync
@@ -16,13 +14,11 @@ import com.bmdstudios.flit.data.api.model.RelationshipVersion
 import com.bmdstudios.flit.data.database.model.NoteStatus
 import com.bmdstudios.flit.data.database.model.RelationshipType
 import com.bmdstudios.flit.data.database.dao.CategoryDao
-import com.bmdstudios.flit.data.database.dao.ChunkDao
 import com.bmdstudios.flit.data.database.NoteWriter
 import com.bmdstudios.flit.data.database.dao.NoteCategoryDao
 import com.bmdstudios.flit.data.database.dao.NoteDao
 import com.bmdstudios.flit.data.database.dao.RelationshipDao
 import com.bmdstudios.flit.data.database.entity.CategoryEntity
-import com.bmdstudios.flit.data.database.entity.ChunkEntity
 import com.bmdstudios.flit.data.database.entity.NoteCategoryCrossRef
 import com.bmdstudios.flit.data.database.entity.NoteEntity
 import com.bmdstudios.flit.data.database.entity.RelationshipEntity
@@ -39,7 +35,7 @@ private const val SYNC_TAG = "Sync"
 /**
  * Orchestrates sync with the Flit Core backend.
  * Runs one table at a time: for each table, compare then all pull/push for that table.
- * Tables run in order (notes → chunks → categories → relationships → note-categories)
+ * Tables run in order (notes → categories → relationships → note-categories)
  * to avoid race conditions on composite ids. Within a table, pull and push requests
  * complete before moving to the next table.
  */
@@ -48,7 +44,6 @@ class SyncRepository @Inject constructor(
     private val api: FlitApiService,
     private val settings: SettingsRepository,
     private val noteDao: NoteDao,
-    private val chunkDao: ChunkDao,
     private val categoryDao: CategoryDao,
     private val relationshipDao: RelationshipDao,
     private val noteCategoryDao: NoteCategoryDao,
@@ -129,11 +124,6 @@ class SyncRepository @Inject constructor(
         Timber.tag(SYNC_TAG).d("Notes compare: toPull=${notesCompare.toPull.size}, toPush=${notesCompare.toPush.size}")
         syncNotesTable(token, notesCompare)
 
-        // Chunks: compare then pull/push
-        val chunksCompare = api.compareChunks(token, buildChunksCompareRequest()).getOrThrow()
-        Timber.tag(SYNC_TAG).d("Chunks compare: toPull=${chunksCompare.toPull.size}, toPush=${chunksCompare.toPush.size}")
-        syncChunksTable(token, chunksCompare)
-
         // Categories: compare then pull/push
         val categoriesCompare = api.compareCategories(token, buildCategoriesCompareRequest()).getOrThrow()
         Timber.tag(SYNC_TAG).d("Categories compare: toPull=${categoriesCompare.toPull.size}, toPush=${categoriesCompare.toPush.size}")
@@ -163,21 +153,6 @@ class SyncRepository @Inject constructor(
                 )
             }
         )
-
-    private suspend fun buildChunksCompareRequest(): com.bmdstudios.flit.data.api.model.CompareChunksRequest {
-        val noteCoreByLocalId = noteDao.getAllNotesForSync().associate { it.id to it.core_id }
-        return com.bmdstudios.flit.data.api.model.CompareChunksRequest(
-            chunks = chunkDao.getAllChunksForSync().map { c ->
-                ChunkVersion(
-                    coreId = c.core_id,
-                    appId = c.id,
-                    noteCoreId = noteCoreByLocalId[c.note_id],
-                    version = c.ver,
-                    isDeleted = c.is_deleted
-                )
-            }
-        )
-    }
 
     private suspend fun buildCategoriesCompareRequest() =
         com.bmdstudios.flit.data.api.model.CompareCategoriesRequest(
@@ -260,46 +235,6 @@ class SyncRepository @Inject constructor(
                     }
                 },
                 onFailure = { e -> Timber.tag(SYNC_TAG).w(e, "Notes: push failed for app_id=${local.id}") }
-            )
-        }
-    }
-
-    private suspend fun syncChunksTable(token: String, result: com.bmdstudios.flit.data.api.model.ChunksCompareResult) {
-        val pullIds = result.toPull.mapNotNull { it.coreId }
-        Timber.tag(SYNC_TAG).d("Chunks: pulling ${pullIds.size}")
-        val collected = mutableListOf<com.bmdstudios.flit.data.api.model.SyncChunkItem>()
-        for (coreId in pullIds) {
-            api.getChunk(token, coreId).fold(
-                onSuccess = { collected.add(it.chunk) },
-                onFailure = { e -> Timber.tag(SYNC_TAG).w(e, "GET /sync/chunks core_id=$coreId failed, skipping") }
-            )
-        }
-        if (collected.isNotEmpty()) applyChunksGet(collected)
-        val allChunks = chunkDao.getAllChunksForSync()
-        val chunkByAppId = allChunks.associateBy { it.id }
-        val chunkByCoreId = allChunks.filter { it.core_id != null }.associateBy { it.core_id!! }
-        val noteCoreByLocalId = noteDao.getAllNotesForSync().associate { it.id to it.core_id }
-        val toPush = mutableListOf<Pair<ChunkSync, ChunkEntity>>()
-        for (v in result.toPush) {
-            val local = v.appId?.let { chunkByAppId[it] } ?: v.coreId?.let { chunkByCoreId[it] }
-            val noteCoreId = v.noteCoreId ?: local?.let { noteCoreByLocalId[it.note_id] }
-            if (local != null && noteCoreId != null) {
-                val baseDto = entityToChunkSync(local, noteCoreId)
-                val dto = baseDto.copy(coreId = v.coreId ?: baseDto.coreId)
-                toPush.add(dto to local)
-            }
-        }
-        Timber.tag(SYNC_TAG).d("Chunks: pushing ${toPush.size}")
-        for ((dto, local) in toPush) {
-            api.pushChunk(token, dto).fold(
-                onSuccess = { pushResult ->
-                    if (pushResult.status != "rejected" && pushResult.serverVersion != null) {
-                        chunkDao.updateChunk(local.copy(core_id = pushResult.coreId, ver = pushResult.serverVersion))
-                    } else if (pushResult.status == "rejected") {
-                        Timber.tag(SYNC_TAG).w("Chunks: push rejected for app_id=${local.id}")
-                    }
-                },
-                onFailure = { e -> Timber.tag(SYNC_TAG).w(e, "Chunks: push failed for app_id=${local.id}") }
             )
         }
     }
@@ -454,17 +389,6 @@ class SyncRepository @Inject constructor(
         isDeleted = n.is_deleted
     )
 
-    private fun entityToChunkSync(c: ChunkEntity, noteCoreId: Long): ChunkSync = ChunkSync(
-        coreId = c.core_id,
-        noteId = noteCoreId,
-        positionStart = c.position_start,
-        positionEnd = c.position_end,
-        summary = c.text ?: "",
-        embedding = null,
-        version = c.ver.coerceAtLeast(1),
-        isDeleted = c.is_deleted
-    )
-
     private fun entityToCategorySync(c: CategoryEntity) = CategorySync(
         coreId = c.core_id,
         name = c.name,
@@ -515,28 +439,6 @@ class SyncRepository @Inject constructor(
             } else {
                 noteWriter.insertNote(entity)
             }
-        }
-    }
-
-    private suspend fun applyChunksGet(chunks: List<com.bmdstudios.flit.data.api.model.SyncChunkItem>) {
-        val noteCoreToLocal = noteDao.getNotesByCoreIds(chunks.map { it.noteId }.distinct()).associate { it.core_id!! to it.id }
-        val existingByCoreId = chunkDao.getChunksByCoreIds(chunks.map { it.id }).associateBy { it.core_id!! }
-        for (c in chunks) {
-            val localNoteId = noteCoreToLocal[c.noteId] ?: continue
-            val existing = existingByCoreId[c.id]
-            val entity = ChunkEntity(
-                id = existing?.id ?: 0L,
-                core_id = c.id,
-                ver = c.version,
-                is_deleted = c.isDeleted,
-                note_id = localNoteId,
-                position_start = c.positionStart,
-                position_end = c.positionEnd,
-                embedding_vector = ByteArray(0),
-                text = c.summary,
-                updated_at = System.currentTimeMillis()
-            )
-            if (existing != null) chunkDao.updateChunk(entity) else chunkDao.insertChunk(entity)
         }
     }
 

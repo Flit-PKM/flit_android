@@ -86,8 +86,10 @@ fun AddRelationshipDialog(
     val availableNoteIds = remember(availableNotes) { availableNotes.map { it.id }.toSet() }
 
     // Ranked search when query is non-blank; otherwise show all available notes
-    val searchResults by notesViewModel.searchNotesWithCategoryFlow(searchQuery, categoryId = null)
-        .collectAsStateWithLifecycle(initialValue = emptyList())
+    val searchResultsFlow = remember(searchQuery) {
+        notesViewModel.searchNotesWithCategoryFlow(searchQuery, categoryId = null)
+    }
+    val searchResults by searchResultsFlow.collectAsStateWithLifecycle(initialValue = emptyList())
     val filteredNotes = if (searchQuery.isBlank()) {
         availableNotes
     } else {
@@ -179,7 +181,10 @@ fun AddRelationshipDialog(
                                 .fillMaxWidth()
                                 .heightIn(max = 300.dp)
                         ) {
-                            items(filteredNotes) { note ->
+                            items(
+                                items = filteredNotes,
+                                key = { it.id }
+                            ) { note ->
                                 Card(
                                     modifier = Modifier
                                         .fillMaxWidth()

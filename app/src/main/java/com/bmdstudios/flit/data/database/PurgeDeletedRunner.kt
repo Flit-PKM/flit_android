@@ -1,7 +1,6 @@
 package com.bmdstudios.flit.data.database
 
 import com.bmdstudios.flit.data.database.dao.CategoryDao
-import com.bmdstudios.flit.data.database.dao.ChunkDao
 import com.bmdstudios.flit.data.database.dao.NoteCategoryDao
 import com.bmdstudios.flit.data.database.dao.NoteDao
 import com.bmdstudios.flit.data.database.dao.NotesearchDao
@@ -21,7 +20,6 @@ private const val SIX_WEEKS_MS = 6L * 7 * 24 * 60 * 60 * 1000
 @Singleton
 class PurgeDeletedRunner @Inject constructor(
     private val noteDao: NoteDao,
-    private val chunkDao: ChunkDao,
     private val categoryDao: CategoryDao,
     private val relationshipDao: RelationshipDao,
     private val noteCategoryDao: NoteCategoryDao,
@@ -35,7 +33,6 @@ class PurgeDeletedRunner @Inject constructor(
         val cutoffMs = System.currentTimeMillis() - SIX_WEEKS_MS
         try {
             noteDao.purgeDeletedOlderThan(cutoffMs)
-            chunkDao.purgeDeletedOlderThan(cutoffMs)
             categoryDao.purgeDeletedOlderThan(cutoffMs)
             relationshipDao.purgeDeletedOlderThan(cutoffMs)
             noteCategoryDao.purgeDeletedOlderThan(cutoffMs)

@@ -8,13 +8,6 @@
     <ID>ConstructorParameterNaming:CategoryEntity.kt$CategoryEntity$val created_at: Long</ID>
     <ID>ConstructorParameterNaming:CategoryEntity.kt$CategoryEntity$val is_deleted: Boolean = false</ID>
     <ID>ConstructorParameterNaming:CategoryEntity.kt$CategoryEntity$val updated_at: Long</ID>
-    <ID>ConstructorParameterNaming:ChunkEntity.kt$ChunkEntity$val core_id: Long? = null</ID>
-    <ID>ConstructorParameterNaming:ChunkEntity.kt$ChunkEntity$val embedding_vector: ByteArray</ID>
-    <ID>ConstructorParameterNaming:ChunkEntity.kt$ChunkEntity$val is_deleted: Boolean = false</ID>
-    <ID>ConstructorParameterNaming:ChunkEntity.kt$ChunkEntity$val note_id: Long</ID>
-    <ID>ConstructorParameterNaming:ChunkEntity.kt$ChunkEntity$val position_end: Int</ID>
-    <ID>ConstructorParameterNaming:ChunkEntity.kt$ChunkEntity$val position_start: Int</ID>
-    <ID>ConstructorParameterNaming:ChunkEntity.kt$ChunkEntity$val updated_at: Long</ID>
     <ID>ConstructorParameterNaming:ExportData.kt$ExportCategory$val created_at: Long</ID>
     <ID>ConstructorParameterNaming:ExportData.kt$ExportData$val export_metadata: ExportMetadata</ID>
     <ID>ConstructorParameterNaming:ExportData.kt$ExportData$val note_categories: List&lt;ExportNoteCategory&gt;</ID>
@@ -58,7 +51,6 @@
     <ID>CyclomaticComplexMethod:OnlineRecognizer.kt$fun getModelConfig(type: Int): OnlineModelConfig?</ID>
     <ID>CyclomaticComplexMethod:PunctuationModelFactory.kt$PunctuationModelFactory$suspend fun createPunctuation( punctuationModelDir: File, appConfig: AppConfig ): Result&lt;OfflinePunctuation?&gt;</ID>
     <ID>CyclomaticComplexMethod:SettingsScreen.kt$@Composable fun SettingsScreen( viewModel: SettingsViewModel = hiltViewModel(), modelDownloadViewModel: ModelDownloadViewModel? = null )</ID>
-    <ID>CyclomaticComplexMethod:SyncRepository.kt$SyncRepository$private suspend fun syncChunksTable(token: String, result: com.bmdstudios.flit.data.api.model.ChunksCompareResult)</ID>
     <ID>CyclomaticComplexMethod:Tts.kt$fun getOfflineTtsConfig( modelDir: String, modelName: String, // for VITS acousticModelName: String, // for Matcha vocoder: String, // for Matcha voices: String, // for Kokoro or kitten lexicon: String, dataDir: String, dictDir: String, // unused ruleFsts: String, ruleFars: String, numThreads: Int? = null, isKitten: Boolean = false ): OfflineTtsConfig</ID>
     <ID>FunctionNaming:AddRelationshipDialog.kt$@Composable fun AddRelationshipDialog( noteId: Long, notesViewModel: NotesViewModel, onDismiss: () -&gt; Unit, onRelationshipAdded: () -&gt; Unit )</ID>
     <ID>FunctionNaming:BackButton.kt$@Composable fun BackButton(navController: NavHostController)</ID>
@@ -114,9 +106,6 @@
     <ID>LongParameterList:HuggingFaceModelDownloader.kt$HuggingFaceModelDownloader$( body: okhttp3.ResponseBody, request: DownloadRequest, offset: Long, isPartial: Boolean, totalSize: Long, lastProgressUpdate: Long )</ID>
     <ID>LongParameterList:ModelDownloadViewModel.kt$ModelDownloadViewModel$( modelName: String, filename: String, downloaded: Long, total: Long, progress: Float, lastLoggedProgress: MutableList&lt;Float&gt;, updateState: (Float) -&gt; Unit )</ID>
     <ID>LongParameterList:RepositoryModule.kt$RepositoryModule$( noteDao: NoteDao, categoryDao: CategoryDao, relationshipDao: RelationshipDao, noteCategoryDao: NoteCategoryDao, database: FlitDatabase, @ApplicationContext context: Context )</ID>
-    <ID>LongParameterList:RepositoryModule.kt$fun providePurgeDeletedRunner( noteDao: NoteDao, chunkDao: ChunkDao, categoryDao: CategoryDao, relationshipDao: RelationshipDao, noteCategoryDao: NoteCategoryDao, notesearchDao: NotesearchDao )</ID>
-    <ID>LongParameterList:NotesViewModel.kt$NotesViewModel$( val noteDao: NoteDao, private val chunkDao: ChunkDao, private val noteCategoryDao: NoteCategoryDao, private val categoryDao: CategoryDao, private val relationshipDao: RelationshipDao, private val notesearchDao: NotesearchDao, private val noteWriter: NoteWriter, private val syncScheduler: SyncScheduler )</ID>
-    <ID>LongParameterList:SyncRepository.kt$SyncRepository$( private val api: FlitApiService, private val settings: SettingsRepository, private val noteDao: NoteDao, private val chunkDao: ChunkDao, private val categoryDao: CategoryDao, private val relationshipDao: RelationshipDao, private val noteCategoryDao: NoteCategoryDao, private val noteWriter: NoteWriter )</ID>
     <ID>LongParameterList:Tts.kt$( modelDir: String, modelName: String, // for VITS acousticModelName: String, // for Matcha vocoder: String, // for Matcha voices: String, // for Kokoro or kitten lexicon: String, dataDir: String, dictDir: String, // unused ruleFsts: String, ruleFars: String, numThreads: Int? = null, isKitten: Boolean = false )</ID>
     <ID>LongParameterList:UtilityModule.kt$UtilityModule$( @ApplicationContext context: Context, appConfig: AppConfig, settingsRepository: SettingsRepository, modelTypeDetector: ModelTypeDetector, whisperModelConfigBuilder: com.bmdstudios.flit.utils.model.WhisperModelConfigBuilder, transducerModelConfigBuilder: com.bmdstudios.flit.utils.model.TransducerModelConfigBuilder, senseVoiceModelConfigBuilder: com.bmdstudios.flit.utils.model.SenseVoiceModelConfigBuilder, denoiserModelFactory: com.bmdstudios.flit.utils.model.DenoiserModelFactory, punctuationModelFactory: com.bmdstudios.flit.utils.model.PunctuationModelFactory, textPostProcessor: com.bmdstudios.flit.utils.text.TextPostProcessor )</ID>
     <ID>LoopWithTooManyJumpStatements:SyncRepository.kt$SyncRepository$for</ID>
@@ -314,16 +303,13 @@
     <ID>MaxLineLength:AddRelationshipDialog.kt$val error = ErrorHandler.handleThrowable(e, "addRelationship", TAG)</ID>
     <ID>MaxLineLength:AudioTranscriber.kt$AudioTranscriber$private suspend</ID>
     <ID>MaxLineLength:BottomBar.kt$recorderState is com.bmdstudios.flit.ui.viewmodel.VoiceRecorderUiState.Recording -&gt; MaterialTheme.colorScheme.error</ID>
-    <ID>MaxLineLength:ChunkDao.kt$ChunkDao$@Query("SELECT * FROM chunks WHERE note_id = :noteId AND is_deleted = 0 AND position_start &gt;= :start AND position_end &lt;= :end ORDER BY position_start ASC")</ID>
     <ID>MaxLineLength:DenoiserModelFactory.kt$DenoiserModelFactory$Timber.d("Denoiser model directory does not exist: ${denoiserModelDir.absolutePath}, skipping denoising")</ID>
     <ID>MaxLineLength:DenoiserModelFactory.kt$DenoiserModelFactory$Timber.d("No denoiser model file found in ${denoiserModelDir.absolutePath}. Available files: ${fileNames.joinToString()}")</ID>
     <ID>MaxLineLength:FlitApiService.kt$FlitApiService$return executeSync(token, req) { json.decodeFromString&lt;com.bmdstudios.flit.data.api.model.SyncCategoryPushResult&gt;(it) }</ID>
-    <ID>MaxLineLength:FlitApiService.kt$FlitApiService$return executeSync(token, req) { json.decodeFromString&lt;com.bmdstudios.flit.data.api.model.SyncChunkPushResult&gt;(it) }</ID>
     <ID>MaxLineLength:FlitApiService.kt$FlitApiService$return executeSync(token, req) { json.decodeFromString&lt;com.bmdstudios.flit.data.api.model.SyncNoteCategoryPushResult&gt;(it) }</ID>
     <ID>MaxLineLength:FlitApiService.kt$FlitApiService$return executeSync(token, req) { json.decodeFromString&lt;com.bmdstudios.flit.data.api.model.SyncRelationshipPushResult&gt;(it) }</ID>
     <ID>MaxLineLength:FlitApiService.kt$FlitApiService$suspend</ID>
     <ID>MaxLineLength:FlitApiService.kt$FlitApiService$val req = Request.Builder().url("$baseUrl/sync/categories").post(body).addHeader("Content-Type", "application/json").build()</ID>
-    <ID>MaxLineLength:FlitApiService.kt$FlitApiService$val req = Request.Builder().url("$baseUrl/sync/chunks").post(body).addHeader("Content-Type", "application/json").build()</ID>
     <ID>MaxLineLength:FlitApiService.kt$FlitApiService$val req = Request.Builder().url("$baseUrl/sync/note-categories").post(body).addHeader("Content-Type", "application/json").build()</ID>
     <ID>MaxLineLength:FlitApiService.kt$FlitApiService$val req = Request.Builder().url("$baseUrl/sync/notes").post(body).addHeader("Content-Type", "application/json").build()</ID>
     <ID>MaxLineLength:FlitApiService.kt$FlitApiService$val req = Request.Builder().url("$baseUrl/sync/relationships").post(body).addHeader("Content-Type", "application/json").build()</ID>
@@ -365,7 +351,6 @@
     <ID>MaxLineLength:RelationshipDao.kt$RelationshipDao$suspend</ID>
     <ID>MaxLineLength:SearchResultsScreen.kt$Timber.tag(TAG).d("Displaying search results: query='$decodedQuery', categoryId=$categoryIdOrNull, count=${notes.size}")</ID>
     <ID>MaxLineLength:SyncRepository.kt$SyncRepository$Timber.tag(SYNC_TAG).d("Categories compare: toPull=${categoriesCompare.toPull.size}, toPush=${categoriesCompare.toPush.size}")</ID>
-    <ID>MaxLineLength:SyncRepository.kt$SyncRepository$Timber.tag(SYNC_TAG).d("Chunks compare: toPull=${chunksCompare.toPull.size}, toPush=${chunksCompare.toPush.size}")</ID>
     <ID>MaxLineLength:SyncRepository.kt$SyncRepository$Timber.tag(SYNC_TAG).d("Note-categories compare: toPull=${noteCategoriesCompare.toPull.size}, toPush=${noteCategoriesCompare.toPush.size}")</ID>
     <ID>MaxLineLength:SyncRepository.kt$SyncRepository$Timber.tag(SYNC_TAG).d("Relationships compare: toPull=${relationshipsCompare.toPull.size}, toPush=${relationshipsCompare.toPush.size}")</ID>
     <ID>MaxLineLength:SyncRepository.kt$SyncRepository$Timber.tag(SYNC_TAG).w("Note-categories: push rejected for note=${v.noteId}, category=${v.categoryId}")</ID>
@@ -381,7 +366,6 @@
     <ID>MaxLineLength:SyncRepository.kt$SyncRepository$val link = noteCategoryDao.getAllNoteCategoriesForSync().find { it.note_id == note.id &amp;&amp; it.category_id == category.id } ?: return emptyList()</ID>
     <ID>MaxLineLength:SyncRepository.kt$SyncRepository$val noteCoreById = noteDao.getAllNotesForSync().filter { it.core_id != null }.associate { it.id to it.core_id!! }</ID>
     <ID>MaxLineLength:SyncRepository.kt$SyncRepository$val noteCoreToLocal = noteDao.getAllNotesForSync().filter { it.core_id != null }.associate { it.core_id!! to it.id }</ID>
-    <ID>MaxLineLength:SyncRepository.kt$SyncRepository$val noteCoreToLocal = noteDao.getNotesByCoreIds(chunks.map { it.noteId }.distinct()).associate { it.core_id!! to it.id }</ID>
     <ID>MaxLineLength:TranscriptionViewModel.kt$TranscriptionViewModel$*</ID>
     <ID>MaxLineLength:TransducerModelConfigBuilder.kt$TransducerModelConfigBuilder$Timber.d("Found transducer model files - encoder: $encoderFile, decoder: $decoderFile, joiner: $joinerFile, tokens: $tokensFile")</ID>
     <ID>MayBeConst:Speaker.kt$// Please download the model file from // https://github.com/k2-fsa/sherpa-onnx/releases/tag/speaker-recongition-models // and put it inside the assets directory. // // Please don't put it in a subdirectory of assets private val modelName = "3dspeaker_speech_eres2net_base_sv_zh-cn_3dspeaker_16k.onnx"</ID>
@@ -441,7 +425,6 @@
     <ID>TooGenericExceptionThrown:ExportRepository.kt$ExportRepository$throw Exception("Failed to create file in Downloads folder")</ID>
     <ID>TooGenericExceptionThrown:ExportRepository.kt$ExportRepository$throw Exception("Failed to open output stream for file")</ID>
     <ID>TooManyFunctions:CategoryDao.kt$CategoryDao</ID>
-    <ID>TooManyFunctions:ChunkDao.kt$ChunkDao</ID>
     <ID>TooManyFunctions:Color.kt$com.bmdstudios.flit.ui.theme.Color.kt</ID>
     <ID>TooManyFunctions:FlitApiService.kt$FlitApiService</ID>
     <ID>TooManyFunctions:HuggingFaceModelDownloader.kt$HuggingFaceModelDownloader</ID>

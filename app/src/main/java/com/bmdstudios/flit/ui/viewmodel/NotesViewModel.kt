@@ -3,7 +3,6 @@ package com.bmdstudios.flit.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bmdstudios.flit.data.database.dao.CategoryDao
-import com.bmdstudios.flit.data.database.dao.ChunkDao
 import com.bmdstudios.flit.data.database.dao.NoteCategoryDao
 import com.bmdstudios.flit.data.database.NoteWriter
 import com.bmdstudios.flit.data.database.dao.NoteDao
@@ -49,7 +48,6 @@ data class RelationshipDisplay(
 @HiltViewModel
 class NotesViewModel @Inject constructor(
     val noteDao: NoteDao,
-    private val chunkDao: ChunkDao,
     private val noteCategoryDao: NoteCategoryDao,
     private val categoryDao: CategoryDao,
     private val relationshipDao: RelationshipDao,
@@ -105,7 +103,7 @@ class NotesViewModel @Inject constructor(
     }
 
     /**
-     * Soft-deletes a note (sets is_deleted = true). Also soft-deletes its chunks, relationships and note-category links.
+     * Soft-deletes a note (sets is_deleted = true). Also soft-deletes relationships and note-category links.
      * Deletes the associated recording file if it exists.
      */
     suspend fun deleteNote(noteId: Long, recordingPath: String?) {
@@ -113,7 +111,6 @@ class NotesViewModel @Inject constructor(
             try {
                 val now = System.currentTimeMillis()
                 noteWriter.softDeleteNoteById(noteId, now)
-                chunkDao.softDeleteChunksByNoteId(noteId, now)
                 relationshipDao.softDeleteRelationshipsByNoteId(noteId, now)
                 noteCategoryDao.softDeleteAllCategoriesForNote(noteId, now)
                 Timber.i("Note soft-deleted successfully: $noteId")
@@ -179,15 +176,21 @@ class NotesViewModel @Inject constructor(
      */
     fun searchNotesWithCategoryFlow(query: String, categoryId: Long?): Flow<List<NoteEntity>> {
         return flow {
-            val results = withContext(Dispatchers.IO) {
-                if (query.isBlank()) {
-                    if (categoryId == null) noteDao.getAllNotes()
-                    else noteCategoryDao.getNotesForCategory(categoryId)
-                } else {
-                    runRankedSearch(query, categoryId)
-                }
+            emit(searchNotesWithCategory(query = query, categoryId = categoryId))
+        }
+    }
+
+    /**
+     * Runs a one-shot search for notes with optional category filtering.
+     */
+    suspend fun searchNotesWithCategory(query: String, categoryId: Long?): List<NoteEntity> {
+        return withContext(Dispatchers.IO) {
+            if (query.isBlank()) {
+                if (categoryId == null) noteDao.getAllNotes()
+                else noteCategoryDao.getNotesForCategory(categoryId)
+            } else {
+                runRankedSearch(query, categoryId)
             }
-            emit(results)
         }
     }
 

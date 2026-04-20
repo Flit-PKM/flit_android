@@ -11,7 +11,7 @@ import org.junit.Test
 class NoteSearchScorerTest {
 
     private fun row(noteId: Long, content: String, updatedAt: Long = 1000L) =
-        NoteSearchRow(note_id = noteId, content = content, updated_at = updatedAt)
+        NoteSearchRow(noteId = noteId, content = content, updatedAt = updatedAt)
 
     @Test
     fun rank_emptyQuery_returnsByRecency() {

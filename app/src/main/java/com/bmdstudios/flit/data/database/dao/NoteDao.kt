@@ -51,6 +51,9 @@ interface NoteDao {
     @Query("SELECT COUNT(*) FROM notes WHERE is_deleted = 0")
     suspend fun getNoteCount(): Int
 
+    @Query("SELECT COUNT(*) FROM notes")
+    suspend fun getTotalNoteCount(): Int
+
     @Query("SELECT COUNT(*) FROM notes WHERE is_deleted = 0 AND workflow_status = :status")
     suspend fun getNoteCountByWorkflowStatus(status: NoteStatus): Int
 
@@ -70,4 +73,23 @@ interface NoteDao {
     /** Fetches notes by IDs. Order of result is not guaranteed; caller should sort by desired order. */
     @Query("SELECT * FROM notes WHERE id IN (:ids) AND is_deleted = 0")
     suspend fun getNotesByIds(ids: List<Long>): List<NoteEntity>
+
+    @Query(
+        """
+        INSERT INTO notes(
+            id, core_id, ver, is_deleted, title, text, recording, embedding_vector, created_at, updated_at, workflow_status
+        ) VALUES(
+            :id, NULL, :ver, 0, :title, :text, NULL, NULL, :createdAt, :updatedAt, :workflowStatus
+        )
+        """
+    )
+    suspend fun insertWelcomeNoteWithId(
+        id: Long,
+        ver: Int,
+        title: String,
+        text: String,
+        createdAt: Long,
+        updatedAt: Long,
+        workflowStatus: String
+    )
 }

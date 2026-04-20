@@ -5,16 +5,15 @@ import androidx.room.Room
 import com.bmdstudios.flit.config.AppConfig
 import com.bmdstudios.flit.data.database.FlitDatabase
 import com.bmdstudios.flit.data.database.MIGRATION_3_4
+import com.bmdstudios.flit.data.database.MIGRATION_4_5
 import com.bmdstudios.flit.data.database.NoteWriter
 import com.bmdstudios.flit.data.database.PurgeDeletedRunner
 import com.bmdstudios.flit.data.database.dao.CategoryDao
-import com.bmdstudios.flit.data.database.dao.ChunkDao
 import com.bmdstudios.flit.data.database.dao.NoteCategoryDao
 import com.bmdstudios.flit.data.database.dao.NoteDao
 import com.bmdstudios.flit.data.database.dao.NotesearchDao
 import com.bmdstudios.flit.data.database.dao.RelationshipDao
 import com.bmdstudios.flit.data.repository.AudioRepositoryImpl
-import com.bmdstudios.flit.data.repository.ExportRepository
 import com.bmdstudios.flit.data.repository.ModelRepositoryImpl
 import com.bmdstudios.flit.data.repository.SettingsRepository
 import com.bmdstudios.flit.data.repository.SyncRepository
@@ -48,8 +47,7 @@ object RepositoryModule {
             FlitDatabase::class.java,
             "flit_database"
         )
-            .addMigrations(MIGRATION_3_4)
-            .fallbackToDestructiveMigration(dropAllTables = true) // For development - remove in production
+            .addMigrations(MIGRATION_3_4, MIGRATION_4_5)
             .build()
     }
 
@@ -60,15 +58,6 @@ object RepositoryModule {
     @Singleton
     fun provideNoteDao(database: FlitDatabase): NoteDao {
         return database.noteDao()
-    }
-
-    /**
-     * Provides ChunkDao.
-     */
-    @Provides
-    @Singleton
-    fun provideChunkDao(database: FlitDatabase): ChunkDao {
-        return database.chunkDao()
     }
 
     /**
@@ -124,7 +113,6 @@ object RepositoryModule {
     @Singleton
     fun providePurgeDeletedRunner(
         noteDao: NoteDao,
-        chunkDao: ChunkDao,
         categoryDao: CategoryDao,
         relationshipDao: RelationshipDao,
         noteCategoryDao: NoteCategoryDao,
@@ -132,7 +120,6 @@ object RepositoryModule {
     ): PurgeDeletedRunner {
         return PurgeDeletedRunner(
             noteDao = noteDao,
-            chunkDao = chunkDao,
             categoryDao = categoryDao,
             relationshipDao = relationshipDao,
             noteCategoryDao = noteCategoryDao,
@@ -187,26 +174,4 @@ object RepositoryModule {
         )
     }
 
-    /**
-     * Provides ExportRepository instance.
-     */
-    @Provides
-    @Singleton
-    fun provideExportRepository(
-        noteDao: NoteDao,
-        categoryDao: CategoryDao,
-        relationshipDao: RelationshipDao,
-        noteCategoryDao: NoteCategoryDao,
-        database: FlitDatabase,
-        @ApplicationContext context: Context
-    ): ExportRepository {
-        return ExportRepository(
-            noteDao = noteDao,
-            categoryDao = categoryDao,
-            relationshipDao = relationshipDao,
-            noteCategoryDao = noteCategoryDao,
-            database = database,
-            context = context
-        )
-    }
 }

@@ -5,8 +5,10 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.bmdstudios.flit.config.AppConfig
 import com.bmdstudios.flit.ui.settings.ModelSize
 import com.bmdstudios.flit.ui.theme.ThemeMode
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -36,6 +38,8 @@ class SettingsRepository @Inject constructor(
         private val ACCESS_TOKEN_KEY = stringPreferencesKey("access_token")
         private val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
         private val TOKEN_EXPIRES_AT_KEY = stringPreferencesKey("token_expires_at")
+        private val ONBOARDING_REVISION_COMPLETED_KEY = intPreferencesKey("onboarding_revision_completed")
+        private val INSTALL_WELCOME_SEED_ATTEMPTED_KEY = booleanPreferencesKey("install_welcome_seed_attempted")
         private const val TAG = "SettingsRepository"
     }
 
@@ -268,6 +272,52 @@ class SettingsRepository @Inject constructor(
             Timber.d("Tokens cleared")
         } catch (e: Exception) {
             Timber.e(e, "Error clearing tokens")
+        }
+    }
+
+    suspend fun getOnboardingRevisionCompleted(): Int {
+        return try {
+            val preferences = dataStore.data.first()
+            preferences[ONBOARDING_REVISION_COMPLETED_KEY] ?: 0
+        } catch (e: Exception) {
+            Timber.e(e, "Error reading onboarding revision completed")
+            0
+        }
+    }
+
+    suspend fun setOnboardingRevisionCompleted(revision: Int) {
+        try {
+            dataStore.edit { preferences ->
+                preferences[ONBOARDING_REVISION_COMPLETED_KEY] = revision
+            }
+            Timber.tag(TAG).d("Onboarding revision completed set to $revision")
+        } catch (e: Exception) {
+            Timber.e(e, "Error setting onboarding revision completed")
+        }
+    }
+
+    suspend fun shouldShowOnboarding(): Boolean {
+        return getOnboardingRevisionCompleted() < AppConfig.ONBOARDING_REVISION
+    }
+
+    suspend fun hasAttemptedInstallWelcomeSeed(): Boolean {
+        return try {
+            val preferences = dataStore.data.first()
+            preferences[INSTALL_WELCOME_SEED_ATTEMPTED_KEY] ?: false
+        } catch (e: Exception) {
+            Timber.e(e, "Error reading install welcome seed flag")
+            false
+        }
+    }
+
+    suspend fun setInstallWelcomeSeedAttempted(attempted: Boolean) {
+        try {
+            dataStore.edit { preferences ->
+                preferences[INSTALL_WELCOME_SEED_ATTEMPTED_KEY] = attempted
+            }
+            Timber.tag(TAG).d("Install welcome seed attempted flag set to $attempted")
+        } catch (e: Exception) {
+            Timber.e(e, "Error setting install welcome seed flag")
         }
     }
 }

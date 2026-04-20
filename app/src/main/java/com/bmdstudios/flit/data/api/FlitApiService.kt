@@ -6,7 +6,6 @@ import com.bmdstudios.flit.data.api.model.TokenRequest
 import com.bmdstudios.flit.data.api.model.TokenResponse
 
 import com.bmdstudios.flit.data.api.model.CategorySync
-import com.bmdstudios.flit.data.api.model.ChunkSync
 import com.bmdstudios.flit.data.api.model.CompareNotesRequest
 import com.bmdstudios.flit.data.api.model.NotesCompareResult
 import com.bmdstudios.flit.data.api.model.NoteSync
@@ -15,10 +14,6 @@ import com.bmdstudios.flit.data.api.model.SyncNotesResponse
 import com.bmdstudios.flit.data.api.model.CompareCategoriesRequest
 import com.bmdstudios.flit.data.api.model.CategoriesCompareResult
 import com.bmdstudios.flit.data.api.model.SyncCategoriesResponse
-
-import com.bmdstudios.flit.data.api.model.CompareChunksRequest
-import com.bmdstudios.flit.data.api.model.ChunksCompareResult
-import com.bmdstudios.flit.data.api.model.SyncChunksResponse
 
 import com.bmdstudios.flit.data.api.model.CompareNoteCategoriesRequest
 import com.bmdstudios.flit.data.api.model.NoteCategoriesCompareResult
@@ -276,17 +271,6 @@ class FlitApiService(
         return executeSync(token, req) { json.decodeFromString<NotesCompareResult>(it) }
     }
 
-    suspend fun compareChunks(token: String, request: CompareChunksRequest): Result<ChunksCompareResult> {
-        val body = json.encodeToString(CompareChunksRequest.serializer(), request)
-            .toRequestBody(jsonMediaType)
-        val req = Request.Builder()
-            .url("$baseUrl/sync/compare/chunks")
-            .post(body)
-            .addHeader("Content-Type", "application/json")
-            .build()
-        return executeSync(token, req) { json.decodeFromString<ChunksCompareResult>(it) }
-    }
-
     suspend fun compareCategories(token: String, request: CompareCategoriesRequest): Result<CategoriesCompareResult> {
         val body = json.encodeToString(CompareCategoriesRequest.serializer(), request)
             .toRequestBody(jsonMediaType)
@@ -334,12 +318,6 @@ class FlitApiService(
         return executeSync(token, req) { json.decodeFromString<SyncCategoriesResponse>(it) }
     }
 
-    suspend fun getChunk(token: String, coreId: Long): Result<SyncChunksResponse> {
-        val url = "$baseUrl/sync/chunks?core_id=$coreId"
-        val req = Request.Builder().url(url).get().build()
-        return executeSync(token, req) { json.decodeFromString<SyncChunksResponse>(it) }
-    }
-
     suspend fun getRelationship(
         token: String,
         noteACoreId: Long,
@@ -372,12 +350,6 @@ class FlitApiService(
         val body = json.encodeToString(CategorySync.serializer(), category).toRequestBody(jsonMediaType)
         val req = Request.Builder().url("$baseUrl/sync/categories").post(body).addHeader("Content-Type", "application/json").build()
         return executeSync(token, req) { json.decodeFromString<com.bmdstudios.flit.data.api.model.SyncCategoryPushResult>(it) }
-    }
-
-    suspend fun pushChunk(token: String, chunk: ChunkSync): Result<com.bmdstudios.flit.data.api.model.SyncChunkPushResult> {
-        val body = json.encodeToString(ChunkSync.serializer(), chunk).toRequestBody(jsonMediaType)
-        val req = Request.Builder().url("$baseUrl/sync/chunks").post(body).addHeader("Content-Type", "application/json").build()
-        return executeSync(token, req) { json.decodeFromString<com.bmdstudios.flit.data.api.model.SyncChunkPushResult>(it) }
     }
 
     suspend fun pushRelationship(token: String, relationship: RelationshipSync): Result<com.bmdstudios.flit.data.api.model.SyncRelationshipPushResult> {

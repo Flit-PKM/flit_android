@@ -14,15 +14,6 @@ data class NoteVersion(
 )
 
 @Serializable
-data class ChunkVersion(
-    @SerialName("core_id") val coreId: Long? = null,
-    @SerialName("app_id") val appId: Long? = null,
-    @SerialName("note_core_id") val noteCoreId: Long? = null,
-    val version: Int,
-    @SerialName("is_deleted") val isDeleted: Boolean = false
-)
-
-@Serializable
 data class CategoryVersion(
     @SerialName("core_id") val coreId: Long? = null,
     @SerialName("app_id") val appId: Long? = null,
@@ -54,9 +45,6 @@ data class NoteCategoryVersion(
 data class CompareNotesRequest(val notes: List<NoteVersion> = emptyList())
 
 @Serializable
-data class CompareChunksRequest(val chunks: List<ChunkVersion> = emptyList())
-
-@Serializable
 data class CompareCategoriesRequest(val categories: List<CategoryVersion> = emptyList())
 
 @Serializable
@@ -73,12 +61,6 @@ data class CompareNoteCategoriesRequest(
 data class NotesCompareResult(
     @SerialName("to_pull") val toPull: List<NoteVersion> = emptyList(),
     @SerialName("to_push") val toPush: List<NoteVersion> = emptyList()
-)
-
-@Serializable
-data class ChunksCompareResult(
-    @SerialName("to_pull") val toPull: List<ChunkVersion> = emptyList(),
-    @SerialName("to_push") val toPush: List<ChunkVersion> = emptyList()
 )
 
 @Serializable
@@ -115,18 +97,6 @@ data class NoteSync(
     val title: String,
     val content: String,
     val type: NoteType = NoteType.BASE,
-    val version: Int,
-    @SerialName("is_deleted") val isDeleted: Boolean = false
-)
-
-@Serializable
-data class ChunkSync(
-    @SerialName("core_id") val coreId: Long? = null,
-    @SerialName("note_id") val noteId: Long,
-    @SerialName("position_start") val positionStart: Int,
-    @SerialName("position_end") val positionEnd: Int,
-    val summary: String,
-    val embedding: List<Float>? = null,
     val version: Int,
     @SerialName("is_deleted") val isDeleted: Boolean = false
 )
@@ -169,13 +139,6 @@ data class NoteCategorySync(
 
 @Serializable
 data class SyncPushResult(
-    @SerialName("core_id") val coreId: Long,
-    val status: String,
-    @SerialName("server_version") val serverVersion: Int? = null
-)
-
-@Serializable
-data class SyncChunkPushResult(
     @SerialName("core_id") val coreId: Long,
     val status: String,
     @SerialName("server_version") val serverVersion: Int? = null
@@ -234,20 +197,6 @@ data class SyncCategoryItem(
 
 @Serializable
 data class SyncCategoriesResponse(val category: SyncCategoryItem)
-
-@Serializable
-data class SyncChunkItem(
-    @SerialName("core_id") val id: Long,
-    @SerialName("note_core_id") val noteId: Long,
-    @SerialName("position_start") val positionStart: Int,
-    @SerialName("position_end") val positionEnd: Int,
-    val summary: String,
-    val version: Int,
-    @SerialName("is_deleted") val isDeleted: Boolean = false
-)
-
-@Serializable
-data class SyncChunksResponse(val chunk: SyncChunkItem)
 
 @Serializable
 data class SyncRelationshipItem(

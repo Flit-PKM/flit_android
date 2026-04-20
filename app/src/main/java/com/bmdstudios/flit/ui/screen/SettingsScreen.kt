@@ -1,5 +1,7 @@
 package com.bmdstudios.flit.ui.screen
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +14,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -34,20 +39,43 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bmdstudios.flit.ui.component.PrimaryActionButton
+import com.bmdstudios.flit.ui.component.PrimaryActionTextButton
 import com.bmdstudios.flit.ui.dialog.ConnectDialog
 import com.bmdstudios.flit.ui.settings.ModelSize
 import com.bmdstudios.flit.ui.theme.ThemeMode
+import com.bmdstudios.flit.ui.onboarding.SettingsTourSection
 import com.bmdstudios.flit.ui.viewmodel.ConnectionState
 import com.bmdstudios.flit.ui.viewmodel.ExportState
+import com.bmdstudios.flit.ui.viewmodel.ImportState
 import com.bmdstudios.flit.ui.viewmodel.SyncState
 import com.bmdstudios.flit.ui.viewmodel.ModelDownloadViewModel
 import com.bmdstudios.flit.ui.viewmodel.SettingsViewModel
 import kotlinx.coroutines.launch
+
+private fun highlightModifier(enabled: Boolean): Modifier {
+    if (!enabled) return Modifier
+    return Modifier
+        .background(
+            color = Color(0x66B3E5FF),
+            shape = RoundedCornerShape(8.dp)
+        )
+        .border(
+            width = 2.dp,
+            color = Color(0xFF7EC3FF),
+            shape = RoundedCornerShape(8.dp)
+        )
+        .padding(horizontal = 8.dp, vertical = 4.dp)
+}
 
 /**
  * Settings screen composable.
@@ -56,38 +84,53 @@ import kotlinx.coroutines.launch
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
-    modelDownloadViewModel: ModelDownloadViewModel? = null
+    modelDownloadViewModel: ModelDownloadViewModel? = null,
+    highlightConnectionSection: Boolean = false,
+    highlightedTourSection: SettingsTourSection? = null
 ) {
     // Use passed viewModel or create new one for backward compatibility
     val downloadViewModel = modelDownloadViewModel ?: hiltViewModel()
-    
+
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
     val modelSize by viewModel.modelSize.collectAsStateWithLifecycle()
     val noteDetails by viewModel.noteDetails.collectAsStateWithLifecycle()
     val exportState by viewModel.exportState.collectAsStateWithLifecycle()
+    val importState by viewModel.importState.collectAsStateWithLifecycle()
     val connectionState by viewModel.connectionState.collectAsStateWithLifecycle()
     val syncState by viewModel.syncState.collectAsStateWithLifecycle()
     val isConnected by viewModel.isConnected.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    
+    val uriHandler = LocalUriHandler.current
+
     // Snackbar for export status messages
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
-    
+    val scrollState = rememberScrollState()
+    var themeSectionY by remember { mutableStateOf<Float?>(null) }
+    var noteDetailsSectionY by remember { mutableStateOf<Float?>(null) }
+    var modelSectionY by remember { mutableStateOf<Float?>(null) }
+    var dataSectionY by remember { mutableStateOf<Float?>(null) }
+    var connectionSectionY by remember { mutableStateOf<Float?>(null) }
+
+    val importLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+        onResult = { uri -> uri?.let { viewModel.importData(it) } }
+    )
+
     // Track previous model size to detect changes
     var previousModelSize by remember { mutableStateOf<ModelSize?>(null) }
-    
+
     // Connection dialog state
     var showConnectDialog by remember { mutableStateOf(false) }
-    
+
     // Error dialog state
     var showErrorDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
-    
+
     // Sync error dialog state
     var showSyncErrorDialog by remember { mutableStateOf(false) }
     var syncErrorMessage by remember { mutableStateOf<String?>(null) }
-    
+
     // Trigger model download when model size changes
     LaunchedEffect(modelSize) {
         // Skip initial load - only trigger on actual changes
@@ -115,6 +158,28 @@ fun SettingsScreen(
                 viewModel.resetExportState()
             }
             else -> { /* Idle or Exporting - no action needed */ }
+        }
+    }
+
+    LaunchedEffect(importState) {
+        when (val state = importState) {
+            is ImportState.Success -> {
+                snackbarHostState.showSnackbar(
+                    message = "Import complete: ${state.notesImported} notes, " +
+                        "${state.relationshipsImported} relationships linked " +
+                        "(${state.relationshipsSkipped} skipped).",
+                    duration = androidx.compose.material3.SnackbarDuration.Long
+                )
+                viewModel.resetImportState()
+            }
+            is ImportState.Error -> {
+                snackbarHostState.showSnackbar(
+                    message = "Import failed: ${state.message}",
+                    duration = androidx.compose.material3.SnackbarDuration.Long
+                )
+                viewModel.resetImportState()
+            }
+            else -> { }
         }
     }
 
@@ -157,6 +222,24 @@ fun SettingsScreen(
         }
     }
 
+    LaunchedEffect(highlightConnectionSection, connectionSectionY) {
+        if (!highlightConnectionSection) return@LaunchedEffect
+        val target = connectionSectionY ?: return@LaunchedEffect
+        scrollState.animateScrollTo(target.toInt().coerceAtLeast(0))
+    }
+
+    LaunchedEffect(highlightedTourSection, themeSectionY, noteDetailsSectionY, modelSectionY, dataSectionY, connectionSectionY) {
+        val targetY = when (highlightedTourSection) {
+            SettingsTourSection.Theme -> themeSectionY
+            SettingsTourSection.NoteDetails -> noteDetailsSectionY
+            SettingsTourSection.Model -> modelSectionY
+            SettingsTourSection.DataManagement -> dataSectionY
+            SettingsTourSection.Connection -> connectionSectionY
+            null -> null
+        } ?: return@LaunchedEffect
+        scrollState.animateScrollTo(targetY.toInt().coerceAtLeast(0))
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -166,7 +249,7 @@ fun SettingsScreen(
         Column(
             modifier = Modifier
                 .weight(1f)
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(scrollState),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
         Text(
@@ -186,7 +269,12 @@ fun SettingsScreen(
         Text(
             text = "Theme",
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
+            modifier = Modifier
+                .padding(top = 8.dp, bottom = 4.dp)
+                .onGloballyPositioned { layoutCoordinates ->
+                    themeSectionY = layoutCoordinates.positionInParent().y
+                }
+                .then(highlightModifier(highlightedTourSection == SettingsTourSection.Theme)),
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
@@ -239,7 +327,12 @@ fun SettingsScreen(
                     onCheckedChange = { viewModel.setNoteDetails(it) }
                 )
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .onGloballyPositioned { layoutCoordinates ->
+                    noteDetailsSectionY = layoutCoordinates.positionInParent().y
+                }
+                .then(highlightModifier(highlightedTourSection == SettingsTourSection.NoteDetails))
         )
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
@@ -247,7 +340,12 @@ fun SettingsScreen(
         Text(
             text = "Model",
             style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+            modifier = Modifier
+                .padding(top = 8.dp, bottom = 4.dp)
+                .onGloballyPositioned { layoutCoordinates ->
+                    modelSectionY = layoutCoordinates.positionInParent().y
+                }
+                .then(highlightModifier(highlightedTourSection == SettingsTourSection.Model))
         )
 
         Text(
@@ -273,7 +371,7 @@ fun SettingsScreen(
                                 ModelSize.NONE -> "None"
                                 ModelSize.LIGHT -> "Light"
                                 ModelSize.MEDIUM -> "Medium"
-                                ModelSize.HEAVY -> "Heavy"
+                                ModelSize.HEAVY -> "Performance"
                             },
                             style = MaterialTheme.typography.bodyLarge
                         )
@@ -310,7 +408,12 @@ fun SettingsScreen(
             Text(
                 text = "Data Management",
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+                modifier = Modifier
+                    .padding(top = 8.dp, bottom = 4.dp)
+                    .onGloballyPositioned { layoutCoordinates ->
+                        dataSectionY = layoutCoordinates.positionInParent().y
+                    }
+                    .then(highlightModifier(highlightedTourSection == SettingsTourSection.DataManagement))
             )
 
             Text(
@@ -321,7 +424,7 @@ fun SettingsScreen(
             )
 
             Text(
-                text = "Export all notes, categories, and relationships to a JSON file",
+                text = "Export all notes as a zip of markdown files (categories, relationships, and timestamps in frontmatter).",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 8.dp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -329,7 +432,7 @@ fun SettingsScreen(
 
             PrimaryActionButton(
                 onClick = { viewModel.exportData() },
-                enabled = exportState !is ExportState.Exporting
+                enabled = exportState !is ExportState.Exporting && importState !is ImportState.Importing
             ) {
                 if (exportState is ExportState.Exporting) {
                     Row(
@@ -349,12 +452,84 @@ fun SettingsScreen(
                 }
             }
 
+            Text(
+                text = "Import notes",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(top = 16.dp, bottom = 4.dp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Text(
+                text = "Choose a Flit export zip (root-level .md files only) or a single markdown file. " +
+                    "Notes are merged into your library; relationships only link notes from the same import.",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(bottom = 8.dp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            PrimaryActionButton(
+                onClick = {
+                    importLauncher.launch(
+                        arrayOf(
+                            "application/zip",
+                            "text/markdown",
+                            "text/x-markdown",
+                            "text/plain",
+                            "*/*"
+                        )
+                    )
+                },
+                enabled = importState !is ImportState.Importing && exportState !is ExportState.Exporting
+            ) {
+                if (importState is ImportState.Importing) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            strokeWidth = 2.dp
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Importing...")
+                    }
+                } else {
+                    Text("Import…")
+                }
+            }
+
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
             Text(
                 text = "Connection",
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+                modifier = Modifier
+                    .padding(top = 8.dp, bottom = 4.dp)
+                    .onGloballyPositioned { layoutCoordinates ->
+                        connectionSectionY = layoutCoordinates.positionInParent().y
+                    }
+                    .then(highlightModifier(highlightedTourSection == SettingsTourSection.Connection))
+                    .background(
+                        color = if (highlightConnectionSection) {
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.28f)
+                        } else {
+                            Color.Transparent
+                        },
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .then(
+                        if (highlightConnectionSection) {
+                            Modifier.border(
+                                width = 2.dp,
+                                color = MaterialTheme.colorScheme.primary,
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                        } else {
+                            Modifier
+                        }
+                    )
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
             )
 
             if (isConnected) {
@@ -452,6 +627,27 @@ fun SettingsScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
+                Text(
+                    text = "Request a connection code from your Flit - Core account.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                PrimaryActionTextButton(
+                    onClick = {
+                        try {
+                            uriHandler.openUri(viewModel.flitCoreWebLoginUrl)
+                        } catch (_: Exception) {
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("Could not open browser")
+                            }
+                        }
+                    }
+                ) {
+                    Text("Log in on Flit - Core")
+                }
+
                 PrimaryActionButton(
                     onClick = {
                         viewModel.resetConnectionState()
@@ -497,7 +693,7 @@ fun SettingsScreen(
                 errorMessage = null // Errors are now shown in separate dialog
             )
         }
-        
+
         // Close dialog when connection is successful
         LaunchedEffect(connectionState) {
             if (connectionState is ConnectionState.Success && showConnectDialog) {

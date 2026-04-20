@@ -2,6 +2,7 @@ package com.bmdstudios.flit.ui.viewmodel
 
 import android.content.Context
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,6 +11,7 @@ import com.bmdstudios.flit.data.api.model.ConnectExchangeRequest
 import com.bmdstudios.flit.data.repository.ExportRepository
 import com.bmdstudios.flit.data.repository.SettingsRepository
 import com.bmdstudios.flit.data.repository.SyncRepository
+import com.bmdstudios.flit.config.AppConfig
 import com.bmdstudios.flit.domain.error.ErrorHandler
 import com.bmdstudios.flit.domain.toAppError
 import com.bmdstudios.flit.ui.settings.ModelSize
@@ -34,6 +36,16 @@ sealed class ExportState {
     object Exporting : ExportState()
     data class Success(val filePath: String) : ExportState()
     data class Error(val message: String) : ExportState()
+}
+
+/**
+ * State for markdown / zip import (merge).
+ */
+sealed class ImportState {
+    object Idle : ImportState()
+    object Importing : ImportState()
+    data class Success(val notesImported: Int, val relationshipsImported: Int, val relationshipsSkipped: Int) : ImportState()
+    data class Error(val message: String) : ImportState()
 }
 
 /**
@@ -66,8 +78,12 @@ class SettingsViewModel @Inject constructor(
     private val exportRepository: ExportRepository,
     private val flitApiService: FlitApiService,
     private val syncRepository: SyncRepository,
+    private val appConfig: AppConfig,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
+
+    /** URL for opening Flit Core login in the browser (from [AppConfig]). */
+    val flitCoreWebLoginUrl: String = appConfig.flitCoreWebLoginUrl
 
     /**
      * State flow of the current theme mode.
@@ -104,6 +120,9 @@ class SettingsViewModel @Inject constructor(
      */
     private val _exportState = MutableStateFlow<ExportState>(ExportState.Idle)
     val exportState: StateFlow<ExportState> = _exportState.asStateFlow()
+
+    private val _importState = MutableStateFlow<ImportState>(ImportState.Idle)
+    val importState: StateFlow<ImportState> = _importState.asStateFlow()
 
     /**
      * State flow for connection operations.
@@ -160,13 +179,11 @@ class SettingsViewModel @Inject constructor(
     }
 
     /**
-     * Exports all app data to JSON file.
-     * Checks permissions and handles the export process.
+     * Exports all notes to a zip of markdown files in Downloads.
      */
     fun exportData() {
         viewModelScope.launch {
             try {
-                // Check permissions for Android < 10
                 if (!exportRepository.hasStoragePermission()) {
                     _exportState.value = ExportState.Error(
                         "Storage permission is required. Please grant permission in app settings."
@@ -176,17 +193,7 @@ class SettingsViewModel @Inject constructor(
 
                 _exportState.value = ExportState.Exporting
 
-                val result = exportRepository.getAllExportData()
-                    .fold(
-                        onSuccess = { exportData ->
-                            exportRepository.exportToJson(exportData)
-                        },
-                        onFailure = { error ->
-                            Result.failure(error)
-                        }
-                    )
-
-                result.fold(
+                exportRepository.exportToZip().fold(
                     onSuccess = { filePath ->
                         _exportState.value = ExportState.Success(filePath)
                     },
@@ -206,10 +213,44 @@ class SettingsViewModel @Inject constructor(
     }
 
     /**
+     * Merges notes from a zip (root `.md` only) or a single markdown file.
+     */
+    fun importData(uri: Uri) {
+        viewModelScope.launch {
+            try {
+                _importState.value = ImportState.Importing
+                exportRepository.importFromUri(uri).fold(
+                    onSuccess = { result ->
+                        _importState.value = ImportState.Success(
+                            notesImported = result.notesImported,
+                            relationshipsImported = result.relationshipsImported,
+                            relationshipsSkipped = result.relationshipsSkipped
+                        )
+                    },
+                    onFailure = { error ->
+                        _importState.value = ImportState.Error(
+                            error.message ?: "Import failed"
+                        )
+                    }
+                )
+            } catch (e: Exception) {
+                Timber.e(e, "Unexpected error during import")
+                _importState.value = ImportState.Error(
+                    "Unexpected error: ${e.message ?: "Unknown error"}"
+                )
+            }
+        }
+    }
+
+    /**
      * Resets export state to idle.
      */
     fun resetExportState() {
         _exportState.value = ExportState.Idle
+    }
+
+    fun resetImportState() {
+        _importState.value = ImportState.Idle
     }
 
     /**

@@ -1,9 +1,11 @@
 package com.bmdstudios.flit
 
 import android.os.Bundle
+import androidx.annotation.RawRes
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -32,9 +34,19 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.bmdstudios.flit.config.AppConfig
 import com.bmdstudios.flit.data.database.NotesearchRebuilder
 import com.bmdstudios.flit.data.database.PurgeDeletedRunner
+import com.bmdstudios.flit.data.database.dao.NoteDao
+import com.bmdstudios.flit.data.database.dao.CategoryDao
+import com.bmdstudios.flit.data.database.dao.NoteCategoryDao
+import com.bmdstudios.flit.data.database.dao.NotesearchDao
+import com.bmdstudios.flit.data.database.entity.CategoryEntity
+import com.bmdstudios.flit.data.database.entity.NoteCategoryCrossRef
+import com.bmdstudios.flit.data.database.entity.NoteSearchEntity
+import com.bmdstudios.flit.data.database.model.NoteStatus
 import com.bmdstudios.flit.data.repository.SettingsRepository
+import com.bmdstudios.flit.data.search.SearchNormalizer
 import com.bmdstudios.flit.ui.component.BottomBar
 import com.bmdstudios.flit.ui.component.navigation.HomeButton
 import com.bmdstudios.flit.ui.component.navigation.NavigationIcon
@@ -42,6 +54,8 @@ import com.bmdstudios.flit.ui.component.navigation.SearchButton
 import com.bmdstudios.flit.ui.component.TopBarTitle
 import com.bmdstudios.flit.ui.dialog.SearchDialog
 import com.bmdstudios.flit.ui.navigation.Screen
+import com.bmdstudios.flit.ui.onboarding.OnboardingOverlay
+import com.bmdstudios.flit.ui.onboarding.SettingsTourSection
 import com.bmdstudios.flit.ui.screen.CategoriesScreen
 import com.bmdstudios.flit.ui.settings.ModelSize
 import com.bmdstudios.flit.ui.screen.HomeScreen
@@ -62,6 +76,8 @@ import timber.log.Timber
 import javax.inject.Inject
 
 private const val TAG = "MainActivity"
+private const val WELCOME_NOTE_ID = 0L
+private const val EXAMPLE_CATEGORY_NAME = "Example"
 
 /**
  * Main activity of the application.
@@ -78,6 +94,18 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var notesearchRebuilder: NotesearchRebuilder
 
+    @Inject
+    lateinit var noteDao: NoteDao
+
+    @Inject
+    lateinit var notesearchDao: NotesearchDao
+
+    @Inject
+    lateinit var categoryDao: CategoryDao
+
+    @Inject
+    lateinit var noteCategoryDao: NoteCategoryDao
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Timber.tag(TAG).d("onCreate called")
@@ -86,20 +114,21 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             purgeDeletedRunner.purge()
             notesearchRebuilder.rebuildIfNeeded()
+            ensureWelcomeNoteSeeded()
         }
 
         setContent {
             val themeMode by settingsRepository.themeModeFlow.collectAsStateWithLifecycle(
                 initialValue = ThemeMode.SYSTEM
             )
+            var showOnboarding by remember { mutableStateOf(false) }
             var showModelSelectionDialog by remember { mutableStateOf(false) }
             val coroutineScope = rememberCoroutineScope()
             val modelDownloadViewModel: ModelDownloadViewModel = viewModel()
 
-            // Check if this is first startup (no model size preference set)
             LaunchedEffect(Unit) {
-                val hasPreference = settingsRepository.hasModelSizePreference()
-                if (!hasPreference) {
+                showOnboarding = settingsRepository.shouldShowOnboarding()
+                if (!showOnboarding && !settingsRepository.hasModelSizePreference()) {
                     showModelSelectionDialog = true
                 }
             }
@@ -107,7 +136,20 @@ class MainActivity : ComponentActivity() {
             FlitTheme(themeMode = themeMode) {
                 MainContent(
                     activity = this,
-                    modelDownloadViewModel = modelDownloadViewModel
+                    modelDownloadViewModel = modelDownloadViewModel,
+                    showOnboarding = showOnboarding,
+                    onOnboardingComplete = {
+                        coroutineScope.launch {
+                            settingsRepository.setOnboardingRevisionCompleted(AppConfig.ONBOARDING_REVISION)
+                            showOnboarding = false
+                        }
+                    },
+                    onOnboardingModelSelected = { selectedSize ->
+                        coroutineScope.launch {
+                            settingsRepository.setModelSize(selectedSize)
+                            modelDownloadViewModel.downloadModels(this@MainActivity)
+                        }
+                    }
                 )
                 
                 if (showModelSelectionDialog) {
@@ -130,6 +172,54 @@ class MainActivity : ComponentActivity() {
         Timber.tag(TAG).d("onDestroy called")
         super.onDestroy()
     }
+
+    private suspend fun ensureWelcomeNoteSeeded() {
+        if (settingsRepository.hasAttemptedInstallWelcomeSeed()) {
+            return
+        }
+
+        val totalNotes = noteDao.getTotalNoteCount()
+        if (totalNotes == 0) {
+            val markdown = loadRawResourceText(R.raw.welcome_note)
+            val now = System.currentTimeMillis()
+            noteDao.insertWelcomeNoteWithId(
+                id = WELCOME_NOTE_ID,
+                ver = 1,
+                title = "Welcome to Flit",
+                text = markdown,
+                createdAt = now,
+                updatedAt = now,
+                workflowStatus = NoteStatus.DRAFT.name
+            )
+            notesearchDao.upsert(
+                NoteSearchEntity(
+                    noteId = WELCOME_NOTE_ID,
+                    content = SearchNormalizer.normalize("Welcome to Flit $markdown")
+                )
+            )
+
+            val exampleCategoryId = categoryDao.getCategoryByName(EXAMPLE_CATEGORY_NAME)?.id
+                ?: categoryDao.insertCategory(
+                    CategoryEntity(
+                        name = EXAMPLE_CATEGORY_NAME,
+                        created_at = now,
+                        updated_at = now
+                    )
+                )
+            noteCategoryDao.insertNoteCategory(
+                NoteCategoryCrossRef(
+                    note_id = WELCOME_NOTE_ID,
+                    category_id = exampleCategoryId,
+                    updated_at = now
+                )
+            )
+        }
+        settingsRepository.setInstallWelcomeSeedAttempted(true)
+    }
+
+    private fun loadRawResourceText(@RawRes resourceId: Int): String {
+        return resources.openRawResource(resourceId).bufferedReader().use { it.readText() }
+    }
 }
 
 /**
@@ -139,7 +229,10 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainContent(
     activity: ComponentActivity,
-    modelDownloadViewModel: ModelDownloadViewModel
+    modelDownloadViewModel: ModelDownloadViewModel,
+    showOnboarding: Boolean,
+    onOnboardingComplete: () -> Unit,
+    onOnboardingModelSelected: (ModelSize) -> Unit
 ) {
     val navController = rememberNavController()
     val uiState by modelDownloadViewModel.uiState.collectAsStateWithLifecycle()
@@ -157,140 +250,202 @@ fun MainContent(
     
     val modelSize by settingsViewModel.modelSize.collectAsStateWithLifecycle(initialValue = ModelSize.NONE)
     val noteDetails by settingsViewModel.noteDetails.collectAsStateWithLifecycle(initialValue = false)
+    val notes by notesViewModel.notes.collectAsStateWithLifecycle(initialValue = emptyList())
 
     var showSearchDialog by remember { mutableStateOf(false) }
+    var highlightBottomBar by remember { mutableStateOf(false) }
+    var highlightNoteActions by remember { mutableStateOf(false) }
+    var highlightSearchButton by remember { mutableStateOf(false) }
+    var highlightMenuButton by remember { mutableStateOf(false) }
+    var highlightCategoryActions by remember { mutableStateOf(false) }
+    var highlightedSettingsSection by remember { mutableStateOf<SettingsTourSection?>(null) }
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
     val topBarTitle = TopBarTitle(navBackStackEntry, notesViewModel)
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(topBarTitle) },
-                navigationIcon = {
-                    NavigationIcon(
-                        navController = navController,
-                        currentRoute = currentRoute
-                    )
-                },
-                actions = {
-                    if (currentRoute == Screen.Home.route) {
-                        SearchButton(onClick = { showSearchDialog = true })
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = { Text(topBarTitle) },
+                    navigationIcon = {
+                        NavigationIcon(
+                            navController = navController,
+                            currentRoute = currentRoute,
+                            highlightMenu = highlightMenuButton
+                        )
+                    },
+                    actions = {
+                        if (currentRoute == Screen.Home.route) {
+                            SearchButton(
+                                onClick = { showSearchDialog = true },
+                                highlighted = highlightSearchButton
+                            )
+                        }
+                        if (currentRoute == Screen.Settings.route || currentRoute == Screen.Categories.route) {
+                            HomeButton(navController = navController)
+                        }
+                        if ((currentRoute?.startsWith("note/") == true && !currentRoute.endsWith("/edit")) ||
+                            currentRoute?.startsWith("notes/category/") == true ||
+                            currentRoute?.startsWith("search/") == true) {
+                            HomeButton(navController = navController)
+                        }
                     }
-                    if (currentRoute == Screen.Settings.route || currentRoute == Screen.Categories.route) {
-                        HomeButton(navController = navController)
-                    }
-                    if ((currentRoute?.startsWith("note/") == true && currentRoute?.endsWith("/edit") != true) ||
-                        currentRoute?.startsWith("notes/category/") == true ||
-                        currentRoute?.startsWith("search/") == true) {
-                        HomeButton(navController = navController)
-                    }
-                }
-            )
-        },
-        bottomBar = {
-            // Only show bottom bar on home screen
-            if (currentRoute == Screen.Home.route) {
-                BottomBar(
-                    modelDownloadState = uiState,
-                    modelSize = modelSize,
-                    voiceRecorderViewModel = voiceRecorderViewModel,
-                    transcriptionViewModel = transcriptionViewModel,
-                    notesViewModel = notesViewModel
                 )
+            },
+            bottomBar = {
+                if (currentRoute == Screen.Home.route) {
+                    BottomBar(
+                        modelDownloadState = uiState,
+                        modelSize = modelSize,
+                        voiceRecorderViewModel = voiceRecorderViewModel,
+                        transcriptionViewModel = transcriptionViewModel,
+                        notesViewModel = notesViewModel,
+                        highlightInputAndAction = highlightBottomBar
+                    )
+                }
+            }
+        ) { innerPadding ->
+            NavHost(
+                navController = navController,
+                startDestination = Screen.Home.route,
+                modifier = Modifier.padding(innerPadding)
+            ) {
+                composable(Screen.Home.route) {
+                    HomeScreen(
+                        modelDownloadState = uiState,
+                        notesViewModel = notesViewModel,
+                        navController = navController,
+                        noteDetailsEnabled = noteDetails,
+                        highlightCoachMarks = highlightNoteActions
+                    )
+                }
+                composable(Screen.Settings.route) {
+                    SettingsScreen(
+                        modelDownloadViewModel = modelDownloadViewModel,
+                        highlightConnectionSection = showOnboarding,
+                        highlightedTourSection = highlightedSettingsSection
+                    )
+                }
+                composable(Screen.Categories.route) {
+                    CategoriesScreen(highlightCategoryActions = highlightCategoryActions)
+                }
+                composable(
+                    route = Screen.NoteDetail.ROUTE,
+                    arguments = listOf(
+                        navArgument("noteId") {
+                            type = NavType.LongType
+                        }
+                    )
+                ) { backStackEntry ->
+                    val noteId = backStackEntry.arguments?.getLong("noteId") ?: 0L
+                    NoteDetailScreen(
+                        noteId = noteId,
+                        notesViewModel = notesViewModel,
+                        navController = navController
+                    )
+                }
+                composable(
+                    route = Screen.NoteEdit.ROUTE,
+                    arguments = listOf(
+                        navArgument("noteId") {
+                            type = NavType.LongType
+                        }
+                    )
+                ) { backStackEntry ->
+                    val noteId = backStackEntry.arguments?.getLong("noteId") ?: 0L
+                    NoteEditScreen(
+                        noteId = noteId,
+                        notesViewModel = notesViewModel,
+                        navController = navController
+                    )
+                }
+                composable(
+                    route = Screen.NotesByCategory.ROUTE,
+                    arguments = listOf(
+                        navArgument("categoryId") {
+                            type = NavType.LongType
+                        }
+                    )
+                ) { backStackEntry ->
+                    val categoryId = backStackEntry.arguments?.getLong("categoryId") ?: 0L
+                    NotesByCategoryScreen(
+                        categoryId = categoryId,
+                        notesViewModel = notesViewModel,
+                        navController = navController
+                    )
+                }
+                composable(
+                    route = Screen.SearchResults.ROUTE,
+                    arguments = listOf(
+                        navArgument("query") {
+                            type = NavType.StringType
+                        },
+                        navArgument("categoryId") {
+                            type = NavType.LongType
+                        }
+                    )
+                ) { backStackEntry ->
+                    val encodedQuery = backStackEntry.arguments?.getString("query") ?: ""
+                    val categoryId = backStackEntry.arguments?.getLong("categoryId") ?: -1L
+                    SearchResultsScreen(
+                        query = encodedQuery,
+                        categoryId = categoryId,
+                        notesViewModel = notesViewModel,
+                        navController = navController
+                    )
+                }
             }
         }
-    ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = Screen.Home.route,
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            composable(Screen.Home.route) {
-                HomeScreen(
-                    modelDownloadState = uiState,
-                    notesViewModel = notesViewModel,
-                    navController = navController,
-                    noteDetailsEnabled = noteDetails
-                )
-            }
-            composable(Screen.Settings.route) {
-                SettingsScreen(
-                    modelDownloadViewModel = modelDownloadViewModel
-                )
-            }
-            composable(Screen.Categories.route) {
-                CategoriesScreen()
-            }
-            composable(
-                route = Screen.NoteDetail.ROUTE,
-                arguments = listOf(
-                    navArgument("noteId") {
-                        type = NavType.LongType
+
+        if (showOnboarding) {
+            OnboardingOverlay(
+                shouldSelectModel = true,
+                canOpenWelcomeNote = notes.any { it.id == WELCOME_NOTE_ID },
+                onModelConfirmed = onOnboardingModelSelected,
+                onNavigateHome = {
+                    navController.navigate(Screen.Home.route) {
+                        launchSingleTop = true
                     }
-                )
-            ) { backStackEntry ->
-                val noteId = backStackEntry.arguments?.getLong("noteId") ?: 0L
-                NoteDetailScreen(
-                    noteId = noteId,
-                    notesViewModel = notesViewModel,
-                    navController = navController
-                )
-            }
-            composable(
-                route = Screen.NoteEdit.ROUTE,
-                arguments = listOf(
-                    navArgument("noteId") {
-                        type = NavType.LongType
+                },
+                onNavigateToWelcomeNote = {
+                    navController.navigate(Screen.NoteDetail.createRoute(WELCOME_NOTE_ID)) {
+                        launchSingleTop = true
                     }
-                )
-            ) { backStackEntry ->
-                val noteId = backStackEntry.arguments?.getLong("noteId") ?: 0L
-                NoteEditScreen(
-                    noteId = noteId,
-                    notesViewModel = notesViewModel,
-                    navController = navController
-                )
-            }
-            composable(
-                route = Screen.NotesByCategory.ROUTE,
-                arguments = listOf(
-                    navArgument("categoryId") {
-                        type = NavType.LongType
+                },
+                onNavigateToCategories = {
+                    navController.navigate(Screen.Categories.route) {
+                        launchSingleTop = true
                     }
-                )
-            ) { backStackEntry ->
-                val categoryId = backStackEntry.arguments?.getLong("categoryId") ?: 0L
-                NotesByCategoryScreen(
-                    categoryId = categoryId,
-                    notesViewModel = notesViewModel,
-                    navController = navController
-                )
-            }
-            composable(
-                route = Screen.SearchResults.ROUTE,
-                arguments = listOf(
-                    navArgument("query") {
-                        type = NavType.StringType
-                    },
-                    navArgument("categoryId") {
-                        type = NavType.LongType
+                },
+                onNavigateToSettings = {
+                    navController.navigate(Screen.Settings.route) {
+                        launchSingleTop = true
                     }
-                )
-            ) { backStackEntry ->
-                val encodedQuery = backStackEntry.arguments?.getString("query") ?: ""
-                val categoryId = backStackEntry.arguments?.getLong("categoryId") ?: -1L
-                // Note: query will be decoded in SearchResultsScreen
-                SearchResultsScreen(
-                    query = encodedQuery,
-                    categoryId = categoryId,
-                    notesViewModel = notesViewModel,
-                    navController = navController
-                )
-            }
+                },
+                onBottomBarHighlightChange = { highlightBottomBar = it },
+                onNoteActionsHighlightChange = { highlightNoteActions = it },
+                onSearchHighlightChange = { highlightSearchButton = it },
+                onMenuHighlightChange = { highlightMenuButton = it },
+                onCategoriesHighlightChange = { highlightCategoryActions = it },
+                onSettingsSectionHighlightChange = { highlightedSettingsSection = it },
+                onComplete = {
+                    highlightBottomBar = false
+                    highlightNoteActions = false
+                    highlightSearchButton = false
+                    highlightMenuButton = false
+                    highlightCategoryActions = false
+                    highlightedSettingsSection = null
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(navController.graph.startDestinationId) { inclusive = false }
+                        launchSingleTop = true
+                    }
+                    onOnboardingComplete()
+                }
+            )
         }
     }
 
