@@ -175,7 +175,7 @@ fun BottomBar(
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = if (isFocused) Alignment.Top else Alignment.CenterVertically
+            verticalAlignment = Alignment.Bottom
         ) {
         TextField(
             value = textValue,

@@ -178,7 +178,6 @@ fun OnboardingOverlay(
                 onSearchHighlightChange(true)
                 onMenuHighlightChange(true)
                 onCategoriesHighlightChange(false)
-                onNoteActionDialogHighlightChange(null)
                 onSettingsSectionHighlightChange(null)
             }
             OnboardingStep.Categories -> {
@@ -237,7 +236,8 @@ fun OnboardingOverlay(
                     darkSplashGradient
                 } else {
                     lightSplashGradient
-                }
+                },
+                textColor = if (isDarkTheme) Color.White else Color.Black
             )
         }
         OnboardingStep.TypeOrRecord -> {
@@ -365,6 +365,7 @@ fun OnboardingOverlay(
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
+                        onNoteActionDialogHighlightChange(null)
                         if (currentStepIndex < steps.lastIndex) {
                             currentStepIndex += 1
                         } else {
@@ -470,7 +471,8 @@ private fun GradientMessagePage(
 
 @Composable
 private fun BrandedSplashPage(
-    gradient: Brush
+    gradient: Brush,
+    textColor: Color
 ) {
     BoxWithConstraints(
         modifier = Modifier
@@ -490,7 +492,7 @@ private fun BrandedSplashPage(
                 style = MaterialTheme.typography.displayLarge.copy(
                     fontWeight = FontWeight.ExtraBold
                 ),
-                color = Color.White,
+                color = textColor,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(12.dp))
@@ -499,7 +501,7 @@ private fun BrandedSplashPage(
                 style = MaterialTheme.typography.headlineSmall.copy(
                     lineHeight = 34.sp
                 ),
-                color = Color.White,
+                color = textColor,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(12.dp))
