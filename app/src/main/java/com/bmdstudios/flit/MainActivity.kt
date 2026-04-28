@@ -53,6 +53,7 @@ import com.bmdstudios.flit.ui.component.navigation.NavigationIcon
 import com.bmdstudios.flit.ui.component.navigation.SearchButton
 import com.bmdstudios.flit.ui.component.TopBarTitle
 import com.bmdstudios.flit.ui.dialog.SearchDialog
+import com.bmdstudios.flit.ui.dialog.NoteActionType
 import com.bmdstudios.flit.ui.navigation.Screen
 import com.bmdstudios.flit.ui.onboarding.OnboardingOverlay
 import com.bmdstudios.flit.ui.onboarding.SettingsTourSection
@@ -258,6 +259,7 @@ fun MainContent(
     var highlightSearchButton by remember { mutableStateOf(false) }
     var highlightMenuButton by remember { mutableStateOf(false) }
     var highlightCategoryActions by remember { mutableStateOf(false) }
+    var onboardingHighlightedDialogAction by remember { mutableStateOf<NoteActionType?>(null) }
     var highlightedSettingsSection by remember { mutableStateOf<SettingsTourSection?>(null) }
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -320,7 +322,8 @@ fun MainContent(
                         notesViewModel = notesViewModel,
                         navController = navController,
                         noteDetailsEnabled = noteDetails,
-                        highlightCoachMarks = highlightNoteActions
+                        highlightCoachMarks = highlightNoteActions,
+                        onboardingHighlightedDialogAction = onboardingHighlightedDialogAction
                     )
                 }
                 composable(Screen.Settings.route) {
@@ -431,6 +434,7 @@ fun MainContent(
                 onSearchHighlightChange = { highlightSearchButton = it },
                 onMenuHighlightChange = { highlightMenuButton = it },
                 onCategoriesHighlightChange = { highlightCategoryActions = it },
+                onNoteActionDialogHighlightChange = { onboardingHighlightedDialogAction = it },
                 onSettingsSectionHighlightChange = { highlightedSettingsSection = it },
                 onComplete = {
                     highlightBottomBar = false
@@ -438,6 +442,7 @@ fun MainContent(
                     highlightSearchButton = false
                     highlightMenuButton = false
                     highlightCategoryActions = false
+                    onboardingHighlightedDialogAction = null
                     highlightedSettingsSection = null
                     navController.navigate(Screen.Home.route) {
                         popUpTo(navController.graph.startDestinationId) { inclusive = false }

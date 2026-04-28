@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Icon
 import com.bmdstudios.flit.R
+import com.bmdstudios.flit.ui.dialog.NoteActionType
 import com.bmdstudios.flit.ui.dialog.ModelSelectionContent
 import com.bmdstudios.flit.ui.settings.ModelSize
 import kotlinx.coroutines.delay
@@ -52,7 +53,10 @@ private enum class OnboardingStep {
     Welcome,
     TypeOrRecord,
     ModelSelection,
-    HomeActions,
+    HoldForOptionsIntro,
+    NoteOptionPin,
+    NoteOptionAppend,
+    NoteOptionDelete,
     MenuAndSearch,
     Categories,
     NoteView,
@@ -81,6 +85,7 @@ fun OnboardingOverlay(
     onSearchHighlightChange: (Boolean) -> Unit,
     onMenuHighlightChange: (Boolean) -> Unit,
     onCategoriesHighlightChange: (Boolean) -> Unit,
+    onNoteActionDialogHighlightChange: (NoteActionType?) -> Unit,
     onSettingsSectionHighlightChange: (SettingsTourSection?) -> Unit,
     onComplete: () -> Unit
 ) {
@@ -89,7 +94,10 @@ fun OnboardingOverlay(
             add(OnboardingStep.Welcome)
             add(OnboardingStep.TypeOrRecord)
             if (shouldSelectModel) add(OnboardingStep.ModelSelection)
-            add(OnboardingStep.HomeActions)
+            add(OnboardingStep.HoldForOptionsIntro)
+            add(OnboardingStep.NoteOptionPin)
+            add(OnboardingStep.NoteOptionAppend)
+            add(OnboardingStep.NoteOptionDelete)
             add(OnboardingStep.MenuAndSearch)
             add(OnboardingStep.Categories)
             if (canOpenWelcomeNote) add(OnboardingStep.NoteView)
@@ -108,6 +116,7 @@ fun OnboardingOverlay(
                 onSearchHighlightChange(false)
                 onMenuHighlightChange(false)
                 onCategoriesHighlightChange(false)
+                onNoteActionDialogHighlightChange(null)
                 onSettingsSectionHighlightChange(null)
                 delay(WELCOME_DELAY_MS)
                 if (currentStepIndex < steps.lastIndex) currentStepIndex += 1
@@ -119,15 +128,47 @@ fun OnboardingOverlay(
                 onSearchHighlightChange(false)
                 onMenuHighlightChange(false)
                 onCategoriesHighlightChange(false)
+                onNoteActionDialogHighlightChange(null)
                 onSettingsSectionHighlightChange(null)
             }
-            OnboardingStep.HomeActions -> {
+            OnboardingStep.HoldForOptionsIntro -> {
                 onNavigateHome()
                 onBottomBarHighlightChange(false)
                 onNoteActionsHighlightChange(true)
                 onSearchHighlightChange(false)
                 onMenuHighlightChange(false)
                 onCategoriesHighlightChange(false)
+                onNoteActionDialogHighlightChange(null)
+                onSettingsSectionHighlightChange(null)
+            }
+            OnboardingStep.NoteOptionPin -> {
+                onNavigateHome()
+                onBottomBarHighlightChange(false)
+                onNoteActionsHighlightChange(true)
+                onSearchHighlightChange(false)
+                onMenuHighlightChange(false)
+                onCategoriesHighlightChange(false)
+                onNoteActionDialogHighlightChange(NoteActionType.PIN)
+                onSettingsSectionHighlightChange(null)
+            }
+            OnboardingStep.NoteOptionAppend -> {
+                onNavigateHome()
+                onBottomBarHighlightChange(false)
+                onNoteActionsHighlightChange(true)
+                onSearchHighlightChange(false)
+                onMenuHighlightChange(false)
+                onCategoriesHighlightChange(false)
+                onNoteActionDialogHighlightChange(NoteActionType.APPEND)
+                onSettingsSectionHighlightChange(null)
+            }
+            OnboardingStep.NoteOptionDelete -> {
+                onNavigateHome()
+                onBottomBarHighlightChange(false)
+                onNoteActionsHighlightChange(true)
+                onSearchHighlightChange(false)
+                onMenuHighlightChange(false)
+                onCategoriesHighlightChange(false)
+                onNoteActionDialogHighlightChange(NoteActionType.DELETE)
                 onSettingsSectionHighlightChange(null)
             }
             OnboardingStep.MenuAndSearch -> {
@@ -137,6 +178,7 @@ fun OnboardingOverlay(
                 onSearchHighlightChange(true)
                 onMenuHighlightChange(true)
                 onCategoriesHighlightChange(false)
+                onNoteActionDialogHighlightChange(null)
                 onSettingsSectionHighlightChange(null)
             }
             OnboardingStep.Categories -> {
@@ -146,6 +188,7 @@ fun OnboardingOverlay(
                 onSearchHighlightChange(false)
                 onMenuHighlightChange(false)
                 onCategoriesHighlightChange(true)
+                onNoteActionDialogHighlightChange(null)
                 onSettingsSectionHighlightChange(null)
             }
             OnboardingStep.NoteView -> {
@@ -154,6 +197,7 @@ fun OnboardingOverlay(
                 onSearchHighlightChange(false)
                 onMenuHighlightChange(false)
                 onCategoriesHighlightChange(false)
+                onNoteActionDialogHighlightChange(null)
                 onSettingsSectionHighlightChange(null)
                 onNavigateToWelcomeNote()
             }
@@ -163,6 +207,7 @@ fun OnboardingOverlay(
                 onSearchHighlightChange(false)
                 onMenuHighlightChange(false)
                 onCategoriesHighlightChange(false)
+                onNoteActionDialogHighlightChange(null)
                 onNavigateToSettings()
             }
             OnboardingStep.ModelSelection -> {
@@ -171,16 +216,17 @@ fun OnboardingOverlay(
                 onSearchHighlightChange(false)
                 onMenuHighlightChange(false)
                 onCategoriesHighlightChange(false)
+                onNoteActionDialogHighlightChange(null)
                 onSettingsSectionHighlightChange(null)
             }
         }
     }
 
     val darkSplashGradient = Brush.verticalGradient(
-        listOf(Color(0xFF000000), Color(0xFF0057D8),)
+        listOf(Color(0xFF000000), Color(0xFF0d274d),)
     )
     val lightSplashGradient = Brush.verticalGradient(
-        listOf(Color(0xFFFF7A00), Color(0xFFFFC26A))
+        listOf(Color(0xFFFFBB81), Color(0xFFFFFFFF))
     )
     val isDarkTheme = MaterialTheme.colorScheme.background.luminance() < 0.5f
 
@@ -242,10 +288,76 @@ fun OnboardingOverlay(
                 }
             }
         }
-        OnboardingStep.HomeActions -> {
+        OnboardingStep.HoldForOptionsIntro -> {
             CoachmarkCard(
-                title = "Note Actions",
-                body = "Append - New Follow-Up Note\nEdit - Edit Note\nDelete - Delete Note",
+                title = "Hold for options",
+                body = "Long-press a note on Home to open its actions menu. Tap a note to open it and read or edit from there.",
+                centerContent = false,
+                emphasizedTextBlock = false,
+                cardOffsetY = (-84).dp
+            ) {
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        if (currentStepIndex < steps.lastIndex) {
+                            currentStepIndex += 1
+                        } else {
+                            onComplete()
+                        }
+                    }
+                ) {
+                    Text("Next")
+                }
+            }
+        }
+        OnboardingStep.NoteOptionPin -> {
+            CoachmarkCard(
+                title = "Pin",
+                body = "Pin keeps important notes at the top of Home in the Pinned section. Choose Pin again to unpin.",
+                centerContent = false,
+                emphasizedTextBlock = false,
+                cardOffsetY = (-84).dp
+            ) {
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        if (currentStepIndex < steps.lastIndex) {
+                            currentStepIndex += 1
+                        } else {
+                            onComplete()
+                        }
+                    }
+                ) {
+                    Text("Next")
+                }
+            }
+        }
+        OnboardingStep.NoteOptionAppend -> {
+            CoachmarkCard(
+                title = "Append",
+                body = "Append starts a new follow-up note linked to the one you long-pressed.",
+                centerContent = false,
+                emphasizedTextBlock = false,
+                cardOffsetY = (-84).dp
+            ) {
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        if (currentStepIndex < steps.lastIndex) {
+                            currentStepIndex += 1
+                        } else {
+                            onComplete()
+                        }
+                    }
+                ) {
+                    Text("Next")
+                }
+            }
+        }
+        OnboardingStep.NoteOptionDelete -> {
+            CoachmarkCard(
+                title = "Delete",
+                body = "Delete removes the note. You will be asked to confirm before it is deleted.",
                 centerContent = false,
                 emphasizedTextBlock = false,
                 cardOffsetY = (-84).dp

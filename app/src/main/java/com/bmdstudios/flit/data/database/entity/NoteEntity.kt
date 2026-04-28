@@ -30,7 +30,8 @@ data class NoteEntity(
     val embedding_vector: ByteArray? = null,
     val created_at: Long,
     val updated_at: Long,
-    val workflow_status: NoteStatus
+    val workflow_status: NoteStatus,
+    val pinned: Boolean = false
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -52,6 +53,7 @@ data class NoteEntity(
         if (created_at != other.created_at) return false
         if (updated_at != other.updated_at) return false
         if (workflow_status != other.workflow_status) return false
+        if (pinned != other.pinned) return false
 
         return true
     }
@@ -68,6 +70,7 @@ data class NoteEntity(
         result = 31 * result + created_at.hashCode()
         result = 31 * result + updated_at.hashCode()
         result = 31 * result + workflow_status.hashCode()
+        result = 31 * result + pinned.hashCode()
         return result
     }
 }

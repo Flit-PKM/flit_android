@@ -21,10 +21,10 @@ interface NoteDao {
     @Query("SELECT * FROM notes WHERE id = :id AND is_deleted = 0")
     fun getNoteByIdFlow(id: Long): Flow<NoteEntity?>
 
-    @Query("SELECT * FROM notes WHERE is_deleted = 0 ORDER BY created_at DESC")
+    @Query("SELECT * FROM notes WHERE is_deleted = 0 ORDER BY pinned DESC, updated_at DESC")
     suspend fun getAllNotes(): List<NoteEntity>
 
-    @Query("SELECT * FROM notes WHERE is_deleted = 0 ORDER BY updated_at DESC")
+    @Query("SELECT * FROM notes WHERE is_deleted = 0 ORDER BY pinned DESC, updated_at DESC")
     fun getAllNotesFlow(): Flow<List<NoteEntity>>
 
     @Query("SELECT * FROM notes WHERE is_deleted = 0 AND workflow_status = :status ORDER BY created_at DESC")
@@ -77,9 +77,9 @@ interface NoteDao {
     @Query(
         """
         INSERT INTO notes(
-            id, core_id, ver, is_deleted, title, text, recording, embedding_vector, created_at, updated_at, workflow_status
+            id, core_id, ver, is_deleted, title, text, recording, embedding_vector, created_at, updated_at, workflow_status, pinned
         ) VALUES(
-            :id, NULL, :ver, 0, :title, :text, NULL, NULL, :createdAt, :updatedAt, :workflowStatus
+            :id, NULL, :ver, 0, :title, :text, NULL, NULL, :createdAt, :updatedAt, :workflowStatus, 0
         )
         """
     )

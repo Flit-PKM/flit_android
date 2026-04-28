@@ -22,10 +22,22 @@ interface NoteCategoryDao {
     @Query("SELECT * FROM category INNER JOIN note_categories ON category.id = note_categories.category_id WHERE note_categories.note_id = :noteId AND note_categories.is_deleted = 0 AND category.is_deleted = 0")
     fun getCategoriesForNoteFlow(noteId: Long): Flow<List<CategoryEntity>>
 
-    @Query("SELECT * FROM notes INNER JOIN note_categories ON notes.id = note_categories.note_id WHERE note_categories.category_id = :categoryId AND note_categories.is_deleted = 0 AND notes.is_deleted = 0")
+    @Query(
+        """
+        SELECT notes.* FROM notes INNER JOIN note_categories ON notes.id = note_categories.note_id
+        WHERE note_categories.category_id = :categoryId AND note_categories.is_deleted = 0 AND notes.is_deleted = 0
+        ORDER BY notes.pinned DESC, notes.updated_at DESC
+        """
+    )
     suspend fun getNotesForCategory(categoryId: Long): List<NoteEntity>
 
-    @Query("SELECT * FROM notes INNER JOIN note_categories ON notes.id = note_categories.note_id WHERE note_categories.category_id = :categoryId AND note_categories.is_deleted = 0 AND notes.is_deleted = 0")
+    @Query(
+        """
+        SELECT notes.* FROM notes INNER JOIN note_categories ON notes.id = note_categories.note_id
+        WHERE note_categories.category_id = :categoryId AND note_categories.is_deleted = 0 AND notes.is_deleted = 0
+        ORDER BY notes.pinned DESC, notes.updated_at DESC
+        """
+    )
     fun getNotesForCategoryFlow(categoryId: Long): Flow<List<NoteEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

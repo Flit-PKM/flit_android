@@ -9,10 +9,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -33,6 +36,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.bmdstudios.flit.ui.component.ModelDownloadProgress
 import com.bmdstudios.flit.ui.component.NoteCard
+import com.bmdstudios.flit.ui.dialog.NoteActionType
 import com.bmdstudios.flit.ui.viewmodel.DownloadUiState
 import com.bmdstudios.flit.ui.viewmodel.NotesViewModel
 import kotlinx.coroutines.delay
@@ -63,7 +67,8 @@ fun HomeScreen(
     notesViewModel: NotesViewModel,
     navController: NavHostController,
     noteDetailsEnabled: Boolean = false,
-    highlightCoachMarks: Boolean = false
+    highlightCoachMarks: Boolean = false,
+    onboardingHighlightedDialogAction: NoteActionType? = null
 ) {
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
@@ -114,6 +119,7 @@ fun HomeScreen(
                 navController = navController,
                 noteDetailsEnabled = noteDetailsEnabled,
                 highlightCoachMarks = highlightCoachMarks,
+                onboardingHighlightedDialogAction = onboardingHighlightedDialogAction,
                 modifier = Modifier
                     .fillMaxSize()
                     .weight(1f)
@@ -137,6 +143,7 @@ private fun NotesList(
     navController: NavHostController,
     noteDetailsEnabled: Boolean = false,
     highlightCoachMarks: Boolean = false,
+    onboardingHighlightedDialogAction: NoteActionType? = null,
     modifier: Modifier = Modifier
 ) {
     val notes by notesViewModel.notes.collectAsStateWithLifecycle()
@@ -163,13 +170,61 @@ private fun NotesList(
             )
         }
     } else {
+        val coachTargetNoteId = notes.firstOrNull()?.id
+        val (pinnedNotes, unpinnedNotes) = notes.partition { it.pinned }
         LazyColumn(
             modifier = modifier,
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            if (pinnedNotes.isNotEmpty()) {
+                item(key = "pinned_header") {
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 4.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+                    ) {
+                        Text(
+                            text = "Pinned",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp, vertical = 8.dp)
+                                .wrapContentWidth(Alignment.End)
+                        )
+                    }
+                }
+                items(
+                    items = pinnedNotes,
+                    key = { it.id }
+                ) { note ->
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 4.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+                    ) {
+                        Box(modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp)) {
+                            NoteCard(
+                                note = note,
+                                navController = navController,
+                                notesViewModel = notesViewModel,
+                                isAppending = appendingNoteId == note.id,
+                                showDetails = noteDetailsEnabled,
+                                highlightActions = highlightCoachMarks && note.id == coachTargetNoteId,
+                                showOptionsDialog = onboardingHighlightedDialogAction != null && note.id == coachTargetNoteId,
+                                highlightedDialogAction = onboardingHighlightedDialogAction
+                            )
+                        }
+                    }
+                }
+            }
             items(
-                items = notes,
+                items = unpinnedNotes,
                 key = { it.id }
             ) { note ->
                 NoteCard(
@@ -178,7 +233,9 @@ private fun NotesList(
                     notesViewModel = notesViewModel,
                     isAppending = appendingNoteId == note.id,
                     showDetails = noteDetailsEnabled,
-                    highlightActions = highlightCoachMarks
+                    highlightActions = highlightCoachMarks && note.id == coachTargetNoteId,
+                    showOptionsDialog = onboardingHighlightedDialogAction != null && note.id == coachTargetNoteId,
+                    highlightedDialogAction = onboardingHighlightedDialogAction
                 )
             }
         }

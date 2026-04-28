@@ -6,6 +6,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 private const val VERSION_3 = 3
 private const val VERSION_4 = 4
 private const val VERSION_5 = 5
+private const val VERSION_6 = 6
 
 /**
  * Migration from database version 3 to 4: add notesearch table.
@@ -30,5 +31,14 @@ val MIGRATION_3_4 = object : Migration(VERSION_3, VERSION_4) {
 val MIGRATION_4_5 = object : Migration(VERSION_4, VERSION_5) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL("DROP TABLE IF EXISTS chunks")
+    }
+}
+
+/**
+ * Migration from database version 5 to 6: add local-only pinned flag on notes.
+ */
+val MIGRATION_5_6 = object : Migration(VERSION_5, VERSION_6) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE notes ADD COLUMN pinned INTEGER NOT NULL DEFAULT 0")
     }
 }

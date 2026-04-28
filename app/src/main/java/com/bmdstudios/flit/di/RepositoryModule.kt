@@ -6,6 +6,7 @@ import com.bmdstudios.flit.config.AppConfig
 import com.bmdstudios.flit.data.database.FlitDatabase
 import com.bmdstudios.flit.data.database.MIGRATION_3_4
 import com.bmdstudios.flit.data.database.MIGRATION_4_5
+import com.bmdstudios.flit.data.database.MIGRATION_5_6
 import com.bmdstudios.flit.data.database.NoteWriter
 import com.bmdstudios.flit.data.database.PurgeDeletedRunner
 import com.bmdstudios.flit.data.database.dao.CategoryDao
@@ -47,7 +48,7 @@ object RepositoryModule {
             FlitDatabase::class.java,
             "flit_database"
         )
-            .addMigrations(MIGRATION_3_4, MIGRATION_4_5)
+            .addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
             .build()
     }
 

@@ -432,7 +432,8 @@ class SyncRepository @Inject constructor(
                 embedding_vector = null,
                 created_at = existing?.created_at ?: System.currentTimeMillis(),
                 updated_at = System.currentTimeMillis(),
-                workflow_status = status
+                workflow_status = status,
+                pinned = existing?.pinned ?: false
             )
             if (existing != null) {
                 noteWriter.updateNote(entity)

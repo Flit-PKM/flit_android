@@ -129,12 +129,12 @@ class TranscriptionViewModel @Inject constructor(
      */
     private suspend fun createNoteFromTranscription(text: String, audioFile: File, parentNoteId: Long?) {
         try {
-            val title = NoteTitleExtractor.extractTitle(text)
+            val extractedContent = NoteTitleExtractor.extractTitleAndBody(text)
             val currentTime = System.currentTimeMillis()
             
             val note = NoteEntity(
-                title = title,
-                text = text,
+                title = extractedContent.title,
+                text = extractedContent.body,
                 recording = audioFile.absolutePath,
                 embedding_vector = null,
                 created_at = currentTime,
@@ -143,7 +143,7 @@ class TranscriptionViewModel @Inject constructor(
             )
             
             val noteId = noteWriter.insertNote(note)
-            Timber.i("Note created successfully with id: $noteId, title: $title")
+            Timber.i("Note created successfully with id: $noteId, title: ${extractedContent.title}")
 
             // Create relationship if parent note ID is provided
             if (parentNoteId != null) {

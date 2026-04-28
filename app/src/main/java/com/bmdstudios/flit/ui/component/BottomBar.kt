@@ -52,6 +52,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -102,6 +103,7 @@ fun BottomBar(
     var isFocused by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
+    val maxInputHeight = LocalConfiguration.current.screenHeightDp.dp * 0.8f
     val coroutineScope = rememberCoroutineScope()
 
     val backgroundColor = if (isRecording) {
@@ -180,7 +182,7 @@ fun BottomBar(
             onValueChange = { textValue = it },
             modifier = Modifier
                 .weight(1f)
-                .heightIn(min = 56.dp)
+                .heightIn(min = 56.dp, max = maxInputHeight)
                 .then(
                     if (highlightInputAndAction) {
                         Modifier.onboardingPulseHighlight(
@@ -205,9 +207,9 @@ fun BottomBar(
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent
             ),
-            placeholder = { Text("Type a message...") },
-            minLines = 1,
-            maxLines = 3,
+            placeholder = { Text("Type a Note...") },
+            minLines = if (isFocused) 3 else 1,
+            maxLines = if (isFocused) Int.MAX_VALUE else 1,
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.Sentences
             )

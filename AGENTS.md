@@ -71,6 +71,7 @@ flowchart LR
 
 - **Theme (first launch):** In-app preference defaults to system (`SettingsRepository` / `ThemeMode.SYSTEM`). The activity `Theme.Flit` parents `Theme.DeviceDefault.DayNight` with `windowActionBar` false / `windowNoTitle` true so the window follows system light/dark before Compose applies `FlitTheme`, without a duplicate system ActionBar above the Compose top app bar (platform `*NoActionBar` parents are not reliably linkable via AAPT here).
 - **Home + system back:** On the home route, the first back press shows a snackbar (“Press back again to exit”) for ~2s; a second back within that window finishes the activity.
+- **Home note list:** Long-press a note card to open Pin / Append / Delete. Pinned notes are stored locally (`NoteEntity.pinned`), sorted to the top with a **Pinned** section; sync pulls preserve local pin state because the API has no pin field.
 - **Privacy policy:** Overflow menu → Privacy Policy opens `BuildConfig.PRIVACY_POLICY_URL` in the default browser (no in-app WebView).
 - **Bottom bar (no model):** When `ModelSize.NONE`, the trailing control shows the send icon and submits typed text (same as the focused submit path), and does not request the microphone until a model is selected.
 - **Backend base URL:** Debug uses `BuildConfig.BACKEND_BASE_URL` (set in `app/build.gradle.kts`); release uses production URL. Override via build type or local config if needed.

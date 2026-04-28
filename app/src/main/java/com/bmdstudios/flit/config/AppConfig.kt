@@ -17,7 +17,7 @@ data class AppConfig(
     val flitCoreWebLoginUrl: String = "https://core.flit-pkm.com/?redirect=login"
 ) {
     companion object {
-        const val ONBOARDING_REVISION: Int = 1
+        const val ONBOARDING_REVISION: Int = 2
 
         /**
          * Creates the default application configuration.

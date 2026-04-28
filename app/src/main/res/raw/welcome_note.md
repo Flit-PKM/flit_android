@@ -23,20 +23,20 @@ You can change this later in Settings.
 
 ### Note actions on Home
 
-Each note card has action buttons:
-
-- Append: start a follow-up note related to this note
-- Edit: open the note editor
-- Delete: delete the note
+- **Tap** a note card to open the note and read or edit it.
+- **Long-press** a note card to open the actions menu:
+  - **Pin**: keep the note at the top of Home in the **Pinned** section; choose Pin again to unpin.
+  - **Append**: start a follow-up note linked to this note.
+  - **Delete**: remove the note (you will be asked to confirm).
 
 ### Note view
 
-Tap a note card to open note view. From there you can:
+Tap a note card on Home to open note view. From there you can:
 
 - read content
 - open related notes
 - open note categories
-- append, edit, or delete the note
+- use the **Append**, **Edit**, and **Delete** icons on the note screen for those actions (same ideas as on Home, but from the open note).
 
 ### Note Edit view
 
@@ -74,6 +74,11 @@ Syncing with Flit - Core allows:
 
 ## What's new
 
+### Revision 2
+
+- Home note actions moved to a **long-press** menu (Pin, Append, Delete).
+- **Pinned** notes appear at the top of Home in a Pinned section.
+
 ### Revision 1
 
 - The Flit android app is going live!!!
@@ -88,7 +93,6 @@ Coming Soon!
 - Widget to list notes for quick access
 and/or
 - Widget to search notes for quick access
-- Pinned notes with 'Pinned' section
 - Per note colored background cutomization
 
 In consideration:

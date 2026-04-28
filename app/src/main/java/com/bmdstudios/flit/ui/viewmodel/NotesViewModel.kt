@@ -103,6 +103,22 @@ class NotesViewModel @Inject constructor(
     }
 
     /**
+     * Sets whether a note is pinned (local ordering at top of home and category lists).
+     */
+    suspend fun setNotePinned(noteId: Long, pinned: Boolean) {
+        withContext(Dispatchers.IO) {
+            val note = noteDao.getNoteById(noteId) ?: return@withContext
+            if (note.pinned == pinned) return@withContext
+            val now = System.currentTimeMillis()
+            noteWriter.updateNote(
+                note.copy(pinned = pinned, ver = note.ver + 1, updated_at = now)
+            )
+            Timber.i("Note $noteId pinned=$pinned")
+            syncScheduler.scheduleSyncAfterMutation()
+        }
+    }
+
+    /**
      * Soft-deletes a note (sets is_deleted = true). Also soft-deletes relationships and note-category links.
      * Deletes the associated recording file if it exists.
      */
@@ -353,7 +369,7 @@ class NotesViewModel @Inject constructor(
 
     /**
      * Creates a note from text and saves it to the database.
-     * Extracts title from the first 5 words of the text.
+     * Extracts title from the first non-blank line of the text.
      * If appending mode is active, creates a "Follows On" relationship with the appending note.
      *
      * @param text The text content for the note
@@ -367,12 +383,12 @@ class NotesViewModel @Inject constructor(
 
         return withContext(Dispatchers.IO) {
             try {
-                val title = NoteTitleExtractor.extractTitle(text)
+                val extractedContent = NoteTitleExtractor.extractTitleAndBody(text)
                 val currentTime = System.currentTimeMillis()
 
                 val note = NoteEntity(
-                    title = title,
-                    text = text.trim(),
+                    title = extractedContent.title,
+                    text = extractedContent.body,
                     recording = null,
                     embedding_vector = null,
                     created_at = currentTime,
@@ -381,7 +397,7 @@ class NotesViewModel @Inject constructor(
                 )
 
                 val noteId = noteWriter.insertNote(note)
-                Timber.i("Note created successfully from text with id: $noteId, title: $title")
+                Timber.i("Note created successfully from text with id: $noteId, title: ${extractedContent.title}")
 
                 // Check if appending mode is active and create relationship
                 val parentNoteId = _appendingNoteId.value
