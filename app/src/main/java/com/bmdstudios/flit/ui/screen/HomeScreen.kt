@@ -7,8 +7,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -175,10 +177,10 @@ private fun NotesList(
         LazyColumn(
             modifier = modifier,
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             if (pinnedNotes.isNotEmpty()) {
-                item(key = "pinned_header") {
+                item(key = "pinned_section") {
                     Surface(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -186,39 +188,30 @@ private fun NotesList(
                         shape = RoundedCornerShape(12.dp),
                         color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
                     ) {
-                        Text(
-                            text = "Pinned",
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 12.dp, vertical = 8.dp)
-                                .wrapContentWidth(Alignment.End)
-                        )
-                    }
-                }
-                items(
-                    items = pinnedNotes,
-                    key = { it.id }
-                ) { note ->
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 4.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
-                    ) {
-                        Box(modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp)) {
-                            NoteCard(
-                                note = note,
-                                navController = navController,
-                                notesViewModel = notesViewModel,
-                                isAppending = appendingNoteId == note.id,
-                                showDetails = noteDetailsEnabled,
-                                highlightActions = highlightCoachMarks && note.id == coachTargetNoteId,
-                                showOptionsDialog = onboardingHighlightedDialogAction != null && note.id == coachTargetNoteId,
-                                highlightedDialogAction = onboardingHighlightedDialogAction
+                        Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 10.dp)) {
+                            Text(
+                                text = "Pinned",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .wrapContentWidth(Alignment.End)
                             )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            pinnedNotes.forEach { note ->
+                                NoteCard(
+                                    note = note,
+                                    navController = navController,
+                                    notesViewModel = notesViewModel,
+                                    isAppending = appendingNoteId == note.id,
+                                    showDetails = noteDetailsEnabled,
+                                    highlightActions = highlightCoachMarks && note.id == coachTargetNoteId,
+                                    showOptionsDialog = onboardingHighlightedDialogAction != null && note.id == coachTargetNoteId,
+                                    highlightedDialogAction = onboardingHighlightedDialogAction,
+                                    homeListTopAccent = true
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                            }
                         }
                     }
                 }
@@ -235,7 +228,8 @@ private fun NotesList(
                     showDetails = noteDetailsEnabled,
                     highlightActions = highlightCoachMarks && note.id == coachTargetNoteId,
                     showOptionsDialog = onboardingHighlightedDialogAction != null && note.id == coachTargetNoteId,
-                    highlightedDialogAction = onboardingHighlightedDialogAction
+                    highlightedDialogAction = onboardingHighlightedDialogAction,
+                    homeListTopAccent = true
                 )
             }
         }
