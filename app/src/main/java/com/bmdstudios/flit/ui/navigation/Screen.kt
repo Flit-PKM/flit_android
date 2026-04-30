@@ -15,13 +15,6 @@ sealed class Screen(val route: String) {
         }
     }
     
-    data class NoteEdit(val noteId: Long) : Screen("note/{noteId}/edit") {
-        companion object {
-            const val ROUTE = "note/{noteId}/edit"
-            fun createRoute(noteId: Long) = "note/$noteId/edit"
-        }
-    }
-    
     data class NotesByCategory(val categoryId: Long) : Screen("notes/category/{categoryId}") {
         companion object {
             const val ROUTE = "notes/category/{categoryId}"

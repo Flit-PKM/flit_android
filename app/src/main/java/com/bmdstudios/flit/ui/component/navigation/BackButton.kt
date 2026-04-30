@@ -11,10 +11,13 @@ import androidx.navigation.NavHostController
  * Back button to navigate back in the navigation stack.
  */
 @Composable
-fun BackButton(navController: NavHostController) {
+fun BackButton(
+    navController: NavHostController,
+    onClick: (() -> Unit)? = null
+) {
     IconButton(
         onClick = {
-            navController.popBackStack()
+            onClick?.invoke() ?: navController.popBackStack()
         }
     ) {
         Icon(

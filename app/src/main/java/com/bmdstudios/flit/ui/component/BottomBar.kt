@@ -60,6 +60,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bmdstudios.flit.R
+import com.bmdstudios.flit.ui.onboarding.OnboardingPulseStyle
 import com.bmdstudios.flit.ui.onboarding.onboardingPulseHighlight
 import com.bmdstudios.flit.ui.settings.ModelSize
 import com.bmdstudios.flit.ui.viewmodel.DownloadUiState
@@ -189,6 +190,7 @@ fun BottomBar(
                             enabled = true,
                             shape = RoundedCornerShape(24.dp),
                             color = MaterialTheme.colorScheme.primary,
+                            style = OnboardingPulseStyle.BorderOnly,
                             maxScale = 1.01f
                         )
                     } else {
@@ -276,6 +278,7 @@ private fun SubmitButton(
                         enabled = true,
                         shape = CircleShape,
                         color = MaterialTheme.colorScheme.primary,
+                        style = OnboardingPulseStyle.BorderOnly,
                         maxScale = 1.08f
                     )
                 } else {
@@ -428,6 +431,7 @@ private fun RecordButton(
                         enabled = true,
                         shape = CircleShape,
                         color = MaterialTheme.colorScheme.primary,
+                        style = OnboardingPulseStyle.BorderOnly,
                         maxScale = 1.08f
                     )
                 } else {

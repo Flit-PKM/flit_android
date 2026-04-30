@@ -37,7 +37,9 @@ import com.bmdstudios.flit.ui.dialog.NoteActionType
 import com.bmdstudios.flit.ui.dialog.NoteActionsDialog
 import com.bmdstudios.flit.ui.dialog.NoteActionsPanel
 import com.bmdstudios.flit.ui.navigation.Screen
+import com.bmdstudios.flit.ui.onboarding.OnboardingPulseStyle
 import com.bmdstudios.flit.ui.onboarding.onboardingPulseHighlight
+import com.bmdstudios.flit.ui.util.MarkdownLineClassifier
 import com.bmdstudios.flit.ui.viewmodel.NotesViewModel
 import com.halilibo.richtext.commonmark.Markdown
 import com.halilibo.richtext.ui.material3.RichText
@@ -89,21 +91,11 @@ fun NoteCard(
                             Modifier
                         }
                     )
-                    .then(
-                        if (highlightActions) {
-                            Modifier.border(
-                                width = 2.5.dp,
-                                color = MaterialTheme.colorScheme.primary,
-                                shape = cardShape
-                            )
-                        } else {
-                            Modifier
-                        }
-                    )
                     .onboardingPulseHighlight(
                         enabled = highlightActions,
                         shape = cardShape,
                         color = MaterialTheme.colorScheme.primary,
+                        style = OnboardingPulseStyle.BorderOnly,
                         maxScale = 1.02f
                     )
                     .combinedClickable(
@@ -148,7 +140,7 @@ fun NoteCard(
                         val previewText = note.text.lines().take(3).joinToString("\n").trim()
                         if (previewText.isNotBlank()) {
                             RichText(modifier = Modifier.fillMaxWidth()) {
-                                Markdown(content = previewText)
+                                Markdown(content = MarkdownLineClassifier.normalizeForPreview(previewText))
                             }
                         }
                     }

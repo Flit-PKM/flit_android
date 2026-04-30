@@ -38,7 +38,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.bmdstudios.flit.ui.component.ModelDownloadProgress
 import com.bmdstudios.flit.ui.component.NoteCard
-import com.bmdstudios.flit.ui.dialog.NoteActionType
 import com.bmdstudios.flit.ui.viewmodel.DownloadUiState
 import com.bmdstudios.flit.ui.viewmodel.NotesViewModel
 import kotlinx.coroutines.delay
@@ -70,7 +69,8 @@ fun HomeScreen(
     navController: NavHostController,
     noteDetailsEnabled: Boolean = false,
     highlightCoachMarks: Boolean = false,
-    onboardingHighlightedDialogAction: NoteActionType? = null
+    welcomeNoteId: Long = 0L,
+    welcomeNoteLongPressOnboarding: Boolean = false
 ) {
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
@@ -121,7 +121,8 @@ fun HomeScreen(
                 navController = navController,
                 noteDetailsEnabled = noteDetailsEnabled,
                 highlightCoachMarks = highlightCoachMarks,
-                onboardingHighlightedDialogAction = onboardingHighlightedDialogAction,
+                welcomeNoteId = welcomeNoteId,
+                welcomeNoteLongPressOnboarding = welcomeNoteLongPressOnboarding,
                 modifier = Modifier
                     .fillMaxSize()
                     .weight(1f)
@@ -145,7 +146,8 @@ private fun NotesList(
     navController: NavHostController,
     noteDetailsEnabled: Boolean = false,
     highlightCoachMarks: Boolean = false,
-    onboardingHighlightedDialogAction: NoteActionType? = null,
+    welcomeNoteId: Long = 0L,
+    welcomeNoteLongPressOnboarding: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val notes by notesViewModel.notes.collectAsStateWithLifecycle()
@@ -173,6 +175,9 @@ private fun NotesList(
         }
     } else {
         val coachTargetNoteId = notes.firstOrNull()?.id
+        fun noteCardHighlight(noteId: Long): Boolean =
+            (highlightCoachMarks && noteId == coachTargetNoteId) ||
+                (welcomeNoteLongPressOnboarding && noteId == welcomeNoteId)
         val (pinnedNotes, unpinnedNotes) = notes.partition { it.pinned }
         LazyColumn(
             modifier = modifier,
@@ -205,9 +210,7 @@ private fun NotesList(
                                     notesViewModel = notesViewModel,
                                     isAppending = appendingNoteId == note.id,
                                     showDetails = noteDetailsEnabled,
-                                    highlightActions = highlightCoachMarks && note.id == coachTargetNoteId,
-                                    showOptionsDialog = onboardingHighlightedDialogAction != null && note.id == coachTargetNoteId,
-                                    highlightedDialogAction = onboardingHighlightedDialogAction,
+                                    highlightActions = noteCardHighlight(note.id),
                                     homeListTopAccent = true
                                 )
                                 Spacer(modifier = Modifier.height(12.dp))
@@ -226,9 +229,7 @@ private fun NotesList(
                     notesViewModel = notesViewModel,
                     isAppending = appendingNoteId == note.id,
                     showDetails = noteDetailsEnabled,
-                    highlightActions = highlightCoachMarks && note.id == coachTargetNoteId,
-                    showOptionsDialog = onboardingHighlightedDialogAction != null && note.id == coachTargetNoteId,
-                    highlightedDialogAction = onboardingHighlightedDialogAction,
+                    highlightActions = noteCardHighlight(note.id),
                     homeListTopAccent = true
                 )
             }

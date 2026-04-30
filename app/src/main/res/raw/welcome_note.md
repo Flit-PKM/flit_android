@@ -34,17 +34,13 @@ You can change this later in Settings.
 Tap a note card on Home to open note view. From there you can:
 
 - read content
-- open related notes
-- open note categories
-- use the **Append**, **Edit**, and **Delete** icons on the note screen for those actions (same ideas as on Home, but from the open note).
-
-### Note Edit view
-
-Tap the Edit button to edit a note, here you can:
-
+- edit note title
 - edit note content with markdown formatting
-- add and remove note categories
+- open related notes
 - create or delete relationships between different notes
+- open note categories
+- add and remove note categories
+- use the **Append**, **Edit**, and **Delete** icons on the note screen for those actions (same ideas as on Home, but from the open note).
 
 ### Settings
 
@@ -78,6 +74,8 @@ Syncing with Flit - Core allows:
 
 - Home note actions moved to a **long-press** menu (Pin, Append, Delete).
 - **Pinned** notes appear at the top of Home in a Pinned section.
+- UI design updated
+- Live edit notes in Note Detail screen, removed Note Edit screen
 
 ### Revision 1
 

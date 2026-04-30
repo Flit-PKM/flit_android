@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bmdstudios.flit.data.database.entity.CategoryEntity
+import com.bmdstudios.flit.ui.onboarding.OnboardingPulseStyle
 import com.bmdstudios.flit.ui.onboarding.onboardingPulseHighlight
 import com.bmdstudios.flit.ui.viewmodel.CategoriesViewModel
 import kotlinx.coroutines.Dispatchers
@@ -367,7 +368,14 @@ fun CategoryCard(
     onDeleteClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .onboardingPulseHighlight(
+                enabled = highlightActions,
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.primary,
+                style = OnboardingPulseStyle.BorderOnly
+            ),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
@@ -389,14 +397,7 @@ fun CategoryCard(
             // Edit button
             IconButton(
                 onClick = onEditClick,
-                modifier = Modifier
-                    .size(40.dp)
-                    .onboardingPulseHighlight(
-                        enabled = highlightActions,
-                        shape = RoundedCornerShape(20.dp),
-                        color = MaterialTheme.colorScheme.primary,
-                        maxScale = 1.1f
-                    )
+                modifier = Modifier.size(40.dp)
             ) {
                 Icon(
                     imageVector = Icons.Filled.Edit,
@@ -409,14 +410,7 @@ fun CategoryCard(
             // Delete button
             IconButton(
                 onClick = onDeleteClick,
-                modifier = Modifier
-                    .size(40.dp)
-                    .onboardingPulseHighlight(
-                        enabled = highlightActions,
-                        shape = RoundedCornerShape(20.dp),
-                        color = MaterialTheme.colorScheme.primary,
-                        maxScale = 1.1f
-                    )
+                modifier = Modifier.size(40.dp)
             ) {
                 Icon(
                     imageVector = Icons.Filled.Delete,

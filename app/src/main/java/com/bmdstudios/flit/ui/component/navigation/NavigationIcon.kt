@@ -12,14 +12,15 @@ import com.bmdstudios.flit.ui.navigation.Screen
 fun NavigationIcon(
     navController: NavHostController,
     currentRoute: String?,
-    highlightMenu: Boolean = false
+    highlightMenu: Boolean = false,
+    onBackClick: (() -> Unit)? = null
 ) {
     when {
         currentRoute == Screen.Home.route -> {
             MenuButton(navController = navController, highlighted = highlightMenu)
         }
         currentRoute?.startsWith("note/") == true || currentRoute?.startsWith("notes/category/") == true -> {
-            BackButton(navController = navController)
+            BackButton(navController = navController, onClick = onBackClick)
         }
         currentRoute == Screen.Settings.route -> {
             MenuButton(navController = navController, highlighted = highlightMenu)

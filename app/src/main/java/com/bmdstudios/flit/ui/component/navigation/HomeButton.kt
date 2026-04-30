@@ -12,10 +12,13 @@ import com.bmdstudios.flit.ui.navigation.Screen
  * Home button to navigate back to home screen.
  */
 @Composable
-fun HomeButton(navController: NavHostController) {
+fun HomeButton(
+    navController: NavHostController,
+    onClick: (() -> Unit)? = null
+) {
     IconButton(
         onClick = {
-            navController.navigate(Screen.Home.route) {
+            onClick?.invoke() ?: navController.navigate(Screen.Home.route) {
                 popUpTo(Screen.Home.route) { inclusive = false }
             }
         }

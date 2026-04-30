@@ -14,9 +14,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.RoundedCornerShape
+import com.bmdstudios.flit.ui.onboarding.OnboardingPulseStyle
+import com.bmdstudios.flit.ui.onboarding.onboardingPulseHighlight
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -44,7 +44,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -61,21 +60,6 @@ import com.bmdstudios.flit.ui.viewmodel.SyncState
 import com.bmdstudios.flit.ui.viewmodel.ModelDownloadViewModel
 import com.bmdstudios.flit.ui.viewmodel.SettingsViewModel
 import kotlinx.coroutines.launch
-
-private fun highlightModifier(enabled: Boolean): Modifier {
-    if (!enabled) return Modifier
-    return Modifier
-        .background(
-            color = Color(0x66B3E5FF),
-            shape = RoundedCornerShape(8.dp)
-        )
-        .border(
-            width = 2.dp,
-            color = Color(0xFF7EC3FF),
-            shape = RoundedCornerShape(8.dp)
-        )
-        .padding(horizontal = 8.dp, vertical = 4.dp)
-}
 
 /**
  * Settings screen composable.
@@ -274,7 +258,12 @@ fun SettingsScreen(
                 .onGloballyPositioned { layoutCoordinates ->
                     themeSectionY = layoutCoordinates.positionInParent().y
                 }
-                .then(highlightModifier(highlightedTourSection == SettingsTourSection.Theme)),
+                .onboardingPulseHighlight(
+                    enabled = highlightedTourSection == SettingsTourSection.Theme,
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    style = OnboardingPulseStyle.BorderOnly
+                ),
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
@@ -332,7 +321,12 @@ fun SettingsScreen(
                 .onGloballyPositioned { layoutCoordinates ->
                     noteDetailsSectionY = layoutCoordinates.positionInParent().y
                 }
-                .then(highlightModifier(highlightedTourSection == SettingsTourSection.NoteDetails))
+                .onboardingPulseHighlight(
+                    enabled = highlightedTourSection == SettingsTourSection.NoteDetails,
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    style = OnboardingPulseStyle.BorderOnly
+                )
         )
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
@@ -345,7 +339,12 @@ fun SettingsScreen(
                 .onGloballyPositioned { layoutCoordinates ->
                     modelSectionY = layoutCoordinates.positionInParent().y
                 }
-                .then(highlightModifier(highlightedTourSection == SettingsTourSection.Model))
+                .onboardingPulseHighlight(
+                    enabled = highlightedTourSection == SettingsTourSection.Model,
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    style = OnboardingPulseStyle.BorderOnly
+                )
         )
 
         Text(
@@ -413,7 +412,12 @@ fun SettingsScreen(
                     .onGloballyPositioned { layoutCoordinates ->
                         dataSectionY = layoutCoordinates.positionInParent().y
                     }
-                    .then(highlightModifier(highlightedTourSection == SettingsTourSection.DataManagement))
+                    .onboardingPulseHighlight(
+                        enabled = highlightedTourSection == SettingsTourSection.DataManagement,
+                        shape = RoundedCornerShape(8.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        style = OnboardingPulseStyle.BorderOnly
+                    )
             )
 
             Text(
@@ -509,25 +513,11 @@ fun SettingsScreen(
                     .onGloballyPositioned { layoutCoordinates ->
                         connectionSectionY = layoutCoordinates.positionInParent().y
                     }
-                    .then(highlightModifier(highlightedTourSection == SettingsTourSection.Connection))
-                    .background(
-                        color = if (highlightConnectionSection) {
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.28f)
-                        } else {
-                            Color.Transparent
-                        },
-                        shape = RoundedCornerShape(8.dp)
-                    )
-                    .then(
-                        if (highlightConnectionSection) {
-                            Modifier.border(
-                                width = 2.dp,
-                                color = MaterialTheme.colorScheme.primary,
-                                shape = RoundedCornerShape(8.dp)
-                            )
-                        } else {
-                            Modifier
-                        }
+                    .onboardingPulseHighlight(
+                        enabled = highlightedTourSection == SettingsTourSection.Connection,
+                        shape = RoundedCornerShape(8.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        style = OnboardingPulseStyle.BorderOnly
                     )
                     .padding(horizontal = 8.dp, vertical = 4.dp)
             )

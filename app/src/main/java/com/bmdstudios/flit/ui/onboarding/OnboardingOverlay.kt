@@ -21,6 +21,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -41,25 +42,39 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Icon
 import com.bmdstudios.flit.R
-import com.bmdstudios.flit.ui.dialog.NoteActionType
 import com.bmdstudios.flit.ui.dialog.ModelSelectionContent
 import com.bmdstudios.flit.ui.settings.ModelSize
 import kotlinx.coroutines.delay
 
 private const val WELCOME_DELAY_MS = 4000L
 private const val SETTINGS_SECTION_AUTO_ADVANCE_MS = 3500L
+/** Coachmark vertical offset for note-detail Categories/Relationships steps (same height). */
+private val NOTE_SECTION_COACHMARK_OFFSET_Y = (-200).dp
+
+/** Which note-detail card to pulse during onboarding (not including options menu). */
+enum class NoteDetailCoachSection {
+    None,
+    /** Main body editor card on the note screen. */
+    BodyEditor,
+    Categories,
+    Relationships
+}
 
 private enum class OnboardingStep {
     Welcome,
     TypeOrRecord,
     ModelSelection,
-    HoldForOptionsIntro,
-    NoteOptionPin,
-    NoteOptionAppend,
-    NoteOptionDelete,
+    /** On Home: long-press note options (Pin / Append / Delete) on the welcome note card. */
+    NoteOptionsMenu,
     MenuAndSearch,
-    Categories,
-    NoteView,
+    /** Title in app bar, body in editor, autosave. */
+    NoteViewIntro,
+    /** Categories section on the note screen. */
+    NoteCategories,
+    /** Relationships section on the note screen. */
+    NoteRelationships,
+    /** Categories management screen. */
+    CategoriesScreen,
     SettingsGuide
 }
 
@@ -82,31 +97,42 @@ fun OnboardingOverlay(
     onNavigateToSettings: () -> Unit,
     onBottomBarHighlightChange: (Boolean) -> Unit,
     onNoteActionsHighlightChange: (Boolean) -> Unit,
+    /** Pulse the note title field in the top app bar (NoteViewIntro). */
+    onNoteDetailTitleHighlightChange: (Boolean) -> Unit,
     onSearchHighlightChange: (Boolean) -> Unit,
     onMenuHighlightChange: (Boolean) -> Unit,
     onCategoriesHighlightChange: (Boolean) -> Unit,
-    onNoteActionDialogHighlightChange: (NoteActionType?) -> Unit,
+    /** When true, Home shows the welcome note with long-press options dialog (coach demo). */
+    onWelcomeNoteHomeLongPressOptionsChange: (Boolean) -> Unit,
+    onNoteDetailSectionHighlightChange: (NoteDetailCoachSection) -> Unit,
     onSettingsSectionHighlightChange: (SettingsTourSection?) -> Unit,
     onComplete: () -> Unit
 ) {
-    val steps = remember(shouldSelectModel) {
+    val steps = remember(shouldSelectModel, canOpenWelcomeNote) {
         buildList {
             add(OnboardingStep.Welcome)
             add(OnboardingStep.TypeOrRecord)
             if (shouldSelectModel) add(OnboardingStep.ModelSelection)
-            add(OnboardingStep.HoldForOptionsIntro)
-            add(OnboardingStep.NoteOptionPin)
-            add(OnboardingStep.NoteOptionAppend)
-            add(OnboardingStep.NoteOptionDelete)
+            if (canOpenWelcomeNote) add(OnboardingStep.NoteOptionsMenu)
             add(OnboardingStep.MenuAndSearch)
-            add(OnboardingStep.Categories)
-            if (canOpenWelcomeNote) add(OnboardingStep.NoteView)
+            if (canOpenWelcomeNote) {
+                add(OnboardingStep.NoteViewIntro)
+                add(OnboardingStep.NoteCategories)
+                add(OnboardingStep.NoteRelationships)
+            }
+            add(OnboardingStep.CategoriesScreen)
             add(OnboardingStep.SettingsGuide)
         }
     }
     var currentStepIndex by remember { mutableStateOf(0) }
     var selectedSize by remember { mutableStateOf(ModelSize.NONE) }
     val step = steps[currentStepIndex]
+
+    fun clearNoteDetailHighlights() {
+        onWelcomeNoteHomeLongPressOptionsChange(false)
+        onNoteDetailTitleHighlightChange(false)
+        onNoteDetailSectionHighlightChange(NoteDetailCoachSection.None)
+    }
 
     LaunchedEffect(step) {
         when (step) {
@@ -116,7 +142,7 @@ fun OnboardingOverlay(
                 onSearchHighlightChange(false)
                 onMenuHighlightChange(false)
                 onCategoriesHighlightChange(false)
-                onNoteActionDialogHighlightChange(null)
+                clearNoteDetailHighlights()
                 onSettingsSectionHighlightChange(null)
                 delay(WELCOME_DELAY_MS)
                 if (currentStepIndex < steps.lastIndex) currentStepIndex += 1
@@ -128,47 +154,18 @@ fun OnboardingOverlay(
                 onSearchHighlightChange(false)
                 onMenuHighlightChange(false)
                 onCategoriesHighlightChange(false)
-                onNoteActionDialogHighlightChange(null)
+                clearNoteDetailHighlights()
                 onSettingsSectionHighlightChange(null)
             }
-            OnboardingStep.HoldForOptionsIntro -> {
+            OnboardingStep.NoteOptionsMenu -> {
                 onNavigateHome()
                 onBottomBarHighlightChange(false)
-                onNoteActionsHighlightChange(true)
+                onNoteActionsHighlightChange(false)
                 onSearchHighlightChange(false)
                 onMenuHighlightChange(false)
                 onCategoriesHighlightChange(false)
-                onNoteActionDialogHighlightChange(null)
-                onSettingsSectionHighlightChange(null)
-            }
-            OnboardingStep.NoteOptionPin -> {
-                onNavigateHome()
-                onBottomBarHighlightChange(false)
-                onNoteActionsHighlightChange(true)
-                onSearchHighlightChange(false)
-                onMenuHighlightChange(false)
-                onCategoriesHighlightChange(false)
-                onNoteActionDialogHighlightChange(NoteActionType.PIN)
-                onSettingsSectionHighlightChange(null)
-            }
-            OnboardingStep.NoteOptionAppend -> {
-                onNavigateHome()
-                onBottomBarHighlightChange(false)
-                onNoteActionsHighlightChange(true)
-                onSearchHighlightChange(false)
-                onMenuHighlightChange(false)
-                onCategoriesHighlightChange(false)
-                onNoteActionDialogHighlightChange(NoteActionType.APPEND)
-                onSettingsSectionHighlightChange(null)
-            }
-            OnboardingStep.NoteOptionDelete -> {
-                onNavigateHome()
-                onBottomBarHighlightChange(false)
-                onNoteActionsHighlightChange(true)
-                onSearchHighlightChange(false)
-                onMenuHighlightChange(false)
-                onCategoriesHighlightChange(false)
-                onNoteActionDialogHighlightChange(NoteActionType.DELETE)
+                onNoteDetailSectionHighlightChange(NoteDetailCoachSection.None)
+                onWelcomeNoteHomeLongPressOptionsChange(true)
                 onSettingsSectionHighlightChange(null)
             }
             OnboardingStep.MenuAndSearch -> {
@@ -178,27 +175,54 @@ fun OnboardingOverlay(
                 onSearchHighlightChange(true)
                 onMenuHighlightChange(true)
                 onCategoriesHighlightChange(false)
+                clearNoteDetailHighlights()
                 onSettingsSectionHighlightChange(null)
             }
-            OnboardingStep.Categories -> {
+            OnboardingStep.CategoriesScreen -> {
                 onNavigateToCategories()
                 onBottomBarHighlightChange(false)
                 onNoteActionsHighlightChange(false)
                 onSearchHighlightChange(false)
                 onMenuHighlightChange(false)
                 onCategoriesHighlightChange(true)
-                onNoteActionDialogHighlightChange(null)
+                clearNoteDetailHighlights()
                 onSettingsSectionHighlightChange(null)
             }
-            OnboardingStep.NoteView -> {
+            OnboardingStep.NoteViewIntro -> {
+                onWelcomeNoteHomeLongPressOptionsChange(false)
+                onNavigateToWelcomeNote()
                 onBottomBarHighlightChange(false)
                 onNoteActionsHighlightChange(false)
                 onSearchHighlightChange(false)
                 onMenuHighlightChange(false)
                 onCategoriesHighlightChange(false)
-                onNoteActionDialogHighlightChange(null)
+                onNoteDetailTitleHighlightChange(true)
+                onNoteDetailSectionHighlightChange(NoteDetailCoachSection.BodyEditor)
                 onSettingsSectionHighlightChange(null)
+            }
+            OnboardingStep.NoteCategories -> {
+                onWelcomeNoteHomeLongPressOptionsChange(false)
                 onNavigateToWelcomeNote()
+                onBottomBarHighlightChange(false)
+                onNoteActionsHighlightChange(false)
+                onSearchHighlightChange(false)
+                onMenuHighlightChange(false)
+                onCategoriesHighlightChange(false)
+                onNoteDetailTitleHighlightChange(false)
+                onNoteDetailSectionHighlightChange(NoteDetailCoachSection.Categories)
+                onSettingsSectionHighlightChange(null)
+            }
+            OnboardingStep.NoteRelationships -> {
+                onWelcomeNoteHomeLongPressOptionsChange(false)
+                onNavigateToWelcomeNote()
+                onBottomBarHighlightChange(false)
+                onNoteActionsHighlightChange(false)
+                onSearchHighlightChange(false)
+                onMenuHighlightChange(false)
+                onCategoriesHighlightChange(false)
+                onNoteDetailTitleHighlightChange(false)
+                onNoteDetailSectionHighlightChange(NoteDetailCoachSection.Relationships)
+                onSettingsSectionHighlightChange(null)
             }
             OnboardingStep.SettingsGuide -> {
                 onBottomBarHighlightChange(false)
@@ -206,7 +230,7 @@ fun OnboardingOverlay(
                 onSearchHighlightChange(false)
                 onMenuHighlightChange(false)
                 onCategoriesHighlightChange(false)
-                onNoteActionDialogHighlightChange(null)
+                clearNoteDetailHighlights()
                 onNavigateToSettings()
             }
             OnboardingStep.ModelSelection -> {
@@ -215,7 +239,7 @@ fun OnboardingOverlay(
                 onSearchHighlightChange(false)
                 onMenuHighlightChange(false)
                 onCategoriesHighlightChange(false)
-                onNoteActionDialogHighlightChange(null)
+                clearNoteDetailHighlights()
                 onSettingsSectionHighlightChange(null)
             }
         }
@@ -225,7 +249,7 @@ fun OnboardingOverlay(
         listOf(Color(0xFF000000), Color(0xFF0d274d),)
     )
     val lightSplashGradient = Brush.verticalGradient(
-        listOf(Color(0xFFFFBB81), Color(0xFFFFFFFF))
+        listOf(Color(0xFFFFCEA7), Color(0xFFFFFFFF))
     )
     val isDarkTheme = MaterialTheme.colorScheme.background.luminance() < 0.5f
 
@@ -243,10 +267,11 @@ fun OnboardingOverlay(
         OnboardingStep.TypeOrRecord -> {
             CoachmarkCard(
                 title = "Type or record a new note",
-                body = "Use the highlighted input box and action button to quickly capture ideas.",
+                body = "Use the highlighted input and action on Home to capture ideas quickly. Open any note to edit its title and full text on the note screen.",
                 centerContent = true,
                 emphasizedTextBlock = false,
-                cardOffsetY = (-120).dp
+                cardOffsetY = (-120).dp,
+                onSkip = onComplete
             ) {
                 Button(
                     modifier = Modifier.fillMaxWidth(),
@@ -266,7 +291,8 @@ fun OnboardingOverlay(
             CoachmarkCard(
                 title = "Select Transcription Model",
                 body = "",
-                emphasizedTextBlock = false
+                emphasizedTextBlock = false,
+                onSkip = onComplete
             ) {
                 ModelSelectionContent(
                     selectedSize = selectedSize,
@@ -288,84 +314,22 @@ fun OnboardingOverlay(
                 }
             }
         }
-        OnboardingStep.HoldForOptionsIntro -> {
+        OnboardingStep.NoteOptionsMenu -> {
             CoachmarkCard(
-                title = "Hold for options",
-                body = "Long-press a note on Home to open its actions menu. Tap a note to open it and read or edit from there.",
+                title = "Note options (long-press)",
+                body = "On Home, press and hold the welcome note card to open the same options you get from a long-press on any note.\n\n" +
+                    "Pin — keep the note at the top of Home (tap again to unpin).\n" +
+                    "Append — start a follow-up from this note.\n" +
+                    "Delete — remove the note (you will confirm first).\n\n" +
+                    "You can also use the (⋮) menu while viewing a note for the same actions.",
                 centerContent = false,
                 emphasizedTextBlock = false,
-                cardOffsetY = (-84).dp
+                cardOffsetY = (-84).dp,
+                onSkip = onComplete
             ) {
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
-                        if (currentStepIndex < steps.lastIndex) {
-                            currentStepIndex += 1
-                        } else {
-                            onComplete()
-                        }
-                    }
-                ) {
-                    Text("Next")
-                }
-            }
-        }
-        OnboardingStep.NoteOptionPin -> {
-            CoachmarkCard(
-                title = "Pin",
-                body = "Pin keeps important notes at the top of Home in the Pinned section. Choose Pin again to unpin.",
-                centerContent = false,
-                emphasizedTextBlock = false,
-                cardOffsetY = (-84).dp
-            ) {
-                Button(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {
-                        if (currentStepIndex < steps.lastIndex) {
-                            currentStepIndex += 1
-                        } else {
-                            onComplete()
-                        }
-                    }
-                ) {
-                    Text("Next")
-                }
-            }
-        }
-        OnboardingStep.NoteOptionAppend -> {
-            CoachmarkCard(
-                title = "Append",
-                body = "Append starts a new follow-up note linked to the one you long-pressed.",
-                centerContent = false,
-                emphasizedTextBlock = false,
-                cardOffsetY = (-84).dp
-            ) {
-                Button(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {
-                        if (currentStepIndex < steps.lastIndex) {
-                            currentStepIndex += 1
-                        } else {
-                            onComplete()
-                        }
-                    }
-                ) {
-                    Text("Next")
-                }
-            }
-        }
-        OnboardingStep.NoteOptionDelete -> {
-            CoachmarkCard(
-                title = "Delete",
-                body = "Delete removes the note. You will be asked to confirm before it is deleted.",
-                centerContent = false,
-                emphasizedTextBlock = false,
-                cardOffsetY = (-84).dp
-            ) {
-                Button(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {
-                        onNoteActionDialogHighlightChange(null)
                         if (currentStepIndex < steps.lastIndex) {
                             currentStepIndex += 1
                         } else {
@@ -380,10 +344,11 @@ fun OnboardingOverlay(
         OnboardingStep.MenuAndSearch -> {
             CoachmarkCard(
                 title = "Menu and Search",
-                body = "Use Menu for Categories/Settings and Search to find notes quickly.",
+                body = "Use Menu for Categories and Settings. Use Search to find notes quickly.",
                 centerContent = true,
                 emphasizedTextBlock = false,
-                cardOffsetY = 108.dp
+                cardOffsetY = 108.dp,
+                onSkip = onComplete
             ) {
                 Button(
                     modifier = Modifier.fillMaxWidth(),
@@ -399,10 +364,14 @@ fun OnboardingOverlay(
                 }
             }
         }
-        OnboardingStep.NoteView -> {
+        OnboardingStep.NoteViewIntro -> {
             CoachmarkCard(
-                title = "Welcome guide note",
-                body = "Opening your welcome note now. It contains detailed usage instructions and a running What's new log."
+                title = "Edit this note",
+                body = "The note title is edited in the top app bar (center). The note content is edited in the main area below — type normally; markdown-style lines (headings, lists, tasks) format as you go. Changes save automatically after you pause typing.",
+                centerContent = false,
+                emphasizedTextBlock = false,
+                cardOffsetY = (-84).dp,
+                onSkip = onComplete
             ) {
                 Button(
                     modifier = Modifier.fillMaxWidth(),
@@ -418,12 +387,59 @@ fun OnboardingOverlay(
                 }
             }
         }
-        OnboardingStep.Categories -> {
+        OnboardingStep.NoteCategories -> {
             CoachmarkCard(
-                title = "Categories",
-                body = "Create, Edit or Delete categories here to organize your notes.",
+                title = "Categories on this note",
+                body = "Assign categories to organize this note. Tap a category chip to open the list of notes in that category. Use Add Category to pick one, or the × on a chip to remove it from this note only.",
+                centerContent = false,
+                emphasizedTextBlock = false,
+                cardOffsetY = NOTE_SECTION_COACHMARK_OFFSET_Y,
+                onSkip = onComplete
+            ) {
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        if (currentStepIndex < steps.lastIndex) {
+                            currentStepIndex += 1
+                        } else {
+                            onComplete()
+                        }
+                    }
+                ) {
+                    Text("Next")
+                }
+            }
+        }
+        OnboardingStep.NoteRelationships -> {
+            CoachmarkCard(
+                title = "Relationships",
+                body = "Link this note to others. Tap a relationship chip to open the related note. Use Add Relationship to create a link, or × to remove one.",
+                centerContent = false,
+                emphasizedTextBlock = false,
+                cardOffsetY = NOTE_SECTION_COACHMARK_OFFSET_Y,
+                onSkip = onComplete
+            ) {
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        if (currentStepIndex < steps.lastIndex) {
+                            currentStepIndex += 1
+                        } else {
+                            onComplete()
+                        }
+                    }
+                ) {
+                    Text("Next")
+                }
+            }
+        }
+        OnboardingStep.CategoriesScreen -> {
+            CoachmarkCard(
+                title = "Categories list",
+                body = "Here you create, rename, or delete categories for your whole library. You can also assign categories from each note’s Categories section.",
                 centerContent = true,
-                emphasizedTextBlock = false
+                emphasizedTextBlock = false,
+                onSkip = onComplete
             ) {
                 Button(
                     modifier = Modifier.fillMaxWidth(),
@@ -442,30 +458,10 @@ fun OnboardingOverlay(
         OnboardingStep.SettingsGuide -> {
             SettingsGuideCoachmark(
                 onSectionHighlightChange = onSettingsSectionHighlightChange,
-                onFinish = onComplete
+                onFinish = onComplete,
+                onSkip = onComplete
             )
         }
-    }
-}
-
-@Composable
-private fun GradientMessagePage(
-    gradient: Brush,
-    title: String
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(gradient),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.headlineMedium,
-            color = Color.White,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 24.dp)
-        )
     }
 }
 
@@ -523,6 +519,9 @@ private fun CoachmarkCard(
     emphasizedTextBlock: Boolean = true,
     scrimAlpha: Float = 0f,
     cardOffsetY: Dp = 0.dp,
+    /** When true, coachmark card outline uses the same border pulse as other onboarding highlights. */
+    pulseOutline: Boolean = false,
+    onSkip: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val outlineColor = Color(0xFF7EC3FF)
@@ -535,16 +534,32 @@ private fun CoachmarkCard(
     ) {
         Card(
             shape = RoundedCornerShape(16.dp),
-            border = BorderStroke(3.dp, outlineColor),
+            border = if (pulseOutline) null else BorderStroke(3.dp, outlineColor),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             modifier = Modifier
                 .fillMaxWidth()
                 .offset(y = cardOffsetY)
+                .onboardingPulseHighlight(
+                    enabled = pulseOutline,
+                    shape = RoundedCornerShape(16.dp),
+                    color = outlineColor,
+                    style = OnboardingPulseStyle.BorderOnly
+                )
         ) {
             Column(
                 modifier = Modifier.padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                if (onSkip != null) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        TextButton(onClick = onSkip) {
+                            Text("Skip")
+                        }
+                    }
+                }
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleLarge
@@ -579,7 +594,8 @@ private fun CoachmarkCard(
 @Composable
 private fun SettingsGuideCoachmark(
     onSectionHighlightChange: (SettingsTourSection?) -> Unit,
-    onFinish: () -> Unit
+    onFinish: () -> Unit,
+    onSkip: () -> Unit
 ) {
     val sections = remember {
         listOf(
@@ -604,10 +620,16 @@ private fun SettingsGuideCoachmark(
 
     CoachmarkCard(
         title = "Settings",
-        body = "Theme - Light/Dark/System\nNote Details - Display note preview\nModel - Transcription Model Selection\nData Management - Import & Export Notes\nConnection - Connect to Flit - Core",
+        body = "Theme — Light, Dark, or System\n" +
+            "Note details — Show a short markdown preview on note cards on Home\n" +
+            "Model — Transcription model selection\n" +
+            "Data management — Import and export notes\n" +
+            "Connection — Connect to Flit Core",
         centerContent = false,
         emphasizedTextBlock = false,
-        cardOffsetY = (-64).dp
+        cardOffsetY = (-64).dp,
+        pulseOutline = true,
+        onSkip = onSkip
     ) {
         Button(
             modifier = Modifier.fillMaxWidth(),

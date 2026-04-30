@@ -7,12 +7,21 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -21,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.bmdstudios.flit.ui.dialog.ModelSelectionDialog
@@ -53,15 +63,17 @@ import com.bmdstudios.flit.ui.component.navigation.NavigationIcon
 import com.bmdstudios.flit.ui.component.navigation.SearchButton
 import com.bmdstudios.flit.ui.component.TopBarTitle
 import com.bmdstudios.flit.ui.dialog.SearchDialog
-import com.bmdstudios.flit.ui.dialog.NoteActionType
 import com.bmdstudios.flit.ui.navigation.Screen
+import com.bmdstudios.flit.ui.onboarding.NoteDetailCoachSection
 import com.bmdstudios.flit.ui.onboarding.OnboardingOverlay
+import com.bmdstudios.flit.ui.onboarding.OnboardingPulseStyle
 import com.bmdstudios.flit.ui.onboarding.SettingsTourSection
+import com.bmdstudios.flit.ui.onboarding.onboardingPulseHighlight
 import com.bmdstudios.flit.ui.screen.CategoriesScreen
 import com.bmdstudios.flit.ui.settings.ModelSize
 import com.bmdstudios.flit.ui.screen.HomeScreen
 import com.bmdstudios.flit.ui.screen.NoteDetailScreen
-import com.bmdstudios.flit.ui.screen.NoteEditScreen
+import com.bmdstudios.flit.ui.screen.NoteDetailNavigationAction
 import com.bmdstudios.flit.ui.screen.NotesByCategoryScreen
 import com.bmdstudios.flit.ui.screen.SearchResultsScreen
 import com.bmdstudios.flit.ui.screen.SettingsScreen
@@ -75,10 +87,12 @@ import com.bmdstudios.flit.ui.viewmodel.VoiceRecorderViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import javax.inject.Inject
+import kotlinx.coroutines.delay
 
 private const val TAG = "MainActivity"
 private const val WELCOME_NOTE_ID = 0L
 private const val EXAMPLE_CATEGORY_NAME = "Example"
+private const val TITLE_AUTO_SAVE_DELAY_MS = 500L
 
 /**
  * Main activity of the application.
@@ -259,25 +273,97 @@ fun MainContent(
     var highlightSearchButton by remember { mutableStateOf(false) }
     var highlightMenuButton by remember { mutableStateOf(false) }
     var highlightCategoryActions by remember { mutableStateOf(false) }
-    var onboardingHighlightedDialogAction by remember { mutableStateOf<NoteActionType?>(null) }
+    var welcomeNoteLongPressOnboarding by remember { mutableStateOf(false) }
+    var highlightNoteDetailTitle by remember { mutableStateOf(false) }
+    var noteDetailOnboardingSection by remember { mutableStateOf(NoteDetailCoachSection.None) }
     var highlightedSettingsSection by remember { mutableStateOf<SettingsTourSection?>(null) }
+    var pendingNoteDetailNavigationAction by remember { mutableStateOf<NoteDetailNavigationAction?>(null) }
+    var showNoteOptionsMenu by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
     val topBarTitle = TopBarTitle(navBackStackEntry, notesViewModel)
+    val isNoteDetailRoute = currentRoute?.startsWith("note/") == true
+    val activeNoteId = if (isNoteDetailRoute) navBackStackEntry?.arguments?.getLong("noteId") else null
+    val activeNote = if (activeNoteId != null) {
+        val noteState = notesViewModel.noteDao.getNoteByIdFlow(activeNoteId)
+            .collectAsStateWithLifecycle(initialValue = null)
+        noteState.value
+    } else {
+        null
+    }
+    var topBarTitleDraft by remember(activeNoteId) { mutableStateOf("") }
+    var topBarLastSavedTitle by remember(activeNoteId) { mutableStateOf("") }
+
+    LaunchedEffect(activeNote?.id) {
+        if (activeNote != null) {
+            topBarTitleDraft = activeNote.title
+            topBarLastSavedTitle = activeNote.title
+        }
+    }
+
+    LaunchedEffect(activeNote?.id, topBarTitleDraft) {
+        val currentNote = activeNote ?: return@LaunchedEffect
+        if (topBarTitleDraft.isBlank()) return@LaunchedEffect
+        if (topBarTitleDraft == topBarLastSavedTitle) return@LaunchedEffect
+
+        delay(TITLE_AUTO_SAVE_DELAY_MS)
+        if (topBarTitleDraft == topBarLastSavedTitle) return@LaunchedEffect
+
+        val updatedNote = currentNote.copy(
+            title = topBarTitleDraft.trim(),
+            updated_at = System.currentTimeMillis(),
+            ver = currentNote.ver + 1
+        )
+        notesViewModel.updateNote(updatedNote)
+        notesViewModel.scheduleSyncAfterMutation()
+        topBarLastSavedTitle = updatedNote.title
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text(topBarTitle) },
+                    title = {
+                        if (activeNote != null) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 4.dp, vertical = 2.dp)
+                                    .onboardingPulseHighlight(
+                                        enabled = highlightNoteDetailTitle,
+                                        shape = RoundedCornerShape(8.dp),
+                                        color = MaterialTheme.colorScheme.primary,
+                                        style = OnboardingPulseStyle.BorderOnly
+                                    )
+                            ) {
+                                BasicTextField(
+                                    value = topBarTitleDraft,
+                                    onValueChange = { topBarTitleDraft = it },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    singleLine = true,
+                                    textStyle = MaterialTheme.typography.titleLarge.copy(
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                )
+                            }
+                        } else {
+                            Text(topBarTitle)
+                        }
+                    },
                     navigationIcon = {
                         NavigationIcon(
                             navController = navController,
                             currentRoute = currentRoute,
-                            highlightMenu = highlightMenuButton
+                            highlightMenu = highlightMenuButton,
+                            onBackClick = if (isNoteDetailRoute) {
+                                { pendingNoteDetailNavigationAction = NoteDetailNavigationAction.BACK }
+                            } else {
+                                null
+                            }
                         )
                     },
                     actions = {
@@ -287,13 +373,58 @@ fun MainContent(
                                 highlighted = highlightSearchButton
                             )
                         }
+                        if (isNoteDetailRoute && activeNote != null) {
+                            Box {
+                                IconButton(onClick = { showNoteOptionsMenu = true }) {
+                                    Icon(
+                                        imageVector = Icons.Filled.MoreVert,
+                                        contentDescription = "Note options"
+                                    )
+                                }
+                                DropdownMenu(
+                                    expanded = showNoteOptionsMenu,
+                                    onDismissRequest = { showNoteOptionsMenu = false }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text(if (activeNote.pinned) "Unpin" else "Pin") },
+                                        onClick = {
+                                            showNoteOptionsMenu = false
+                                            coroutineScope.launch(Dispatchers.IO) {
+                                                notesViewModel.setNotePinned(activeNote.id, !activeNote.pinned)
+                                            }
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text("Append") },
+                                        onClick = {
+                                            showNoteOptionsMenu = false
+                                            pendingNoteDetailNavigationAction = NoteDetailNavigationAction.APPEND
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text("Delete") },
+                                        onClick = {
+                                            showNoteOptionsMenu = false
+                                            pendingNoteDetailNavigationAction = NoteDetailNavigationAction.DELETE
+                                        }
+                                    )
+                                }
+                            }
+                        }
                         if (currentRoute == Screen.Settings.route || currentRoute == Screen.Categories.route) {
                             HomeButton(navController = navController)
                         }
                         if ((currentRoute?.startsWith("note/") == true && !currentRoute.endsWith("/edit")) ||
                             currentRoute?.startsWith("notes/category/") == true ||
                             currentRoute?.startsWith("search/") == true) {
-                            HomeButton(navController = navController)
+                            HomeButton(
+                                navController = navController,
+                                onClick = if (isNoteDetailRoute) {
+                                    { pendingNoteDetailNavigationAction = NoteDetailNavigationAction.HOME }
+                                } else {
+                                    null
+                                }
+                            )
                         }
                     }
                 )
@@ -323,7 +454,8 @@ fun MainContent(
                         navController = navController,
                         noteDetailsEnabled = noteDetails,
                         highlightCoachMarks = highlightNoteActions,
-                        onboardingHighlightedDialogAction = onboardingHighlightedDialogAction
+                        welcomeNoteId = WELCOME_NOTE_ID,
+                        welcomeNoteLongPressOnboarding = welcomeNoteLongPressOnboarding
                     )
                 }
                 composable(Screen.Settings.route) {
@@ -348,22 +480,11 @@ fun MainContent(
                     NoteDetailScreen(
                         noteId = noteId,
                         notesViewModel = notesViewModel,
-                        navController = navController
-                    )
-                }
-                composable(
-                    route = Screen.NoteEdit.ROUTE,
-                    arguments = listOf(
-                        navArgument("noteId") {
-                            type = NavType.LongType
-                        }
-                    )
-                ) { backStackEntry ->
-                    val noteId = backStackEntry.arguments?.getLong("noteId") ?: 0L
-                    NoteEditScreen(
-                        noteId = noteId,
-                        notesViewModel = notesViewModel,
-                        navController = navController
+                        navController = navController,
+                        titleText = topBarTitleDraft,
+                        pendingNavigationAction = pendingNoteDetailNavigationAction,
+                        onNavigationActionConsumed = { pendingNoteDetailNavigationAction = null },
+                        onboardingSectionHighlight = noteDetailOnboardingSection
                     )
                 }
                 composable(
@@ -431,10 +552,12 @@ fun MainContent(
                 },
                 onBottomBarHighlightChange = { highlightBottomBar = it },
                 onNoteActionsHighlightChange = { highlightNoteActions = it },
+                onNoteDetailTitleHighlightChange = { highlightNoteDetailTitle = it },
                 onSearchHighlightChange = { highlightSearchButton = it },
                 onMenuHighlightChange = { highlightMenuButton = it },
                 onCategoriesHighlightChange = { highlightCategoryActions = it },
-                onNoteActionDialogHighlightChange = { onboardingHighlightedDialogAction = it },
+                onWelcomeNoteHomeLongPressOptionsChange = { welcomeNoteLongPressOnboarding = it },
+                onNoteDetailSectionHighlightChange = { noteDetailOnboardingSection = it },
                 onSettingsSectionHighlightChange = { highlightedSettingsSection = it },
                 onComplete = {
                     highlightBottomBar = false
@@ -442,7 +565,9 @@ fun MainContent(
                     highlightSearchButton = false
                     highlightMenuButton = false
                     highlightCategoryActions = false
-                    onboardingHighlightedDialogAction = null
+                    welcomeNoteLongPressOnboarding = false
+                    highlightNoteDetailTitle = false
+                    noteDetailOnboardingSection = NoteDetailCoachSection.None
                     highlightedSettingsSection = null
                     navController.navigate(Screen.Home.route) {
                         popUpTo(navController.graph.startDestinationId) { inclusive = false }
